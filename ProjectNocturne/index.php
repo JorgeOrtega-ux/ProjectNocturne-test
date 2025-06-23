@@ -53,7 +53,6 @@
     <script type="module" src="assets/js/tools/color-search-system.js"></script>
     <script type="module" src="assets/js/tools/alarm-controller.js"></script>
     <script type="module" src="assets/js/tools/menu-interactions.js"></script>
-    <script type="module" src="assets/js/tools/menu-timer-controller.js"></script>
 </body>
 
 </html>

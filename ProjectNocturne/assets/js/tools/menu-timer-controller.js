@@ -102,7 +102,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.countTo.selectedDate && i === state.countTo.selectedDate.getDate() && date.getMonth() === state.countTo.selectedDate.getMonth()) {
                 dayEl.classList.add('selected');
             }
-            dayEl.addEventListener('click', () => selectDate(i));
+            
+            // ================================================================
+            // INICIO DE LA CORRECCIÓN
+            // Se añade el evento con e.stopPropagation() para evitar que el
+            // menú principal se cierre al seleccionar una fecha.
+            // ================================================================
+            dayEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectDate(i);
+            });
+            // ================================================================
+            // FIN DE LA CORRECCIÓN
+            // ================================================================
+
             elements.daysContainer.appendChild(dayEl);
         }
     }

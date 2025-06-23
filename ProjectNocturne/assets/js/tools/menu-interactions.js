@@ -240,42 +240,48 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Listener principal de eventos
+        // ================================================================
+        // INICIO DE LA CORRECCIÓN
+        // Se ha reordenado la lógica para que verifique primero los clics
+        // en pestañas y fechas del calendario antes de buscar 'data-action'.
+        // ================================================================
         document.body.addEventListener('click', (event) => {
+            const parentMenu = event.target.closest('.menu-alarm, .menu-timer, .menu-worldClock');
+
+            // --- 1. MANEJAR CLIC EN PESTAÑAS (Tabs) ---
+            const tabTarget = event.target.closest('.menu-tab[data-tab]');
+            if (tabTarget) {
+                state.timer.currentTab = tabTarget.dataset.tab;
+                updateTimerTabView();
+                return; // Salir después de manejar el clic
+            }
+
+            // --- 2. MANEJAR CLIC EN DÍAS DEL CALENDARIO ---
+            const dayTarget = event.target.closest('.calendar-days .day');
+            if (dayTarget && dayTarget.dataset.day) {
+                if (!dayTarget.classList.contains('other-month')) {
+                    event.stopPropagation(); // Evitar que el evento cierre todo el menú
+                    selectCalendarDate(parseInt(dayTarget.dataset.day, 10));
+                }
+                return; // Salir después de manejar el clic
+            }
+
+            // --- 3. MANEJAR TODAS LAS DEMÁS ACCIONES CON 'data-action' ---
             const actionTarget = event.target.closest('[data-action]');
-            if (!actionTarget) return;
+            if (!actionTarget) return; // Si no hay acción, salir
 
             const action = actionTarget.dataset.action;
-            const parentMenu = actionTarget.closest('.menu-alarm, .menu-timer, .menu-worldClock');
 
-            // Manejar dropdowns con el nuevo sistema
+            // Manejar apertura/cierre de dropdowns
             if (dropdownMap[action]) {
                 toggleDropdown(action, parentMenu);
                 return;
             }
 
-            // Manejar tabs del timer
-            const tabTarget = event.target.closest('.menu-tab[data-tab]');
-            if (tabTarget) {
-                state.timer.currentTab = tabTarget.dataset.tab;
-                updateTimerTabView();
-                return;
-            }
-
-            // Manejar días del calendario
-            const dayTarget = event.target.closest('.calendar-days .day');
-            if (dayTarget && dayTarget.dataset.day) {
-                // Solo prevenir propagación si es un día válido (no de otros meses)
-                if (!dayTarget.classList.contains('other-month')) {
-                    event.stopPropagation(); // Evitar que el evento cierre todo el menú
-                    selectCalendarDate(parseInt(dayTarget.dataset.day, 10));
-                }
-                return;
-            }
-
+            // Si la acción no es para un dropdown, se necesita un menú padre
             if (!parentMenu) return;
 
-            // Manejar todas las otras acciones
+            // Manejar todas las otras acciones dentro del switch
             switch (action) {
                 // === ACCIONES DE ALARMA ===
                 case 'increaseHour':
@@ -295,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateAlarmDisplay(parentMenu);
                     break;
                 case 'selectAlarmSound':
-                    event.stopPropagation(); // Evitar que se cierre el menú
+                    event.stopPropagation();
                     handleSelect(actionTarget, '#alarm-selected-sound');
                     break;
 
@@ -325,29 +331,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateTimerDurationDisplay();
                     break;
                 case 'selectTimerEndAction':
-                    event.stopPropagation(); // Evitar que se cierre el menú
+                    event.stopPropagation();
                     handleSelect(actionTarget, '#timer-selected-end-action');
                     break;
                 case 'selectTimerSound':
-                    event.stopPropagation(); // Evitar que se cierre el menú
+                    event.stopPropagation();
                     handleSelect(actionTarget, '#timer-selected-sound');
                     break;
 
-                // === ACCIONES DEL CALENDARIO ===
+                // === ACCIONES DEL CALENDARIO (NAVEGACIÓN) ===
                 case 'prev-month':
-                    // NO usar stopPropagation aquí - queremos que se mantenga abierto el dropdown
                     state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() - 1);
                     renderCalendar();
                     break;
                 case 'next-month':
-                    // NO usar stopPropagation aquí - queremos que se mantenga abierto el dropdown
                     state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() + 1);
                     renderCalendar();
                     break;
                 
                 // === ACCIONES DE SELECCIÓN DE HORA ===
                 case 'selectTimerHour':
-                    event.stopPropagation(); // Evitar que se cierre el menú
+                    event.stopPropagation();
                     const hour = parseInt(actionTarget.dataset.hour, 10);
                     state.timer.countTo.selectedHour = hour;
                     updateDisplay('#selected-hour-display', String(hour).padStart(2, '0'), parentMenu);
@@ -360,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
 
                 case 'selectTimerMinute':
-                    event.stopPropagation(); // Evitar que se cierre el menú
+                    event.stopPropagation();
                     const minute = parseInt(actionTarget.dataset.minute, 10);
                     state.timer.countTo.selectedMinute = minute;
                     updateDisplay('#selected-minute-display', String(minute).padStart(2, '0'), parentMenu);
@@ -370,11 +374,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // === ACCIONES DE WORLD CLOCK ===
                 case 'selectCountry':
-                    event.stopPropagation(); // Evitar que se cierre el menú
+                    event.stopPropagation();
                     handleSelect(actionTarget, '#worldclock-selected-country');
                     break;
                 case 'selectTimezone':
-                    event.stopPropagation(); // Evitar que se cierre el menú
+                    event.stopPropagation();
                     handleSelect(actionTarget, '#worldclock-selected-timezone');
                     break;
 
@@ -396,6 +400,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
             }
         });
+        // ================================================================
+        // FIN DE LA CORRECCIÓN
+        // ================================================================
     }
 
     initialize();
