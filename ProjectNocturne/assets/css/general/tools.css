@@ -1,0 +1,192 @@
+.create-tool {
+    width: 100%;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #000000;
+    color: #ffffff;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.enter-text-tool {
+    width: 100%;
+    height: 45px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    border: 1px solid #00000020;
+    border-radius: 8px;
+}
+
+.enter-text-tool>input {
+    width: 100%;
+    height: 90%;
+    padding: 0 12px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: #000000;
+}
+
+.dark-mode .enter-text-tool>input {
+    color: #fff;
+}
+
+
+
+.dark-mode .enter-text-tool {
+    border-color: #ffffff20;
+}
+
+
+.enter-date-tool {
+    width: 100%;
+    height: 45px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #00000020;
+    border-radius: 8px;
+}
+
+.enter-date-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.enter-date-tool-left {
+    width: 45px;
+    height: 100%;
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.enter-date-tool-right {
+    width: 45px;
+    height: 100%;
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.enter-date-tool-center {
+    flex: 1 1 auto;
+}
+
+.dark-mode .enter-date-tool {
+    border-color: #ffffff20;
+}
+
+.enter-sound-wrapper {
+    width: 100%;
+    height: 45px;
+    position: relative;
+
+}
+
+.enter-date-tool-left {
+    border-top-left-radius: calc(5px + 2px);
+    border-bottom-left-radius: calc(5px + 2px);
+}
+
+.enter-date-tool-right {
+    border-top-right-radius: calc(5px + 2px);
+    border-bottom-right-radius: calc(5px + 2px);
+}
+
+.enter-date-tool-left:hover {
+    background-color: #f5f5fa;
+}
+
+.enter-date-tool-right:hover {
+    background-color: #f5f5fa;
+}
+
+.dark-mode .enter-date-tool-left:hover {
+    background-color: #ffffff20;
+}
+
+.dark-mode .enter-date-tool-right:hover {
+    background-color: #ffffff20;
+}
+
+.enter-sound-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    border: 1px solid #00000020;
+    border-radius: 8px;
+    flex-direction: row;
+}
+
+.enter-sound-content-left {
+    width: 100%;
+    height: 100%;
+    padding: 0 12px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.enter-sound-content-right {
+    width: 45px;
+    height: 100%;
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top-right-radius: calc(5px + 2px);
+    border-bottom-right-radius: calc(5px + 2px);
+    cursor: pointer;
+}
+
+.dark-mode .enter-sound-content {
+    border-color: #ffffff20;
+}
+
+.enter-sound-content-right:hover {
+    background-color: #f5f5fa;
+}
+
+.dark-mode .enter-sound-content-right:hover {
+    background-color: #ffffff20;
+}
+
+.menu-sound {
+    width: 100%;
+    height: auto;
+    position: absolute;
+    padding: 8px;
+    top: calc(100% + 5px);
+    background-color: #ffffff;
+    border: 1px solid transparent;
+    border-radius: 8px;
+}
+
+.dark-mode .menu-sound {
+    background-color: #252627;
+    border-color: #ffffff20;
+}
+
+.menu-alarm-button {
+    width: 45px;
+    height: 45px;
+    border: 1px solid #00000020;
+    border-radius: 8px;
+}
+
+.menu-alarm-button:hover {
+    background-color: #f5f5fa;
+}
+.dark-mode .menu-alarm-button {
+    border-color: #ffffff20;
+}
+.dark-mode .menu-alarm-button:hover {
+    background-color: #ffffff20;
+}
