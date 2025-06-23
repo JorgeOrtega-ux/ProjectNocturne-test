@@ -207,6 +207,7 @@
 .menu-tabs {
     display: flex;
     width: 100%;
+    gap: 8px;
     padding: 8px;
     border-bottom: 1px solid #00000020;
 }
@@ -216,7 +217,8 @@
     text-align: center;
     padding: 8px;
     cursor: pointer;
-    border-bottom: 2px solid transparent;
+    border-radius: 8px;
+    border: 1px solid transparent;
     transition: all 0.2s ease;
     font-weight: 500;
 }
@@ -226,11 +228,11 @@
 }
 
 .menu-tab.active {
-    border-bottom-color: #000000;
+    border-color: #00000020;
 }
 
 .dark-mode .menu-tabs {
-    border-bottom-color: #ffffff20;
+    border-color: #ffffff20;
 }
 
 .dark-mode .menu-tab:hover {
@@ -238,7 +240,7 @@
 }
 
 .dark-mode .menu-tab.active {
-    border-bottom-color: #ffffff;
+    border-color: #ffffff;
 }
 
 .enter-duration-grid {
