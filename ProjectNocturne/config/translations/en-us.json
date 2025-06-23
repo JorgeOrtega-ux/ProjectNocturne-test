@@ -89,7 +89,9 @@
     "no_results": "No results found for",
     "no_valid_results": "No valid results for current theme for",
     "search_error": "Could not process search",
-    "search_placeholder": "Try \"red\" or \"#f44336\""
+    "search_placeholder": "Try \"red\" or \"#f44336\"",
+    "search_alarms_placeholder": "Search alarms...",
+    "search_cities_placeholder": "Search cities or countries..."
   },
   "search_sections": {
     "brightness_dark": "Darker Variations",
@@ -127,5 +129,44 @@
     "stopwatch": "Stopwatch",
     "timer": "Timer",
     "world_clock": "World Clock"
+  },
+  "alarms": {
+    "alarm_title": "Alarm Title",
+    "my_new_alarm_placeholder": "My new alarm",
+    "alarm_settings": "Alarm Settings",
+    "alarm_sound": "Alarm Sound",
+    "create_alarm": "Create alarm"
+  },
+  "world_clock": {
+    "clock_title": "Clock Title",
+    "new_clock_placeholder": "New clock",
+    "select_country": "Select a country",
+    "select_a_country": "Select a country",
+    "select_timezone": "Select a timezone",
+    "select_a_timezone": "Select a timezone"
+  },
+  "sounds": {
+    "classic_beep": "Classic Beep",
+    "gentle_chime": "Gentle Chime",
+    "digital_alarm": "Digital Alarm",
+    "peaceful_tone": "Peaceful Tone",
+    "urgent_beep": "Urgent Beep"
+  },
+  "timer": {
+    "countdown": "Countdown",
+    "count_to_date": "Count to Date",
+    "timer_title": "Title",
+    "my_new_timer_placeholder": "My new timer",
+    "my_event_placeholder": "My special event",
+    "set_duration": "Set Duration",
+    "when_timer_ends": "When timer ends",
+    "stop_timer": "Stop timer",
+    "restart_timer": "Restart timer",
+    "start_as_stopwatch": "Start as stopwatch",
+    "select_date_time": "Select Date & Time",
+    "create_timer": "Create timer",
+    "hours": "Hours",
+    "minutes": "Minutes",
+    "seconds": "Seconds"
   }
 }

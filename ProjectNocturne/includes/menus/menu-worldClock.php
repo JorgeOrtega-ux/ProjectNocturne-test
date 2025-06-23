@@ -1,4 +1,4 @@
-<div class="menu-worldClock disabled" data-menu="WorldClock">
+<div class="menu-worldClock disabled body-title" data-menu="WorldClock">
     <div class="pill-container">
         <div class="drag-handle"></div>
     </div>
@@ -9,112 +9,79 @@
                     <span class="material-symbols-rounded">search</span>
                 </div>
                 <div class="search-content-text">
-                    <input type="text" class="body-title" autocomplete="off">
+                    <input type="text" class="body-title" autocomplete="off" data-translate="search_cities_placeholder" data-translate-category="search" data-translate-target="placeholder">
                 </div>
             </div>
         </div>
-        <div class="menu-section-center">
-            <div class="menu-content-wrapper active">
-                <div class="menu-content">
-                    <div class="menu-content-header">
-                        <div class="menu-content-header-primary">
-                            <span class="material-symbols-rounded">tag</span>
-                            <span>Titulo</span>
-                        </div>
-                    </div>
-                    <div class="menu-content-general">
-                        <div class="enter-text-tool">
-                            <input type="text" id="clock-title" placeholder="Nuevo reloj">
-                        </div>
-                    </div>
-                </div>
-                <div class="menu-content">
-                    <div class="menu-content-header">
-                        <div class="menu-content-header-primary">
-                            <span class="material-symbols-rounded">tag</span>
-                            <span>Selecciona un pais</span>
-                        </div>
-                    </div>
-                    <div class="menu-content-general">
-                        <div class="enter-sound-wrapper">
-                            <div class="enter-sound-content" data-action="toggleSoundMenu">
-                                <div class="enter-sound-content-left">
-                                    <span id="selected-sound">Seleccionar un pais</span>
-                                </div>
-                                <div class="enter-sound-content-right">
-                                    <span class="material-symbols-rounded">expand_more</span>
-                                </div>
+        <div class="menu-content-scrolleable overflow-y">
+            <div class="menu-section-center">
+                <div class="menu-content-wrapper active">
+                    <div class="menu-content">
+                        <div class="menu-content-header">
+                            <div class="menu-content-header-primary">
+                                <span class="material-symbols-rounded">label</span>
+                                <span data-translate="clock_title" data-translate-category="world_clock">Título del Reloj</span>
                             </div>
-                            <div class="menu-sound disabled" data-menu="countryMenu">
-                                <div class="menu-list">
-                                    <div class="menu-link">
-                                        <div class="menu-link-icon">
-                                            <span class="material-symbols-rounded"></span>
-                                        </div>
-                                        <div class="menu-link-text">
-                                            <span>pais 1</span>
-                                        </div>
+                        </div>
+                        <div class="menu-content-general">
+                            <div class="enter-text-tool">
+                                <input type="text" id="worldclock-title" data-translate="new_clock_placeholder" data-translate-category="world_clock" data-translate-target="placeholder">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="menu-content">
+                        <div class="menu-content-header">
+                            <div class="menu-content-header-primary">
+                                <span class="material-symbols-rounded">public</span>
+                                <span data-translate="select_country" data-translate-category="world_clock">Selecciona un país</span>
+                            </div>
+                        </div>
+                        <div class="menu-content-general">
+                            <div class="enter-sound-wrapper">
+                                <div class="enter-sound-content" data-action="toggleCountryMenu">
+                                    <div class="enter-sound-content-left">
+                                        <span id="worldclock-selected-country" data-translate="select_a_country" data-translate-category="world_clock">Seleccionar un país</span>
                                     </div>
-                                    <div class="menu-link">
-                                        <div class="menu-link-icon">
-                                            <span class="material-symbols-rounded"></span>
-                                        </div>
-                                        <div class="menu-link-text">
-                                            <span>pais 2</span>
-                                        </div>
+                                    <div class="enter-sound-content-right">
+                                        <span class="material-symbols-rounded">expand_more</span>
                                     </div>
+                                </div>
+                                <div class="dropdown-menu-container menu-worldclock-country disabled" data-menu="worldClockCountryMenu">
+                                    <div class="menu-list"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="menu-content">
-                    <div class="menu-content-header">
-                        <div class="menu-content-header-primary">
-                            <span class="material-symbols-rounded">tag</span>
-                            <span>Selecciona una zona horaria</span>
-                        </div>
-                    </div>
-                    <div class="menu-content-general">
-                        <div class="enter-sound-wrapper">
-                            <div class="enter-sound-content" data-action="toggleSoundMenu">
-                                <div class="enter-sound-content-left">
-                                    <span id="selected-sound">Seleccionar un zona horaria</span>
-                                </div>
-                                <div class="enter-sound-content-right">
-                                    <span class="material-symbols-rounded">expand_more</span>
-                                </div>
+                    <div class="menu-content">
+                        <div class="menu-content-header">
+                            <div class="menu-content-header-primary">
+                                <span class="material-symbols-rounded">schedule</span>
+                                <span data-translate="select_timezone" data-translate-category="world_clock">Selecciona una zona horaria</span>
                             </div>
-                            <div class="menu-sound disabled" data-menu="countryMenu">
-                                <div class="menu-list">
-                                    <div class="menu-link">
-                                        <div class="menu-link-icon">
-                                            <span class="material-symbols-rounded"></span>
-                                        </div>
-                                        <div class="menu-link-text">
-                                            <span>zona 1</span>
-                                        </div>
+                        </div>
+                        <div class="menu-content-general">
+                            <div class="enter-sound-wrapper">
+                                <div class="enter-sound-content" data-action="toggleTimezoneMenu">
+                                    <div class="enter-sound-content-left">
+                                        <span id="worldclock-selected-timezone" data-translate="select_a_timezone" data-translate-category="world_clock">Seleccionar zona horaria</span>
                                     </div>
-                                    <div class="menu-link">
-                                        <div class="menu-link-icon">
-                                            <span class="material-symbols-rounded"></span>
-                                        </div>
-                                        <div class="menu-link-text">
-                                            <span>zona 2</span>
-                                        </div>
+                                    <div class="enter-sound-content-right">
+                                        <span class="material-symbols-rounded">expand_more</span>
                                     </div>
+                                </div>
+                                <div class="dropdown-menu-container menu-worldclock-timezone disabled" data-menu="worldClockTimezoneMenu">
+                                    <div class="menu-list"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-
-    </div>
-    <div class="menu-section-bottom">
-        <div class="create-tool" data-action="addClock">
-            <span>Agregar reloj</span>
+            <div class="menu-section-bottom">
+                <div class="create-tool" data-action="addWorldClock">
+                    <span data-translate="add_clock" data-translate-category="tooltips">Agregar reloj</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>

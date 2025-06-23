@@ -89,7 +89,9 @@
     "no_results": "No se encontraron resultados para",
     "no_valid_results": "No se encontraron resultados válidos para el tema actual para",
     "search_error": "No se pudo procesar la búsqueda",
-    "search_placeholder": "Prueba con \"rojo\" o \"#f44336\""
+    "search_placeholder": "Prueba con \"rojo\" o \"#f44336\"",
+    "search_alarms_placeholder": "Buscar alarmas...",
+    "search_cities_placeholder": "Buscar ciudades o países..."
   },
   "search_sections": {
     "brightness_dark": "Variaciones Más Oscuras",
@@ -127,5 +129,44 @@
     "stopwatch": "Cronómetro",
     "timer": "Temporizador",
     "world_clock": "Reloj Mundial"
+  },
+  "alarms": {
+    "alarm_title": "Título de la alarma",
+    "my_new_alarm_placeholder": "Mi nueva alarma",
+    "alarm_settings": "Configuración de la alarma",
+    "alarm_sound": "Sonido de la alarma",
+    "create_alarm": "Crear alarma"
+  },
+  "world_clock": {
+    "clock_title": "Título del Reloj",
+    "new_clock_placeholder": "Nuevo reloj",
+    "select_country": "Selecciona un país",
+    "select_a_country": "Seleccionar un país",
+    "select_timezone": "Selecciona una zona horaria",
+    "select_a_timezone": "Seleccionar una zona horaria"
+  },
+  "sounds": {
+    "classic_beep": "Beep Clásico",
+    "gentle_chime": "Campanita Suave",
+    "digital_alarm": "Alarma Digital",
+    "peaceful_tone": "Tono Relajante",
+    "urgent_beep": "Beep Urgente"
+  },
+  "timer": {
+    "countdown": "Cuenta atrás",
+    "count_to_date": "Contar hasta fecha",
+    "timer_title": "Título",
+    "my_new_timer_placeholder": "Mi nuevo temporizador",
+    "my_event_placeholder": "Mi evento especial",
+    "set_duration": "Establecer Duración",
+    "when_timer_ends": "Cuando el temporizador termine",
+    "stop_timer": "Parar temporizador",
+    "restart_timer": "Reiniciar temporizador",
+    "start_as_stopwatch": "Iniciar como cronómetro",
+    "select_date_time": "Seleccionar Fecha y Hora",
+    "create_timer": "Crear temporizador",
+    "hours": "Horas",
+    "minutes": "Minutos",
+    "seconds": "Segundos"
   }
 }

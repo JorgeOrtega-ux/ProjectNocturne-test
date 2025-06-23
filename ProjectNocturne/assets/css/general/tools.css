@@ -1,3 +1,15 @@
+/* ====================================== */
+/* ========= ESTILOS GENERALES ========== */
+/* (De styles.css y dark-mode.css)      */
+/* ====================================== */
+
+/* ... (Aquí irían todos tus estilos generales de styles.css y dark-mode.css) ... */
+
+/* ====================================== */
+/* ====== ESTILOS DE HERRAMIENTAS ======= */
+/* (De tools.css - Unificado y Refactorizado) */
+/* ====================================== */
+
 .create-tool {
     width: 100%;
     height: 45px;
@@ -8,6 +20,7 @@
     color: #ffffff;
     border-radius: 8px;
     cursor: pointer;
+    user-select: none;
 }
 
 .enter-text-tool {
@@ -20,7 +33,7 @@
     border-radius: 8px;
 }
 
-.enter-text-tool>input {
+.enter-text-tool > input {
     width: 100%;
     height: 90%;
     padding: 0 12px;
@@ -30,16 +43,12 @@
     color: #000000;
 }
 
-.dark-mode .enter-text-tool>input {
-    color: #fff;
+.enter-date-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
 }
-
-
-
-.dark-mode .enter-text-tool {
-    border-color: #ffffff20;
-}
-
 
 .enter-date-tool {
     width: 100%;
@@ -49,25 +58,10 @@
     align-items: center;
     border: 1px solid #00000020;
     border-radius: 8px;
+    overflow: hidden;
 }
 
-.enter-date-content {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 8px;
-}
-
-.enter-date-tool-left {
-    width: 45px;
-    height: 100%;
-    flex: 0 0 auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-}
-
+.enter-date-tool-left,
 .enter-date-tool-right {
     width: 45px;
     height: 100%;
@@ -76,14 +70,17 @@
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 .enter-date-tool-center {
     flex: 1 1 auto;
+    text-align: center;
 }
 
-.dark-mode .enter-date-tool {
-    border-color: #ffffff20;
+.enter-date-tool-left:hover,
+.enter-date-tool-right:hover {
+    background-color: #f5f5fa;
 }
 
 .enter-sound-wrapper {
@@ -93,33 +90,6 @@
     flex-direction: row;
     gap: 8px;
     position: relative;
-
-}
-
-.enter-date-tool-left {
-    border-top-left-radius: calc(5px + 2px);
-    border-bottom-left-radius: calc(5px + 2px);
-}
-
-.enter-date-tool-right {
-    border-top-right-radius: calc(5px + 2px);
-    border-bottom-right-radius: calc(5px + 2px);
-}
-
-.enter-date-tool-left:hover {
-    background-color: #f5f5fa;
-}
-
-.enter-date-tool-right:hover {
-    background-color: #f5f5fa;
-}
-
-.dark-mode .enter-date-tool-left:hover {
-    background-color: #ffffff20;
-}
-
-.dark-mode .enter-date-tool-right:hover {
-    background-color: #ffffff20;
 }
 
 .enter-sound-content {
@@ -129,6 +99,12 @@
     border: 1px solid #00000020;
     border-radius: 8px;
     flex-direction: row;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.enter-sound-content:hover {
+    background-color: #f5f5fa;
 }
 
 .enter-sound-content-left {
@@ -138,6 +114,13 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.enter-sound-content-left > span {
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .enter-sound-content-right {
@@ -147,40 +130,29 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border-top-right-radius: calc(5px + 2px);
-    border-bottom-right-radius: calc(5px + 2px);
-    cursor: pointer;
 }
 
-.dark-mode .enter-sound-content {
-    border-color: #ffffff20;
-}
-
-.enter-sound-content-right:hover {
-    background-color: #f5f5fa;
-}
-
-.dark-mode .enter-sound-content-right:hover {
-    background-color: #ffffff20;
-}
-
-.menu-sound {
+/* Contenedor genérico para menús desplegables */
+.dropdown-menu-container {
     width: 100%;
     height: auto;
     position: absolute;
     padding: 8px;
     top: calc(100% + 5px);
     background-color: #ffffff;
-    border: 1px solid transparent;
-    border-radius: 8px;
+    border: 1px solid #00000020;
+    border-radius: 12px;
+    z-index: 10;
+    filter: drop-shadow(0 4px 12px #00000020);
+    max-height: 250px; /* Altura máxima para permitir scroll */
+    overflow-y: auto;
 }
 
-.dark-mode .menu-sound {
-    background-color: #252627;
-    border-color: #ffffff20;
+.dropdown-menu-container.disabled {
+    display: none;
 }
 
-.menu-alarm-button {
+.menu-action-button {
     width: 45px;
     display: flex;
     justify-content: center;
@@ -190,14 +162,203 @@
     border: 1px solid #00000020;
     border-radius: 8px;
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
-.menu-alarm-button:hover {
+.menu-action-button:hover {
     background-color: #f5f5fa;
 }
-.dark-mode .menu-alarm-button {
+
+
+/* ====================================== */
+/* =========== DARK MODE ================ */
+/* ====================================== */
+
+.dark-mode .create-tool {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.dark-mode .enter-text-tool,
+.dark-mode .enter-date-tool,
+.dark-mode .enter-sound-content,
+.dark-mode .menu-action-button {
     border-color: #ffffff20;
 }
-.dark-mode .menu-alarm-button:hover {
+
+.dark-mode .enter-text-tool > input {
+    color: #fff;
+}
+
+.dark-mode .enter-date-tool-left:hover,
+.dark-mode .enter-date-tool-right:hover,
+.dark-mode .enter-sound-content:hover,
+.dark-mode .menu-action-button:hover {
     background-color: #ffffff20;
+}
+
+.dark-mode .dropdown-menu-container {
+    background-color: #252627;
+    border-color: #ffffff20;
+    filter: unset;
+}/* ====================================== */
+/* ========= ESTILOS MENU TIMER ========= */
+/* ====================================== */
+.menu-tabs {
+    display: flex;
+    width: 100%;
+    padding: 8px;
+    border-bottom: 1px solid #00000020;
+}
+
+.menu-tab {
+    flex: 1;
+    text-align: center;
+    padding: 8px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.menu-tab:hover {
+    background-color: #f5f5fa;
+}
+
+.menu-tab.active {
+    border-bottom-color: #000000;
+}
+
+.dark-mode .menu-tabs {
+    border-bottom-color: #ffffff20;
+}
+
+.dark-mode .menu-tab:hover {
+    background-color: #ffffff20;
+}
+
+.dark-mode .menu-tab.active {
+    border-bottom-color: #ffffff;
+}
+
+.enter-duration-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    width: 100%;
+}
+
+.enter-duration-grid .enter-date-tool {
+    flex-direction: column;
+    height: auto;
+    padding: 8px 0;
+}
+
+.enter-duration-grid .enter-date-tool-center {
+    font-size: 1.2rem;
+    padding: 8px 0;
+}
+
+/* Calendario */
+.date-time-selector {
+    position: relative;
+    width: 100%;
+    height: 45px;
+}
+.date-time-content {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.calendar-container, .time-selector-container {
+    position: absolute;
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #00000020;
+    border-radius: 8px;
+    padding: 8px;
+    top: calc(100% + 5px);
+    z-index: 11;
+    filter: drop-shadow(0 4px 12px #00000020);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.calendar-nav {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+.calendar-nav:hover { background-color: #f5f5fa; }
+
+.calendar-weekdays, .calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+}
+
+.calendar-weekdays {
+    font-size: 0.8rem;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.calendar-days .day {
+    padding: 6px 0;
+    cursor: pointer;
+    border-radius: 50%;
+}
+.calendar-days .day:not(.other-month):hover { background-color: #f5f5fa; }
+.calendar-days .day.other-month { color: #ccc; }
+.calendar-days .day.selected { background-color: #000; color: #fff; }
+.calendar-days .day.today { font-weight: bold; border: 1px solid #00000080; }
+
+/* Selector de Hora */
+.time-selector-container {
+   
+    height: 250px;
+}
+.time-selector-hours, .time-selector-minutes {
+    flex: 1;
+    flex-direction: column;
+}
+.time-selector-hours .hour-item, .time-selector-minutes .minute-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+.time-selector-hours .hour-item:hover, .time-selector-minutes .minute-item:hover { background-color: #f5f5fa; }
+.time-selector-hours .hour-item.selected { background-color: #e0e0e0; }
+
+/* Dark Mode para nuevos componentes */
+.dark-mode .calendar-container, .dark-mode .time-selector-container { background-color: #252627; border-color: #ffffff20; }
+.dark-mode .calendar-nav:hover { background-color: #ffffff20; }
+.dark-mode .calendar-days .day:not(.other-month):hover { background-color: #ffffff20; }
+.dark-mode .calendar-days .day.other-month { color: #555; }
+.dark-mode .calendar-days .day.selected { background-color: #fff; color: #000; }
+.dark-mode .calendar-days .day.today { border-color: #ffffff80; }
+.dark-mode .time-selector-hours .hour-item:hover, .dark-mode .time-selector-minutes .minute-item:hover { background-color: #ffffff20; }
+.dark-mode .time-selector-hours .hour-item.selected { background-color: #ffffff40; }/* Estilo para las etiquetas de los selectores de duración */
+.duration-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-top: 8px;
+    margin-bottom: 2px;
+    text-align: left;
+    opacity: 0.7;
+}
+
+/* El primer label no necesita margen superior */
+.duration-label:first-of-type {
+    margin-top: 0;
 }

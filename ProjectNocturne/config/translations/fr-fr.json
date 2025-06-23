@@ -89,7 +89,9 @@
     "no_results": "Aucun résultat trouvé pour",
     "no_valid_results": "Aucun résultat valide pour le thème actuel pour",
     "search_error": "Impossible de traiter la recherche",
-    "search_placeholder": "Essayez \"rouge\" ou \"#f44336\""
+    "search_placeholder": "Essayez \"rouge\" ou \"#f44336\"",
+    "search_alarms_placeholder": "Rechercher des alarmes...",
+    "search_cities_placeholder": "Rechercher des villes ou des pays..."
   },
   "search_sections": {
     "brightness_dark": "Variations Plus Foncées",
@@ -104,7 +106,7 @@
     "tones": "Tons (+ Gris)"
   },
   "tooltips": {
-    "add": "Augmente la taille de la police",
+    "add": "Augmenter la taille de la police",
     "add_alarm": "Ajouter une Alarme",
     "add_clock": "Ajouter une Horloge",
     "alarms": "Alarme",
@@ -119,13 +121,52 @@
     "linear_gradient_90deg": "Dégradé linéaire 90°",
     "menu": "Menu",
     "pause": "Pause",
-    "play": "Commencer",
-    "remove": "Réduit la taille de la police",
+    "play": "Démarrer",
+    "remove": "Réduire la taille de la police",
     "reset": "Réinitialiser",
     "settings": "Paramètres",
     "stop": "Arrêter",
     "stopwatch": "Chronomètre",
     "timer": "Minuterie",
     "world_clock": "Horloge Mondiale"
+  },
+  "alarms": {
+    "alarm_title": "Titre de l'alarme",
+    "my_new_alarm_placeholder": "Ma nouvelle alarme",
+    "alarm_settings": "Paramètres de l'alarme",
+    "alarm_sound": "Son de l'alarme",
+    "create_alarm": "Créer une alarme"
+  },
+  "world_clock": {
+    "clock_title": "Titre de l'horloge",
+    "new_clock_placeholder": "Nouvelle horloge",
+    "select_country": "Sélectionnez un pays",
+    "select_a_country": "Sélectionnez un pays",
+    "select_timezone": "Sélectionnez un fuseau horaire",
+    "select_a_timezone": "Sélectionnez un fuseau horaire"
+  },
+  "sounds": {
+    "classic_beep": "Bip Classique",
+    "gentle_chime": "Carillon Doux",
+    "digital_alarm": "Alarme Numérique",
+    "peaceful_tone": "Tonalité Paisible",
+    "urgent_beep": "Bip Urgent"
+  },
+  "timer": {
+    "countdown": "Compte à rebours",
+    "count_to_date": "Compter jusqu'à la date",
+    "timer_title": "Titre",
+    "my_new_timer_placeholder": "Mon nouveau minuteur",
+    "my_event_placeholder": "Mon événement spécial",
+    "set_duration": "Définir la durée",
+    "when_timer_ends": "Lorsque le minuteur se termine",
+    "stop_timer": "Arrêter le minuteur",
+    "restart_timer": "Redémarrer le minuteur",
+    "start_as_stopwatch": "Démarrer en chronomètre",
+    "select_date_time": "Sélectionner Date et Heure",
+    "create_timer": "Créer un minuteur",
+    "hours": "Heures",
+    "minutes": "Minutes",
+    "seconds": "Secondes"
   }
 }
