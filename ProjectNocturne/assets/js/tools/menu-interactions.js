@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedDate: null,
                 selectedHour: null,
                 selectedMinute: null,
+                timeSelectionStep: 'hour' // 'hour' o 'minute'
             }
         },
         worldClock: {}
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             element.textContent = text;
         }
     };
-    
+
     const handleSelect = (selectedItem, displaySelector) => {
         const parentMenu = selectedItem.closest('.menu-alarm, .menu-timer, .menu-worldClock');
         if (!parentMenu) return;
@@ -51,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dropdownMenu.classList.add('disabled');
         }
     };
-    
+
     // ===============================================
     // LÓGICA ESPECÍFICA DE LOS MENÚS
     // ===============================================
@@ -87,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             activeContent.classList.add('active');
         }
     };
-    
+
     const renderCalendar = () => {
         if (!timerMenu) return;
         const monthYearDisplay = timerMenu.querySelector('#calendar-month-year');
@@ -95,7 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!monthYearDisplay || !daysContainer) return;
 
         const date = state.timer.countTo.date;
-        monthYearDisplay.textContent = date.toLocaleDateString(navigator.language, { month: 'long', year: 'numeric' });
+        monthYearDisplay.textContent = date.toLocaleDateString(navigator.language, {
+            month: 'long',
+            year: 'numeric'
+        });
 
         daysContainer.innerHTML = '';
         const firstDayIndex = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
@@ -121,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
             daysContainer.appendChild(dayEl);
         }
     };
-    
+
     const selectCalendarDate = (day) => {
         state.timer.countTo.selectedDate = new Date(state.timer.countTo.date.getFullYear(), state.timer.countTo.date.getMonth(), day);
         updateDisplay('#selected-date-display', state.timer.countTo.selectedDate.toLocaleDateString(), timerMenu);
@@ -129,38 +133,53 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCalendar();
     };
 
-    const populateTimerHourMenu = () => {
+    const populateHourSelectionMenu = () => {
         if (!timerMenu) return;
-        const hourMenu = timerMenu.querySelector('.menu-timer-hour .menu-list');
+        const hourMenu = timerMenu.querySelector('.menu-timer-hour-selection .menu-list');
         if (!hourMenu || hourMenu.children.length > 0) return;
 
         for (let i = 0; i < 24; i++) {
-            for (let j = 0; j < 60; j += 15) {
-                const hour = String(i).padStart(2, '0');
-                const minute = String(j).padStart(2, '0');
-                const link = document.createElement('div');
-                link.className = 'menu-link';
-                link.setAttribute('data-action', 'selectTimerTime');
-                link.setAttribute('data-hour', i);
-                link.setAttribute('data-minute', j);
-                link.innerHTML = `<div class="menu-link-text"><span>${hour}:${minute}</span></div>`;
-                hourMenu.appendChild(link);
-            }
+            const hour = String(i).padStart(2, '0');
+            const link = document.createElement('div');
+            link.className = 'menu-link';
+            link.setAttribute('data-action', 'selectTimerHour');
+            link.setAttribute('data-hour', i);
+            link.innerHTML = `<div class="menu-link-text"><span>${hour}:00</span></div>`;
+            hourMenu.appendChild(link);
+        }
+    };
+
+    const populateMinuteSelectionMenu = (hour) => {
+        if (!timerMenu) return;
+        const minuteMenu = timerMenu.querySelector('.menu-timer-minute-selection .menu-list');
+        if (!minuteMenu) return;
+
+        minuteMenu.innerHTML = ''; // Limpiar minutos anteriores
+
+        for (let j = 0; j < 60; j += 5) {
+            const hourStr = String(hour).padStart(2, '0');
+            const minuteStr = String(j).padStart(2, '0');
+            const link = document.createElement('div');
+            link.className = 'menu-link';
+            link.setAttribute('data-action', 'selectTimerMinute');
+            link.setAttribute('data-hour', hour);
+            link.setAttribute('data-minute', j);
+            link.innerHTML = `<div class="menu-link-text"><span>${hourStr}:${minuteStr}</span></div>`;
+            minuteMenu.appendChild(link);
         }
     };
 
     // ===============================================
     // INICIALIZACIÓN Y MANEJO DE EVENTOS
     // ===============================================
-    
+
     function initialize() {
         if (timerMenu) {
             updateTimerDurationDisplay();
             renderCalendar();
-            populateTimerHourMenu();
+            populateHourSelectionMenu();
         }
 
-        // --- LISTENER PARA CERRAR DROPDOWNS AL HACER CLIC FUERA ---
         document.addEventListener('click', (event) => {
             const isClickInsideDropdown = event.target.closest('.dropdown-menu-container');
             const isClickOnToggle = event.target.closest('[data-action="toggleDropdown"]');
@@ -170,15 +189,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // --- LISTENER PRINCIPAL PARA TODAS LAS ACCIONES ---
         document.body.addEventListener('click', (event) => {
             const actionTarget = event.target.closest('[data-action]');
             if (!actionTarget) return;
 
             const action = actionTarget.dataset.action;
             const parentMenu = actionTarget.closest('.menu-alarm, .menu-timer, .menu-worldClock');
-            
-            // --- MANEJO CENTRALIZADO Y ROBUSTO PARA DROPDOWNS ---
+
             if (action === 'toggleDropdown') {
                 if (!parentMenu) return;
 
@@ -189,16 +206,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!targetDropdown) return;
 
                 const isCurrentlyOpen = !targetDropdown.classList.contains('disabled');
-
                 document.querySelectorAll('.dropdown-menu-container').forEach(d => d.classList.add('disabled'));
+
+                if (targetDropdown.classList.contains('menu-timer-hour-selection')) {
+                    state.timer.countTo.timeSelectionStep = 'hour';
+                    updateDisplay('#selected-hour-display', '--', parentMenu);
+                    updateDisplay('#selected-minute-display', '--', parentMenu);
+                }
                 
                 if (!isCurrentlyOpen) {
                     targetDropdown.classList.remove('disabled');
                 }
-                return; 
+                return;
             }
-            
-            // --- MANEJO DEL RESTO DE ACCIONES ---
+
             const tabTarget = event.target.closest('.menu-tab[data-tab]');
             if (tabTarget) {
                 state.timer.currentTab = tabTarget.dataset.tab;
@@ -213,36 +234,94 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (!parentMenu) return;
-            
-            // --- ROUTER DE ACCIONES ESPECÍFICAS ---
+
             switch (action) {
-                case 'increaseHour':   state.alarm.hour = (state.alarm.hour + 1) % 24; updateAlarmDisplay(parentMenu); break;
-                case 'decreaseHour':   state.alarm.hour = (state.alarm.hour - 1 + 24) % 24; updateAlarmDisplay(parentMenu); break;
-                case 'increaseMinute': state.alarm.minute = (state.alarm.minute + 1) % 60; updateAlarmDisplay(parentMenu); break;
-                case 'decreaseMinute': state.alarm.minute = (state.alarm.minute - 1 + 60) % 60; updateAlarmDisplay(parentMenu); break;
-                case 'selectAlarmSound':     handleSelect(actionTarget, '#alarm-selected-sound'); break;
+                case 'increaseHour':
+                    state.alarm.hour = (state.alarm.hour + 1) % 24;
+                    updateAlarmDisplay(parentMenu);
+                    break;
+                case 'decreaseHour':
+                    state.alarm.hour = (state.alarm.hour - 1 + 24) % 24;
+                    updateAlarmDisplay(parentMenu);
+                    break;
+                case 'increaseMinute':
+                    state.alarm.minute = (state.alarm.minute + 1) % 60;
+                    updateAlarmDisplay(parentMenu);
+                    break;
+                case 'decreaseMinute':
+                    state.alarm.minute = (state.alarm.minute - 1 + 60) % 60;
+                    updateAlarmDisplay(parentMenu);
+                    break;
+                case 'selectAlarmSound':
+                    handleSelect(actionTarget, '#alarm-selected-sound');
+                    break;
 
-                case 'increaseTimerHour':   state.timer.duration.hours = (state.timer.duration.hours + 1) % 100; updateTimerDurationDisplay(); break;
-                case 'decreaseTimerHour':   state.timer.duration.hours = (state.timer.duration.hours - 1 + 100) % 100; updateTimerDurationDisplay(); break;
-                case 'increaseTimerMinute': state.timer.duration.minutes = (state.timer.duration.minutes + 1) % 60; updateTimerDurationDisplay(); break;
-                case 'decreaseTimerMinute': state.timer.duration.minutes = (state.timer.duration.minutes - 1 + 60) % 60; updateTimerDurationDisplay(); break;
-                case 'increaseTimerSecond': state.timer.duration.seconds = (state.timer.duration.seconds + 1) % 60; updateTimerDurationDisplay(); break;
-                case 'decreaseTimerSecond': state.timer.duration.seconds = (state.timer.duration.seconds - 1 + 60) % 60; updateTimerDurationDisplay(); break;
-                case 'selectTimerEndAction': handleSelect(actionTarget, '#timer-selected-end-action'); break;
-                case 'selectTimerSound':     handleSelect(actionTarget, '#timer-selected-sound'); break;
+                case 'increaseTimerHour':
+                    state.timer.duration.hours = (state.timer.duration.hours + 1) % 100;
+                    updateTimerDurationDisplay();
+                    break;
+                case 'decreaseTimerHour':
+                    state.timer.duration.hours = (state.timer.duration.hours - 1 + 100) % 100;
+                    updateTimerDurationDisplay();
+                    break;
+                case 'increaseTimerMinute':
+                    state.timer.duration.minutes = (state.timer.duration.minutes + 1) % 60;
+                    updateTimerDurationDisplay();
+                    break;
+                case 'decreaseTimerMinute':
+                    state.timer.duration.minutes = (state.timer.duration.minutes - 1 + 60) % 60;
+                    updateTimerDurationDisplay();
+                    break;
+                case 'increaseTimerSecond':
+                    state.timer.duration.seconds = (state.timer.duration.seconds + 1) % 60;
+                    updateTimerDurationDisplay();
+                    break;
+                case 'decreaseTimerSecond':
+                    state.timer.duration.seconds = (state.timer.duration.seconds - 1 + 60) % 60;
+                    updateTimerDurationDisplay();
+                    break;
+                case 'selectTimerEndAction':
+                    handleSelect(actionTarget, '#timer-selected-end-action');
+                    break;
+                case 'selectTimerSound':
+                    handleSelect(actionTarget, '#timer-selected-sound');
+                    break;
 
-                case 'prev-month':          state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() - 1); renderCalendar(); break;
-                case 'next-month':          state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() + 1); renderCalendar(); break;
-                case 'selectTimerTime':
-                    state.timer.countTo.selectedHour = actionTarget.dataset.hour;
-                    state.timer.countTo.selectedMinute = actionTarget.dataset.minute;
-                    updateDisplay('#selected-hour-display', String(state.timer.countTo.selectedHour).padStart(2, '0'), parentMenu);
-                    updateDisplay('#selected-minute-display', String(state.timer.countTo.selectedMinute).padStart(2, '0'), parentMenu);
-                    actionTarget.closest('.dropdown-menu-container')?.classList.add('disabled');
+                case 'prev-month':
+                    state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() - 1);
+                    renderCalendar();
+                    break;
+                case 'next-month':
+                    state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() + 1);
+                    renderCalendar();
                     break;
                 
-                case 'selectCountry':      handleSelect(actionTarget, '#worldclock-selected-country'); break;
-                case 'selectTimezone':     handleSelect(actionTarget, '#worldclock-selected-timezone'); break;
+                case 'selectTimerHour':
+                    const hour = parseInt(actionTarget.dataset.hour, 10);
+                    state.timer.countTo.selectedHour = hour;
+                    updateDisplay('#selected-hour-display', String(hour).padStart(2, '0'), parentMenu);
+                    updateDisplay('#selected-minute-display', '--', parentMenu);
+                    actionTarget.closest('.dropdown-menu-container')?.classList.add('disabled');
+                    populateMinuteSelectionMenu(hour);
+                    const minuteMenu = parentMenu.querySelector('.menu-timer-minute-selection');
+                    if (minuteMenu) minuteMenu.classList.remove('disabled');
+                    state.timer.countTo.timeSelectionStep = 'minute';
+                    break;
+
+                case 'selectTimerMinute':
+                    const minute = parseInt(actionTarget.dataset.minute, 10);
+                    state.timer.countTo.selectedMinute = minute;
+                    updateDisplay('#selected-minute-display', String(minute).padStart(2, '0'), parentMenu);
+                    actionTarget.closest('.dropdown-menu-container')?.classList.add('disabled');
+                    state.timer.countTo.timeSelectionStep = 'hour';
+                    break;
+
+                case 'selectCountry':
+                    handleSelect(actionTarget, '#worldclock-selected-country');
+                    break;
+                case 'selectTimezone':
+                    handleSelect(actionTarget, '#worldclock-selected-timezone');
+                    break;
             }
         });
     }

@@ -150,14 +150,20 @@
                                     </div>
                                 </div>
 
-
                                 <div class="date-time-selector">
-                                    <div class="enter-sound-content" data-action="toggleDropdown" data-target-menu=".menu-timer-hour">
+                                    <div class="enter-sound-content" data-action="toggleDropdown" data-target-menu=".menu-timer-hour-selection">
                                         <div class="enter-sound-content-left"><span id="selected-hour-display">--</span> : <span id="selected-minute-display">--</span></div>
                                         <div class="enter-sound-content-right"><span class="material-symbols-rounded">schedule</span></div>
                                     </div>
-                                    <div class="dropdown-menu-container menu-timer-hour disabled" data-menu="timerHourMenu">
-                                        <div class="menu-list"></div>
+                                    
+                                    <div class="dropdown-menu-container menu-timer-hour-selection disabled" data-menu="timerHourMenu">
+                                        <div class="menu-list" data-list-type="hours">
+                                            </div>
+                                    </div>
+
+                                    <div class="dropdown-menu-container menu-timer-minute-selection disabled" data-menu="timerMinuteMenu">
+                                        <div class="menu-list" data-list-type="minutes">
+                                            </div>
                                     </div>
                                 </div>
                             </div>
