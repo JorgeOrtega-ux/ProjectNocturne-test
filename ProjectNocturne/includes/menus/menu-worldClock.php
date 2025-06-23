@@ -38,7 +38,7 @@
                         </div>
                         <div class="menu-content-general">
                             <div class="enter-sound-wrapper">
-                             <div class="enter-sound-content" data-action="toggleDropdown" data-target-menu=".menu-worldclock-country">
+                             <div class="enter-sound-content" data-action="toggleCountryDropdown">
                                     <div class="enter-sound-content-left">
                                         <span id="worldclock-selected-country" data-translate="select_a_country" data-translate-category="world_clock">Seleccionar un país</span>
                                     </div>
@@ -61,7 +61,7 @@
                         </div>
                         <div class="menu-content-general">
                             <div class="enter-sound-wrapper">
-                                <div class="enter-sound-content" data-action="toggleDropdown" data-target-menu=".menu-worldclock-timezone">
+                                <div class="enter-sound-content" data-action="toggleTimezoneDropdown">
                                     <div class="enter-sound-content-left">
                                         <span id="worldclock-selected-timezone" data-translate="select_a_timezone" data-translate-category="world_clock">Seleccionar zona horaria</span>
                                     </div>

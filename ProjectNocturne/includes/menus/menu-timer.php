@@ -52,7 +52,7 @@
                         </div>
                         <div class="menu-content-general">
                             <div class="enter-sound-wrapper">
-                                <div class="enter-sound-content" data-action="toggleDropdown" data-target-menu=".menu-timer-end-action">
+                                <div class="enter-sound-content" data-action="toggleTimerEndActionDropdown">
                                     <div class="enter-sound-content-left"><span id="timer-selected-end-action" data-translate="stop_timer" data-translate-category="timer">Parar temporizador</span></div>
                                     <div class="enter-sound-content-right"><span class="material-symbols-rounded">expand_more</span></div>
                                 </div>
@@ -81,7 +81,7 @@
                         </div>
                         <div class="menu-content-general">
                             <div class="enter-sound-wrapper">
-                                <div class="enter-sound-content" data-action="toggleDropdown" data-target-menu=".menu-timer-sound">
+                                <div class="enter-sound-content" data-action="toggleTimerSoundDropdown">
                                     <div class="enter-sound-content-left"><span id="timer-selected-sound" data-translate="classic_beep" data-translate-category="sounds">Beep Clásico</span></div>
                                     <div class="enter-sound-content-right"><span class="material-symbols-rounded">expand_more</span></div>
                                 </div>
@@ -131,7 +131,7 @@
                         <div class="menu-content-general">
                             <div class="date-time-content">
                                 <div class="date-time-selector">
-                                    <div class="enter-sound-content" data-action="toggleDropdown" data-target-menu=".calendar-container">
+                                    <div class="enter-sound-content" data-action="toggleCalendarDropdown">
                                         <div class="enter-sound-content-left"><span id="selected-date-display">-- / -- / ----</span></div>
                                         <div class="enter-sound-content-right"><span class="material-symbols-rounded">calendar_today</span></div>
                                     </div>
@@ -151,7 +151,7 @@
                                 </div>
 
                                 <div class="date-time-selector">
-                                    <div class="enter-sound-content" data-action="toggleDropdown" data-target-menu=".menu-timer-hour-selection">
+                                    <div class="enter-sound-content" data-action="toggleTimerHourDropdown">
                                         <div class="enter-sound-content-left"><span id="selected-hour-display">--</span> : <span id="selected-minute-display">--</span></div>
                                         <div class="enter-sound-content-right"><span class="material-symbols-rounded">schedule</span></div>
                                     </div>

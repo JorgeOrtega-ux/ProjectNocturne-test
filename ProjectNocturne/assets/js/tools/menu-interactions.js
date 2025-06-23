@@ -25,6 +25,22 @@ document.addEventListener('DOMContentLoaded', () => {
         worldClock: {}
     };
 
+    // --- MAPEO DE ACCIONES A DROPDOWNS ---
+    const dropdownMap = {
+        // Alarma
+        'toggleAlarmSoundDropdown': '.menu-alarm-sound',
+        
+        // Timer
+        'toggleTimerEndActionDropdown': '.menu-timer-end-action',
+        'toggleTimerSoundDropdown': '.menu-timer-sound',
+        'toggleCalendarDropdown': '.calendar-container',
+        'toggleTimerHourDropdown': '.menu-timer-hour-selection',
+        
+        // World Clock
+        'toggleCountryDropdown': '.menu-worldclock-country',
+        'toggleTimezoneDropdown': '.menu-worldclock-timezone'
+    };
+
     // ===============================================
     // FUNCIONES GENÉRICAS DE UI
     // ===============================================
@@ -50,6 +66,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (dropdownMenu) {
             dropdownMenu.classList.add('disabled');
+        }
+    };
+
+    const toggleDropdown = (action, parentMenu) => {
+        const targetSelector = dropdownMap[action];
+        if (!targetSelector || !parentMenu) return;
+
+        const targetDropdown = parentMenu.querySelector(targetSelector);
+        if (!targetDropdown) return;
+
+        const isCurrentlyOpen = !targetDropdown.classList.contains('disabled');
+        
+        // Cerrar todos los dropdowns primero
+        document.querySelectorAll('.dropdown-menu-container').forEach(d => d.classList.add('disabled'));
+
+        // Si el dropdown estaba cerrado, abrirlo
+        if (!isCurrentlyOpen) {
+            targetDropdown.classList.remove('disabled');
+            
+            // Lógica especial para el selector de hora del timer
+            if (action === 'toggleTimerHourDropdown') {
+                state.timer.countTo.timeSelectionStep = 'hour';
+                updateDisplay('#selected-hour-display', '--', parentMenu);
+                updateDisplay('#selected-minute-display', '--', parentMenu);
+            }
         }
     };
 
@@ -129,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectCalendarDate = (day) => {
         state.timer.countTo.selectedDate = new Date(state.timer.countTo.date.getFullYear(), state.timer.countTo.date.getMonth(), day);
         updateDisplay('#selected-date-display', state.timer.countTo.selectedDate.toLocaleDateString(), timerMenu);
+        // Cerrar solo el dropdown del calendario cuando se selecciona una fecha
         timerMenu.querySelector('.calendar-container')?.classList.add('disabled');
         renderCalendar();
     };
@@ -180,15 +222,25 @@ document.addEventListener('DOMContentLoaded', () => {
             populateHourSelectionMenu();
         }
 
+        // Cerrar dropdowns cuando se hace clic fuera
         document.addEventListener('click', (event) => {
             const isClickInsideDropdown = event.target.closest('.dropdown-menu-container');
-            const isClickOnToggle = event.target.closest('[data-action="toggleDropdown"]');
+            const isClickOnToggle = event.target.closest('[data-action]')?.dataset.action in dropdownMap;
+            
+            // Casos especiales para el calendario - no cerrar si se hace clic en navegación
+            const isCalendarNavigation = event.target.closest('.calendar-nav');
+            const isCalendarHeader = event.target.closest('.calendar-header');
+            const isCalendarWeekdays = event.target.closest('.calendar-weekdays');
+            const isOtherMonthDay = event.target.closest('.calendar-days .day.other-month');
 
-            if (!isClickInsideDropdown && !isClickOnToggle) {
+            if (!isClickInsideDropdown && !isClickOnToggle && 
+                !isCalendarNavigation && !isCalendarHeader && 
+                !isCalendarWeekdays && !isOtherMonthDay) {
                 document.querySelectorAll('.dropdown-menu-container').forEach(d => d.classList.add('disabled'));
             }
         });
 
+        // Listener principal de eventos
         document.body.addEventListener('click', (event) => {
             const actionTarget = event.target.closest('[data-action]');
             if (!actionTarget) return;
@@ -196,30 +248,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const action = actionTarget.dataset.action;
             const parentMenu = actionTarget.closest('.menu-alarm, .menu-timer, .menu-worldClock');
 
-            if (action === 'toggleDropdown') {
-                if (!parentMenu) return;
-
-                const targetSelector = actionTarget.dataset.targetMenu;
-                if (!targetSelector) return;
-
-                const targetDropdown = parentMenu.querySelector(targetSelector);
-                if (!targetDropdown) return;
-
-                const isCurrentlyOpen = !targetDropdown.classList.contains('disabled');
-                document.querySelectorAll('.dropdown-menu-container').forEach(d => d.classList.add('disabled'));
-
-                if (targetDropdown.classList.contains('menu-timer-hour-selection')) {
-                    state.timer.countTo.timeSelectionStep = 'hour';
-                    updateDisplay('#selected-hour-display', '--', parentMenu);
-                    updateDisplay('#selected-minute-display', '--', parentMenu);
-                }
-                
-                if (!isCurrentlyOpen) {
-                    targetDropdown.classList.remove('disabled');
-                }
+            // Manejar dropdowns con el nuevo sistema
+            if (dropdownMap[action]) {
+                toggleDropdown(action, parentMenu);
                 return;
             }
 
+            // Manejar tabs del timer
             const tabTarget = event.target.closest('.menu-tab[data-tab]');
             if (tabTarget) {
                 state.timer.currentTab = tabTarget.dataset.tab;
@@ -227,15 +262,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            // Manejar días del calendario
             const dayTarget = event.target.closest('.calendar-days .day');
             if (dayTarget && dayTarget.dataset.day) {
-                selectCalendarDate(parseInt(dayTarget.dataset.day, 10));
+                // Solo prevenir propagación si es un día válido (no de otros meses)
+                if (!dayTarget.classList.contains('other-month')) {
+                    event.stopPropagation(); // Evitar que el evento cierre todo el menú
+                    selectCalendarDate(parseInt(dayTarget.dataset.day, 10));
+                }
                 return;
             }
 
             if (!parentMenu) return;
 
+            // Manejar todas las otras acciones
             switch (action) {
+                // === ACCIONES DE ALARMA ===
                 case 'increaseHour':
                     state.alarm.hour = (state.alarm.hour + 1) % 24;
                     updateAlarmDisplay(parentMenu);
@@ -253,9 +295,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateAlarmDisplay(parentMenu);
                     break;
                 case 'selectAlarmSound':
+                    event.stopPropagation(); // Evitar que se cierre el menú
                     handleSelect(actionTarget, '#alarm-selected-sound');
                     break;
 
+                // === ACCIONES DE TIMER ===
                 case 'increaseTimerHour':
                     state.timer.duration.hours = (state.timer.duration.hours + 1) % 100;
                     updateTimerDurationDisplay();
@@ -281,22 +325,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateTimerDurationDisplay();
                     break;
                 case 'selectTimerEndAction':
+                    event.stopPropagation(); // Evitar que se cierre el menú
                     handleSelect(actionTarget, '#timer-selected-end-action');
                     break;
                 case 'selectTimerSound':
+                    event.stopPropagation(); // Evitar que se cierre el menú
                     handleSelect(actionTarget, '#timer-selected-sound');
                     break;
 
+                // === ACCIONES DEL CALENDARIO ===
                 case 'prev-month':
+                    // NO usar stopPropagation aquí - queremos que se mantenga abierto el dropdown
                     state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() - 1);
                     renderCalendar();
                     break;
                 case 'next-month':
+                    // NO usar stopPropagation aquí - queremos que se mantenga abierto el dropdown
                     state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() + 1);
                     renderCalendar();
                     break;
                 
+                // === ACCIONES DE SELECCIÓN DE HORA ===
                 case 'selectTimerHour':
+                    event.stopPropagation(); // Evitar que se cierre el menú
                     const hour = parseInt(actionTarget.dataset.hour, 10);
                     state.timer.countTo.selectedHour = hour;
                     updateDisplay('#selected-hour-display', String(hour).padStart(2, '0'), parentMenu);
@@ -309,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     break;
 
                 case 'selectTimerMinute':
+                    event.stopPropagation(); // Evitar que se cierre el menú
                     const minute = parseInt(actionTarget.dataset.minute, 10);
                     state.timer.countTo.selectedMinute = minute;
                     updateDisplay('#selected-minute-display', String(minute).padStart(2, '0'), parentMenu);
@@ -316,11 +368,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     state.timer.countTo.timeSelectionStep = 'hour';
                     break;
 
+                // === ACCIONES DE WORLD CLOCK ===
                 case 'selectCountry':
+                    event.stopPropagation(); // Evitar que se cierre el menú
                     handleSelect(actionTarget, '#worldclock-selected-country');
                     break;
                 case 'selectTimezone':
+                    event.stopPropagation(); // Evitar que se cierre el menú
                     handleSelect(actionTarget, '#worldclock-selected-timezone');
+                    break;
+
+                // === ACCIONES DE CREACIÓN ===
+                case 'createAlarm':
+                    console.log('Crear alarma:', state.alarm);
+                    break;
+                case 'createTimer':
+                    console.log('Crear timer:', state.timer);
+                    break;
+                case 'addWorldClock':
+                    console.log('Agregar world clock:', state.worldClock);
+                    break;
+
+                // === ACCIONES DE PREVIEW ===
+                case 'previewAlarmSound':
+                case 'previewTimerSound':
+                    console.log('Preview sound for:', action);
                     break;
             }
         });
