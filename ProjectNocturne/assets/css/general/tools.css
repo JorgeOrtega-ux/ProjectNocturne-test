@@ -240,7 +240,8 @@
 }
 
 .dark-mode .menu-tab.active {
-    border-color: #ffffff;
+    border-color: #ffffff20;
+    background-color: #ffffff20;
 }
 
 .enter-duration-grid {
@@ -318,7 +319,7 @@
 .calendar-days .day {
     padding: 6px 0;
     cursor: pointer;
-    border-radius: 50%;
+    border-radius: 8px;
 }
 .calendar-days .day:not(.other-month):hover { background-color: #f5f5fa; }
 .calendar-days .day.other-month { color: #ccc; }
