@@ -14,7 +14,7 @@
             </div>
         </div>
         <div class="menu-content-scrolleable overflow-y">
-            <div class="menu-section-center">
+            <div class="menu-section-center overflow-y">
                 <div class="menu-content-wrapper active">
                     <div class="menu-content">
                         <div class="menu-content-header">

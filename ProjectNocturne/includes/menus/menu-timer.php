@@ -12,7 +12,7 @@
             </div>
         </div>
         <div class="menu-content-scrolleable overflow-y">
-            <div class="menu-section-center">
+            <div class="menu-section-center overflow-y">
                 <div class="menu-content-wrapper active" data-tab-content="countdown">
                     <div class="menu-content">
                         <div class="menu-content-header">

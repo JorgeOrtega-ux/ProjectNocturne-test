@@ -14,7 +14,7 @@
                 </div>
             </div>
             <div class="menu-content-scrolleable overflow-y">
-                <div class="menu-section-center">
+                <div class="menu-section-center overflow-y">
                     <div class="menu-content-wrapper active" data-colors-wrapper="main">
                         <div class="menu-content" data-section="main-colors" data-collapsible-section="true">
                             <div class="menu-content-header">
