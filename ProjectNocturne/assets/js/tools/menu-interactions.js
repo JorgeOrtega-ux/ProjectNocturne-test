@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alarm: {
             hour: 0,
             minute: 0,
-            sound: 'classic-beep' // Valor inicial por defecto
+            sound: 'classic-beep'
         },
         timer: {
             currentTab: 'countdown',
@@ -20,10 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedDate: null,
                 selectedHour: null,
                 selectedMinute: null,
-                timeSelectionStep: 'hour' // 'hour' o 'minute'
+                timeSelectionStep: 'hour'
             },
-            endAction: 'stop', // Valor inicial por defecto
-            sound: 'classic-beep' // Valor inicial por defecto
+            endAction: 'stop',
+            sound: 'classic-beep'
         },
         worldClock: {
             country: '',
@@ -33,19 +33,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- MAPEO DE ACCIONES A DROPDOWNS ---
     const dropdownMap = {
-        // Alarma
         'toggleAlarmSoundDropdown': '.menu-alarm-sound',
-        
-        // Timer
         'toggleTimerEndActionDropdown': '.menu-timer-end-action',
         'toggleTimerSoundDropdown': '.menu-timer-sound',
         'toggleCalendarDropdown': '.calendar-container',
         'toggleTimerHourDropdown': '.menu-timer-hour-selection',
-        
-        // World Clock
         'toggleCountryDropdown': '.menu-worldclock-country',
         'toggleTimezoneDropdown': '.menu-worldclock-timezone'
     };
+
+    // --- CARGAR LIBRERÍA DE PAÍSES Y ZONAS HORARIAS ---
+    function loadCountriesAndTimezones() {
+        return new Promise((resolve, reject) => {
+            // Verificar si ya está cargada
+            if (window.ct) {
+                resolve(window.ct);
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/gh/manuelmhtr/countries-and-timezones@latest/dist/index.min.js';
+            script.onload = () => {
+                if (window.ct) {
+                    resolve(window.ct);
+                } else {
+                    reject(new Error('Failed to load countries-and-timezones library'));
+                }
+            };
+            script.onerror = () => reject(new Error('Failed to load countries-and-timezones script'));
+            document.head.appendChild(script);
+        });
+    }
 
     // ===============================================
     // FUNCIONES GENÉRICAS DE UI
@@ -220,42 +238,53 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // ===============================================
-    // LÓGICA DE WORLD CLOCK (CON API)
+    // LÓGICA DE WORLD CLOCK CON LIBRERÍA IANA
     // ===============================================
 
     async function populateCountryDropdown(parentMenu) {
         const countryList = parentMenu.querySelector('.menu-worldclock-country .menu-list');
-        if (!countryList || countryList.children.length > 1) { // >1 para no recargar si ya hay paises
-            return;
-        }
+        if (!countryList) return;
 
-        countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>Cargando países...</span></div>`;
+        // Mostrar loading solo si no hay países cargados
+        if (countryList.children.length <= 1) {
+            countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>Cargando países...</span></div>`;
 
-        try {
-            const response = await fetch('https://restcountries.com/v3.1/all?fields=name,timezones');
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const countries = await response.json();
+            try {
+                // Cargar la librería
+                const ct = await loadCountriesAndTimezones();
+                
+                // Obtener todos los países
+                const countries = ct.getAllCountries();
+                
+                countryList.innerHTML = ''; // Limpiar loading
 
-            countryList.innerHTML = ''; // Limpiar mensaje de carga
+                // Convertir a array y ordenar
+                const countryArray = Object.values(countries).sort((a, b) => a.name.localeCompare(b.name));
 
-            countries.sort((a, b) => a.name.common.localeCompare(b.name.common));
+                countryArray.forEach(country => {
+                    const link = document.createElement('div');
+                    link.className = 'menu-link';
+                    link.setAttribute('data-action', 'selectCountry');
+                    link.setAttribute('data-country-code', country.id);
+                    link.innerHTML = `
+                        <div class="menu-link-icon">
+                            <span class="material-symbols-rounded">public</span>
+                        </div>
+                        <div class="menu-link-text">
+                            <span>${country.name}</span>
+                        </div>
+                    `;
+                    countryList.appendChild(link);
+                });
 
-            countries.forEach(country => {
-                const link = document.createElement('div');
-                link.className = 'menu-link';
-                link.setAttribute('data-action', 'selectCountry');
-                link.dataset.timezones = JSON.stringify(country.timezones);
-                link.innerHTML = `<div class="menu-link-icon"><span class="material-symbols-rounded">public</span></div>
-                                  <div class="menu-link-text"><span>${country.name.common}</span></div>`;
-                countryList.appendChild(link);
-            });
-        } catch (error) {
-            console.error("Error fetching countries:", error);
-            countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>Error al cargar países.</span></div>`;
+            } catch (error) {
+                console.error("Error cargando países:", error);
+                countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>Error al cargar países. Inténtalo de nuevo.</span></div>`;
+            }
         }
     }
 
-    function populateTimezoneDropdown(parentMenu, timezones) {
+    async function populateTimezoneDropdown(parentMenu, countryCode) {
         const timezoneList = parentMenu.querySelector('.menu-worldclock-timezone .menu-list');
         const timezoneSelector = parentMenu.querySelector('[data-action="toggleTimezoneDropdown"]');
 
@@ -263,22 +292,42 @@ document.addEventListener('DOMContentLoaded', () => {
         
         timezoneList.innerHTML = ''; // Limpiar zonas horarias anteriores
 
-        if (timezones && timezones.length > 0) {
-            timezones.forEach(tz => {
-                const link = document.createElement('div');
-                link.className = 'menu-link';
-                link.setAttribute('data-action', 'selectTimezone');
-                link.innerHTML = `<div class="menu-link-icon"><span class="material-symbols-rounded">schedule</span></div>
-                                  <div class="menu-link-text"><span>${tz}</span></div>`;
-                timezoneList.appendChild(link);
-            });
-            timezoneSelector.classList.remove('disabled-interactive');
-        } else {
-            timezoneList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>No hay zonas horarias.</span></div>`;
+        try {
+            const ct = await loadCountriesAndTimezones();
+            const timezones = ct.getTimezonesForCountry(countryCode);
+
+            if (timezones && timezones.length > 0) {
+                timezones.forEach(tz => {
+                    // Crear nombre más legible
+                    const cityName = tz.name.split('/').pop().replace(/_/g, ' ');
+                    const offset = tz.utcOffsetStr;
+                    const displayName = `(UTC ${offset}) ${cityName}`;
+
+                    const link = document.createElement('div');
+                    link.className = 'menu-link';
+                    link.setAttribute('data-action', 'selectTimezone');
+                    link.setAttribute('data-timezone', tz.name);
+                    link.innerHTML = `
+                        <div class="menu-link-icon">
+                            <span class="material-symbols-rounded">schedule</span>
+                        </div>
+                        <div class="menu-link-text">
+                            <span>${displayName}</span>
+                        </div>
+                    `;
+                    timezoneList.appendChild(link);
+                });
+                timezoneSelector.classList.remove('disabled-interactive');
+            } else {
+                timezoneList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>No hay zonas horarias disponibles.</span></div>`;
+                timezoneSelector.classList.add('disabled-interactive');
+            }
+        } catch (error) {
+            console.error("Error cargando zonas horarias:", error);
+            timezoneList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>Error al cargar zonas horarias.</span></div>`;
             timezoneSelector.classList.add('disabled-interactive');
         }
     }
-
 
     // ===============================================
     // INICIALIZACIÓN Y MANEJO DE EVENTOS
@@ -293,11 +342,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Deshabilitar dropdown de timezone al inicio
         const timezoneSelector = document.querySelector('[data-action="toggleTimezoneDropdown"]');
-        if(timezoneSelector) {
+        if (timezoneSelector) {
             timezoneSelector.classList.add('disabled-interactive');
         }
 
-
+        // Event listener para cerrar dropdowns al hacer click fuera
         document.addEventListener('click', (event) => {
             const isClickInsideDropdown = event.target.closest('.dropdown-menu-container');
             const isClickOnToggle = event.target.closest('[data-action]')?.dataset.action in dropdownMap;
@@ -308,7 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        document.body.addEventListener('click', (event) => {
+        // Event listener principal
+        document.body.addEventListener('click', async (event) => {
             const parentMenu = event.target.closest('.menu-alarm, .menu-timer, .menu-worldClock');
             const tabTarget = event.target.closest('.menu-tab[data-tab]');
 
@@ -392,18 +442,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 case 'selectCountry':
                     event.stopPropagation();
+                    const countryName = actionTarget.querySelector('.menu-link-text span')?.textContent;
+                    const countryCode = actionTarget.getAttribute('data-country-code');
+                    
                     handleSelect(actionTarget, '#worldclock-selected-country');
-                    state.worldClock.country = actionTarget.querySelector('.menu-link-text span')?.textContent;
+                    state.worldClock.country = countryName;
                     updateDisplay('#worldclock-selected-timezone', 'Seleccionar zona horaria', parentMenu);
                     state.worldClock.timezone = '';
-                    const timezones = JSON.parse(actionTarget.dataset.timezones || '[]');
-                    populateTimezoneDropdown(parentMenu, timezones);
+                    
+                    // Cargar zonas horarias para el país seleccionado
+                    await populateTimezoneDropdown(parentMenu, countryCode);
                     break;
 
                 case 'selectTimezone':
                     event.stopPropagation();
+                    const timezoneName = actionTarget.getAttribute('data-timezone');
+                    const timezoneDisplay = actionTarget.querySelector('.menu-link-text span')?.textContent;
+                    
                     handleSelect(actionTarget, '#worldclock-selected-timezone');
-                    state.worldClock.timezone = actionTarget.querySelector('.menu-link-text span')?.textContent;
+                    state.worldClock.timezone = timezoneName; // Guardar el nombre IANA
                     break;
 
                 case 'createAlarm':
@@ -432,9 +489,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                 case 'addWorldClock':
                     const clockTitle = parentMenu.querySelector('#worldclock-title')?.value || 'Nuevo reloj';
-                    const clockData = { title: clockTitle, ...state.worldClock };
+                    const clockData = { 
+                        title: clockTitle, 
+                        country: state.worldClock.country,
+                        timezone: state.worldClock.timezone // Esto será un nombre IANA como 'America/Mexico_City'
+                    };
                     console.group("🌍 Reloj Mundial Agregado (Datos)");
                     console.log("Datos:", clockData);
+                    console.log("Zona horaria IANA:", state.worldClock.timezone);
                     console.groupEnd();
                     break;
 
