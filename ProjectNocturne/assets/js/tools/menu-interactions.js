@@ -107,20 +107,17 @@ const resetWorldClockMenu = (menuElement) => {
 // ===============================================
 
 const initializeAlarmMenu = (menuElement) => {
-    // console.log('⏰ Alarm menu opened. Setting default time.'); // <-- LÍNEA ELIMINADA
     setAlarmDefaults();
     updateAlarmDisplay(menuElement);
 };
 
 const initializeTimerMenu = (menuElement) => {
-    // console.log('⏱️ Timer menu opened.'); // <-- LÍNEA ELIMINADA
     updateTimerDurationDisplay(menuElement);
     renderCalendar(menuElement);
     populateHourSelectionMenu(menuElement);
 };
 
 const initializeWorldClockMenu = (menuElement) => {
-    // console.log('🌍 World Clock menu opened.'); // <-- LÍNEA ELIMINADA
     const timezoneSelector = menuElement.querySelector('[data-action="toggleTimezoneDropdown"]');
     if (timezoneSelector) {
         timezoneSelector.classList.add('disabled-interactive');
@@ -428,6 +425,119 @@ function setupGlobalEventListeners() {
                 handleSelect(actionTarget, '#worldclock-selected-timezone');
                 state.worldClock.timezone = actionTarget.getAttribute('data-timezone');
                 break;
+
+            // ===============================================
+            // LÓGICA DE VALIDACIÓN Y CREACIÓN
+            // ===============================================
+            case 'createAlarm': {
+                const alarmTitleInput = parentMenu.querySelector('#alarm-title');
+                const alarmTitle = alarmTitleInput ? alarmTitleInput.value.trim() : '';
+
+                if (!alarmTitle) {
+                    console.warn('⚠️ Se bloqueó la creación de la alarma: falta el título.');
+                    return; 
+                }
+
+                const alarmData = { title: alarmTitle, ...state.alarm };
+                console.group("⏰ Alarma Creada (Datos)");
+                console.log("Datos:", alarmData);
+                console.groupEnd();
+                break;
+            }
+            case 'createTimer': {
+                const timerMenu = parentMenu; 
+                if (state.timer.currentTab === 'countdown') {
+                    const timerTitleInput = timerMenu.querySelector('#timer-title');
+                    const timerTitle = timerTitleInput ? timerTitleInput.value.trim() : '';
+                    const { hours, minutes, seconds } = state.timer.duration;
+
+                    if (!timerTitle) {
+                        console.warn('⚠️ Se bloqueó la creación del temporizador: falta el título.');
+                        return;
+                    }
+                    if (hours === 0 && minutes === 0 && seconds === 0) {
+                        console.warn('⚠️ Se bloqueó la creación del temporizador: la duración no puede ser cero.');
+                        return;
+                    }
+
+                    const timerData = { type: 'countdown', title: timerTitle, duration: { ...state.timer.duration }, endAction: state.timer.endAction, sound: state.timer.sound };
+                    console.group("⏱️ Temporizador Creado (Countdown)");
+                    console.log("Datos:", timerData);
+                    console.groupEnd();
+
+                } else { // 'count_to_date'
+                    const eventTitleInput = timerMenu.querySelector('#countto-title');
+                    const eventTitle = eventTitleInput ? eventTitleInput.value.trim() : '';
+                    const { selectedDate, selectedHour, selectedMinute } = state.timer.countTo;
+
+                    if (!eventTitle) {
+                        console.warn('⚠️ Se bloqueó la creación del evento: falta el título.');
+                        return;
+                    }
+                    if (selectedDate == null) { 
+                        console.warn('⚠️ Se bloqueó la creación del evento: falta seleccionar la fecha.');
+                        return;
+                    }
+                    if (typeof selectedHour !== 'number' || typeof selectedMinute !== 'number') {
+                        console.warn('⚠️ Se bloqueó la creación del evento: falta seleccionar la hora y los minutos.');
+                        return;
+                    }
+
+                    const eventData = { type: 'count_to_date', title: eventTitle, ...state.timer.countTo };
+                    console.group("📅 Temporizador Creado (Conteo a Fecha)");
+                    console.log("Datos:", eventData);
+                    console.groupEnd();
+                }
+                break;
+            }
+            case 'addWorldClock': {
+                const clockTitleInput = parentMenu.querySelector('#worldclock-title');
+                const clockTitle = clockTitleInput ? clockTitleInput.value.trim() : '';
+                const { country, timezone } = state.worldClock;
+            
+                if (!clockTitle) {
+                    console.warn('⚠️ Se bloqueó la creación del reloj: falta el título.');
+                    return;
+                }
+                if (!country) {
+                    console.warn('⚠️ Se bloqueó la creación del reloj: falta seleccionar el país.');
+                    return;
+                }
+                if (!timezone) {
+                    console.warn('⚠️ Se bloqueó la creación del reloj: falta seleccionar la zona horaria.');
+                    return;
+                }
+            
+                // --- CÁLCULO DE LA HORA LOCAL ---
+                let currentTimeInZone = 'No se pudo obtener la hora.';
+                try {
+                    const date = new Date();
+                    const appLanguage = typeof window.getCurrentLanguage === 'function' ? window.getCurrentLanguage() : 'en-US';
+                    
+                    const options = {
+                        timeZone: timezone,
+                        year: 'numeric', month: 'long', day: 'numeric',
+                        hour: 'numeric', minute: 'numeric', second: 'numeric',
+                    };
+
+                    currentTimeInZone = new Intl.DateTimeFormat(appLanguage, options).format(date);
+                } catch (e) {
+                    console.error(`Error al formatear la fecha para la zona horaria ${timezone}:`, e);
+                }
+                // --- FIN DEL CÁLCULO ---
+
+                const clockData = { 
+                    title: clockTitle, 
+                    country: country,
+                    timezone: timezone,
+                    currentTime: currentTimeInZone // <- Dato añadido
+                };
+
+                console.group("🌍 Reloj Mundial Agregado");
+                console.log("Datos:", clockData);
+                console.groupEnd();
+                break;
+            }
         }
     });
 }
