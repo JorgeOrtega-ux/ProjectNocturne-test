@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'toggleTimezoneDropdown': '.menu-worldclock-timezone'
     };
 
-    // --- CARGAR LIBRERÍA DE PAÍSES Y ZONAS HORARIAS ---
+    // --- CARGAR LIBRERÍA DE PAÍSES Y ZONAS HORARIAS CON AUTO-UPDATE ---
     function loadCountriesAndTimezones() {
         return new Promise((resolve, reject) => {
             // Verificar si ya está cargada
@@ -51,18 +51,91 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+            console.log('🌍 Loading countries-and-timezones library with auto-update...');
+            
             const script = document.createElement('script');
+            
+            // ✨ SOLUCIÓN: Usar @latest para auto-actualización
             script.src = 'https://cdn.jsdelivr.net/gh/manuelmhtr/countries-and-timezones@latest/dist/index.min.js';
+            
+            // Agregar timestamp para evitar cache en desarrollo
+            const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (isDevelopment) {
+                script.src += '?t=' + Date.now();
+                console.log('🔧 Development mode: Cache busting enabled');
+            }
+            
             script.onload = () => {
                 if (window.ct) {
+                    console.log('✅ Countries-and-timezones library loaded successfully');
+                    console.log('📊 Library version:', window.ct.version || 'Unknown');
                     resolve(window.ct);
                 } else {
-                    reject(new Error('Failed to load countries-and-timezones library'));
+                    reject(new Error('Library loaded but ct object not found'));
                 }
             };
-            script.onerror = () => reject(new Error('Failed to load countries-and-timezones script'));
+            
+            script.onerror = (error) => {
+                console.error('❌ Failed to load countries-and-timezones library:', error);
+                reject(new Error('Failed to load countries-and-timezones script'));
+            };
+            
+            // Timeout de seguridad
+            setTimeout(() => {
+                if (!window.ct) {
+                    console.warn('⏰ Library loading timeout, attempting fallback...');
+                    // Intentar con una versión específica conocida como fallback
+                    loadFallbackLibrary().then(resolve).catch(reject);
+                }
+            }, 10000);
+            
             document.head.appendChild(script);
         });
+    }
+
+    // --- FALLBACK CON VERSIÓN ESPECÍFICA CONOCIDA ---
+    function loadFallbackLibrary() {
+        return new Promise((resolve, reject) => {
+            console.log('🔄 Loading fallback version...');
+            
+            const fallbackScript = document.createElement('script');
+            fallbackScript.src = 'https://cdn.jsdelivr.net/gh/manuelmhtr/countries-and-timezones@v3.8.0/dist/index.min.js';
+            
+            fallbackScript.onload = () => {
+                if (window.ct) {
+                    console.log('✅ Fallback library loaded successfully');
+                    resolve(window.ct);
+                } else {
+                    reject(new Error('Fallback library failed to load'));
+                }
+            };
+            
+            fallbackScript.onerror = () => {
+                reject(new Error('Both main and fallback libraries failed to load'));
+            };
+            
+            document.head.appendChild(fallbackScript);
+        });
+    }
+
+    // --- VERIFICAR UPDATES DISPONIBLES (OPCIONAL) ---
+    async function checkForUpdates() {
+        try {
+            // Verificar si hay una nueva versión disponible
+            const response = await fetch('https://api.github.com/repos/manuelmhtr/countries-and-timezones/releases/latest');
+            const data = await response.json();
+            const latestVersion = data.tag_name;
+            const currentVersion = window.ct?.version;
+            
+            if (currentVersion && latestVersion !== currentVersion) {
+                console.log(`🆕 New version available: ${latestVersion} (current: ${currentVersion})`);
+                console.log('💡 Refresh the page to get the latest version');
+            } else {
+                console.log('✅ You have the latest version');
+            }
+        } catch (error) {
+            console.log('ℹ️ Could not check for updates:', error.message);
+        }
     }
 
     // ===============================================
@@ -238,7 +311,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     // ===============================================
-    // LÓGICA DE WORLD CLOCK CON LIBRERÍA IANA
+    // LÓGICA DE WORLD CLOCK CON LIBRERÍA IANA AUTO-ACTUALIZABLE
     // ===============================================
 
     async function populateCountryDropdown(parentMenu) {
@@ -247,11 +320,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Mostrar loading solo si no hay países cargados
         if (countryList.children.length <= 1) {
-            countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>Cargando países...</span></div>`;
+            countryList.innerHTML = `
+                <div class="menu-link-text" style="padding: 0 12px;">
+                    <span>🌍 Cargando países...</span>
+                </div>
+            `;
 
             try {
-                // Cargar la librería
+                console.log('🔄 Loading countries with auto-update capability...');
+                
+                // Cargar la librería con auto-update
                 const ct = await loadCountriesAndTimezones();
+                
+                // Verificar updates en background (no bloquea la UI)
+                checkForUpdates();
                 
                 // Obtener todos los países
                 const countries = ct.getAllCountries();
@@ -260,6 +342,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Convertir a array y ordenar
                 const countryArray = Object.values(countries).sort((a, b) => a.name.localeCompare(b.name));
+
+                console.log(`📊 Loaded ${countryArray.length} countries`);
 
                 countryArray.forEach(country => {
                     const link = document.createElement('div');
@@ -277,9 +361,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     countryList.appendChild(link);
                 });
 
+                console.log('✅ Countries populated successfully');
+
             } catch (error) {
-                console.error("Error cargando países:", error);
-                countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>Error al cargar países. Inténtalo de nuevo.</span></div>`;
+                console.error("❌ Error loading countries:", error);
+                countryList.innerHTML = `
+                    <div class="menu-link-text" style="padding: 0 12px;">
+                        <span>❌ Error al cargar países. Inténtalo de nuevo.</span>
+                    </div>
+                `;
             }
         }
     }
@@ -293,11 +383,15 @@ document.addEventListener('DOMContentLoaded', () => {
         timezoneList.innerHTML = ''; // Limpiar zonas horarias anteriores
 
         try {
+            console.log(`🕐 Loading timezones for country: ${countryCode}`);
+            
             const ct = await loadCountriesAndTimezones();
             const timezones = ct.getTimezonesForCountry(countryCode);
 
             if (timezones && timezones.length > 0) {
-                timezones.forEach(tz => {
+                console.log(`📍 Found ${timezones.length} timezone(s) for ${countryCode}`);
+                
+                timezones.forEach((tz, index) => {
                     // Crear nombre más legible
                     const cityName = tz.name.split('/').pop().replace(/_/g, ' ');
                     const offset = tz.utcOffsetStr;
@@ -316,15 +410,31 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     `;
                     timezoneList.appendChild(link);
+                    
+                    if (index === 0) {
+                        console.log(`🏙️ First timezone: ${tz.name} (${displayName})`);
+                    }
                 });
+                
                 timezoneSelector.classList.remove('disabled-interactive');
+                console.log('✅ Timezones populated successfully');
+                
             } else {
-                timezoneList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>No hay zonas horarias disponibles.</span></div>`;
+                console.warn(`⚠️ No timezones found for country: ${countryCode}`);
+                timezoneList.innerHTML = `
+                    <div class="menu-link-text" style="padding: 0 12px;">
+                        <span>⚠️ No hay zonas horarias disponibles.</span>
+                    </div>
+                `;
                 timezoneSelector.classList.add('disabled-interactive');
             }
         } catch (error) {
-            console.error("Error cargando zonas horarias:", error);
-            timezoneList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>Error al cargar zonas horarias.</span></div>`;
+            console.error("❌ Error loading timezones:", error);
+            timezoneList.innerHTML = `
+                <div class="menu-link-text" style="padding: 0 12px;">
+                    <span>❌ Error al cargar zonas horarias.</span>
+                </div>
+            `;
             timezoneSelector.classList.add('disabled-interactive');
         }
     }
@@ -334,6 +444,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===============================================
 
     function initialize() {
+        console.log('🚀 Initializing menu interactions with auto-update support...');
+        
         if (timerMenu) {
             updateTimerDurationDisplay();
             renderCalendar();
@@ -442,8 +554,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 case 'selectCountry':
                     event.stopPropagation();
+                    console.log('🌍 Country selected, processing...');
+                    
                     const countryName = actionTarget.querySelector('.menu-link-text span')?.textContent;
                     const countryCode = actionTarget.getAttribute('data-country-code');
+                    
+                    console.log(`📍 Selected country: ${countryName} (${countryCode})`);
                     
                     handleSelect(actionTarget, '#worldclock-selected-country');
                     state.worldClock.country = countryName;
@@ -456,8 +572,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 case 'selectTimezone':
                     event.stopPropagation();
+                    console.log('🕐 Timezone selected, processing...');
+                    
                     const timezoneName = actionTarget.getAttribute('data-timezone');
                     const timezoneDisplay = actionTarget.querySelector('.menu-link-text span')?.textContent;
+                    
+                    console.log(`🌍 Selected timezone: ${timezoneName}`);
+                    console.log(`👁️ Display name: ${timezoneDisplay}`);
                     
                     handleSelect(actionTarget, '#worldclock-selected-timezone');
                     state.worldClock.timezone = timezoneName; // Guardar el nombre IANA
@@ -489,24 +610,130 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                 case 'addWorldClock':
                     const clockTitle = parentMenu.querySelector('#worldclock-title')?.value || 'Nuevo reloj';
+                    
+                    // Obtener la hora actual del país/zona horaria seleccionada
+                    let currentTimeInfo = null;
+                    if (state.worldClock.timezone) {
+                        try {
+                            const now = new Date();
+                            const timeInTimezone = new Intl.DateTimeFormat('es-MX', {
+                                timeZone: state.worldClock.timezone,
+                                year: 'numeric',
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                second: '2-digit',
+                                hour12: false
+                            }).format(now);
+                            
+                            // También obtener información adicional de la zona horaria
+                            const timeZoneInfo = Intl.DateTimeFormat('es-MX', {
+                                timeZone: state.worldClock.timezone,
+                                timeZoneName: 'longOffset'
+                            }).formatToParts(now);
+                            
+                            const offset = timeZoneInfo.find(part => part.type === 'timeZoneName')?.value || 'UTC';
+                            
+                            // Calcular diferencia con hora local
+                            const localTime = new Date();
+                            const targetTime = new Date(localTime.toLocaleString("en-US", {timeZone: state.worldClock.timezone}));
+                            const timeDiff = (targetTime.getTime() - localTime.getTime()) / (1000 * 60 * 60);
+                            const diffText = timeDiff === 0 ? 'Misma zona horaria' : 
+                                           timeDiff > 0 ? `+${timeDiff.toFixed(1)} horas adelante` : 
+                                           `${Math.abs(timeDiff).toFixed(1)} horas atrás`;
+                            
+                            currentTimeInfo = {
+                                currentTime: timeInTimezone,
+                                offset: offset,
+                                timeDifference: diffText,
+                                timestamp: now.toISOString()
+                            };
+                        } catch (error) {
+                            console.warn('Error getting timezone info:', error);
+                            currentTimeInfo = {
+                                currentTime: 'No disponible',
+                                offset: 'Desconocido',
+                                timeDifference: 'No calculable',
+                                error: error.message
+                            };
+                        }
+                    }
+                    
                     const clockData = { 
                         title: clockTitle, 
                         country: state.worldClock.country,
-                        timezone: state.worldClock.timezone // Esto será un nombre IANA como 'America/Mexico_City'
+                        timezone: state.worldClock.timezone,
+                        timeInfo: currentTimeInfo
                     };
-                    console.group("🌍 Reloj Mundial Agregado (Datos)");
-                    console.log("Datos:", clockData);
-                    console.log("Zona horaria IANA:", state.worldClock.timezone);
+                    
+                    console.group("🌍 Reloj Mundial Agregado (Datos Completos)");
+                    console.log("📋 Datos básicos:", {
+                        title: clockData.title,
+                        country: clockData.country,
+                        timezone: clockData.timezone
+                    });
+                    
+                    if (currentTimeInfo) {
+                        console.log("🕐 Información de tiempo:");
+                        console.log(`   ⏰ Hora actual: ${currentTimeInfo.currentTime}`);
+                        console.log(`   🌍 Zona horaria: ${state.worldClock.timezone}`);
+                        console.log(`   📍 Offset: ${currentTimeInfo.offset}`);
+                        console.log(`   ⏳ Diferencia con hora local: ${currentTimeInfo.timeDifference}`);
+                        console.log(`   📅 Timestamp de creación: ${currentTimeInfo.timestamp}`);
+                        if (currentTimeInfo.error) {
+                            console.warn(`   ⚠️ Error: ${currentTimeInfo.error}`);
+                        }
+                    }
+                    
+                    console.log("📊 Auto-update enabled: Using @latest version");
+                    console.log("🔄 Datos completos:", clockData);
                     console.groupEnd();
                     break;
 
                 case 'previewAlarmSound':
                 case 'previewTimerSound':
-                    console.log('Preview sound for:', action);
+                    console.log('🔊 Preview sound for:', action);
                     break;
+            }
+        });
+
+        console.log('✅ Menu interactions initialized with auto-update support');
+    }
+
+    // ===============================================
+    // AUTO-UPDATE MONITORING (OPCIONAL)
+    // ===============================================
+    
+    function setupAutoUpdateMonitoring() {
+        // Verificar updates cada 30 minutos
+        setInterval(() => {
+            if (window.ct) {
+                checkForUpdates();
+            }
+        }, 30 * 60 * 1000);
+        
+        // También verificar cuando se regresa al tab
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && window.ct) {
+                setTimeout(checkForUpdates, 1000);
             }
         });
     }
 
+    // ===============================================
+    // INICIALIZACIÓN FINAL
+    // ===============================================
+
     initialize();
+    setupAutoUpdateMonitoring();
+    
+    // Pre-cargar la librería para mejor UX (opcional)
+    setTimeout(() => {
+        loadCountriesAndTimezones().then(() => {
+            console.log('📦 Library pre-loaded for better UX');
+        }).catch(() => {
+            console.log('ℹ️ Pre-loading failed, will load when needed');
+        });
+    }, 2000);
 });
