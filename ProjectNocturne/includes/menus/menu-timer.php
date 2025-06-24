@@ -135,7 +135,7 @@
                                         <div class="enter-sound-content-left"><span id="selected-date-display">-- / -- / ----</span></div>
                                         <div class="enter-sound-content-right"><span class="material-symbols-rounded">calendar_today</span></div>
                                     </div>
-                                    <div class="dropdown-menu-container calendar-container disabled" data-menu="calendar">
+                                    <div class="dropdown-menu-container calendar-container overflow-y disabled" data-menu="calendar">
                                         <div class="calendar-header"><button class="calendar-nav" data-action="prev-month">&lt;</button><span id="calendar-month-year"></span><button class="calendar-nav" data-action="next-month">&gt;</button></div>
                                         <div class="calendar-weekdays">
                                             <div>D</div>
@@ -156,12 +156,12 @@
                                         <div class="enter-sound-content-right"><span class="material-symbols-rounded">schedule</span></div>
                                     </div>
                                     
-                                    <div class="dropdown-menu-container menu-timer-hour-selection disabled" data-menu="timerHourMenu">
+                                    <div class="dropdown-menu-container menu-timer-hour-selection overflow-y disabled" data-menu="timerHourMenu">
                                         <div class="menu-list" data-list-type="hours">
                                             </div>
                                     </div>
 
-                                    <div class="dropdown-menu-container menu-timer-minute-selection disabled" data-menu="timerMinuteMenu">
+                                    <div class="dropdown-menu-container menu-timer-minute-selection overflow-y disabled" data-menu="timerMinuteMenu">
                                         <div class="menu-list" data-list-type="minutes">
                                             </div>
                                     </div>

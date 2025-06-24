@@ -291,3 +291,7 @@
 .dark-mode .overflow-x {
     scrollbar-color: #ffffff80 transparent;
 }
+
+.dark-mode .calendar-nav {
+    color: #fff;
+}
