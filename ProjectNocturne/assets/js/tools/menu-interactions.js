@@ -5,7 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const state = {
         alarm: {
             hour: 0,
-            minute: 0
+            minute: 0,
+            sound: 'classic-beep' // Valor inicial por defecto
         },
         timer: {
             currentTab: 'countdown',
@@ -20,9 +21,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedHour: null,
                 selectedMinute: null,
                 timeSelectionStep: 'hour' // 'hour' o 'minute'
-            }
+            },
+            endAction: 'stop', // Valor inicial por defecto
+            sound: 'classic-beep' // Valor inicial por defecto
         },
-        worldClock: {}
+        worldClock: {
+            country: '',
+            timezone: ''
+        }
     };
 
     // --- MAPEO DE ACCIONES A DROPDOWNS ---
@@ -85,7 +91,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isCurrentlyOpen) {
             targetDropdown.classList.remove('disabled');
             
-            // Lógica especial para el selector de hora del timer
+            if (action === 'toggleCountryDropdown') {
+                populateCountryDropdown(parentMenu);
+            }
+            
             if (action === 'toggleTimerHourDropdown') {
                 state.timer.countTo.timeSelectionStep = 'hour';
                 updateDisplay('#selected-hour-display', '--', parentMenu);
@@ -170,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectCalendarDate = (day) => {
         state.timer.countTo.selectedDate = new Date(state.timer.countTo.date.getFullYear(), state.timer.countTo.date.getMonth(), day);
         updateDisplay('#selected-date-display', state.timer.countTo.selectedDate.toLocaleDateString(), timerMenu);
-        // Cerrar solo el dropdown del calendario cuando se selecciona una fecha
         timerMenu.querySelector('.calendar-container')?.classList.add('disabled');
         renderCalendar();
     };
@@ -196,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const minuteMenu = timerMenu.querySelector('.menu-timer-minute-selection .menu-list');
         if (!minuteMenu) return;
 
-        minuteMenu.innerHTML = ''; // Limpiar minutos anteriores
+        minuteMenu.innerHTML = '';
 
         for (let j = 0; j < 60; j += 5) {
             const hourStr = String(hour).padStart(2, '0');
@@ -210,6 +218,67 @@ document.addEventListener('DOMContentLoaded', () => {
             minuteMenu.appendChild(link);
         }
     };
+    
+    // ===============================================
+    // LÓGICA DE WORLD CLOCK (CON API)
+    // ===============================================
+
+    async function populateCountryDropdown(parentMenu) {
+        const countryList = parentMenu.querySelector('.menu-worldclock-country .menu-list');
+        if (!countryList || countryList.children.length > 1) { // >1 para no recargar si ya hay paises
+            return;
+        }
+
+        countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>Cargando países...</span></div>`;
+
+        try {
+            const response = await fetch('https://restcountries.com/v3.1/all?fields=name,timezones');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const countries = await response.json();
+
+            countryList.innerHTML = ''; // Limpiar mensaje de carga
+
+            countries.sort((a, b) => a.name.common.localeCompare(b.name.common));
+
+            countries.forEach(country => {
+                const link = document.createElement('div');
+                link.className = 'menu-link';
+                link.setAttribute('data-action', 'selectCountry');
+                link.dataset.timezones = JSON.stringify(country.timezones);
+                link.innerHTML = `<div class="menu-link-icon"><span class="material-symbols-rounded">public</span></div>
+                                  <div class="menu-link-text"><span>${country.name.common}</span></div>`;
+                countryList.appendChild(link);
+            });
+        } catch (error) {
+            console.error("Error fetching countries:", error);
+            countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>Error al cargar países.</span></div>`;
+        }
+    }
+
+    function populateTimezoneDropdown(parentMenu, timezones) {
+        const timezoneList = parentMenu.querySelector('.menu-worldclock-timezone .menu-list');
+        const timezoneSelector = parentMenu.querySelector('[data-action="toggleTimezoneDropdown"]');
+
+        if (!timezoneList || !timezoneSelector) return;
+        
+        timezoneList.innerHTML = ''; // Limpiar zonas horarias anteriores
+
+        if (timezones && timezones.length > 0) {
+            timezones.forEach(tz => {
+                const link = document.createElement('div');
+                link.className = 'menu-link';
+                link.setAttribute('data-action', 'selectTimezone');
+                link.innerHTML = `<div class="menu-link-icon"><span class="material-symbols-rounded">schedule</span></div>
+                                  <div class="menu-link-text"><span>${tz}</span></div>`;
+                timezoneList.appendChild(link);
+            });
+            timezoneSelector.classList.remove('disabled-interactive');
+        } else {
+            timezoneList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>No hay zonas horarias.</span></div>`;
+            timezoneSelector.classList.add('disabled-interactive');
+        }
+    }
+
 
     // ===============================================
     // INICIALIZACIÓN Y MANEJO DE EVENTOS
@@ -222,134 +291,83 @@ document.addEventListener('DOMContentLoaded', () => {
             populateHourSelectionMenu();
         }
 
-        // Cerrar dropdowns cuando se hace clic fuera
+        // Deshabilitar dropdown de timezone al inicio
+        const timezoneSelector = document.querySelector('[data-action="toggleTimezoneDropdown"]');
+        if(timezoneSelector) {
+            timezoneSelector.classList.add('disabled-interactive');
+        }
+
+
         document.addEventListener('click', (event) => {
             const isClickInsideDropdown = event.target.closest('.dropdown-menu-container');
             const isClickOnToggle = event.target.closest('[data-action]')?.dataset.action in dropdownMap;
-            
-            // Casos especiales para el calendario - no cerrar si se hace clic en navegación
-            const isCalendarNavigation = event.target.closest('.calendar-nav');
-            const isCalendarHeader = event.target.closest('.calendar-header');
-            const isCalendarWeekdays = event.target.closest('.calendar-weekdays');
-            const isOtherMonthDay = event.target.closest('.calendar-days .day.other-month');
+            const isCalendarNavigation = event.target.closest('.calendar-nav, .calendar-header, .calendar-weekdays, .day.other-month');
 
-            if (!isClickInsideDropdown && !isClickOnToggle && 
-                !isCalendarNavigation && !isCalendarHeader && 
-                !isCalendarWeekdays && !isOtherMonthDay) {
+            if (!isClickInsideDropdown && !isClickOnToggle && !isCalendarNavigation) {
                 document.querySelectorAll('.dropdown-menu-container').forEach(d => d.classList.add('disabled'));
             }
         });
 
-        // ================================================================
-        // INICIO DE LA CORRECCIÓN
-        // Se ha reordenado la lógica para que verifique primero los clics
-        // en pestañas y fechas del calendario antes de buscar 'data-action'.
-        // ================================================================
         document.body.addEventListener('click', (event) => {
             const parentMenu = event.target.closest('.menu-alarm, .menu-timer, .menu-worldClock');
-
-            // --- 1. MANEJAR CLIC EN PESTAÑAS (Tabs) ---
             const tabTarget = event.target.closest('.menu-tab[data-tab]');
+
             if (tabTarget) {
                 state.timer.currentTab = tabTarget.dataset.tab;
                 updateTimerTabView();
-                return; // Salir después de manejar el clic
+                return;
             }
 
-            // --- 2. MANEJAR CLIC EN DÍAS DEL CALENDARIO ---
-            const dayTarget = event.target.closest('.calendar-days .day');
+            const dayTarget = event.target.closest('.calendar-days .day:not(.other-month)');
             if (dayTarget && dayTarget.dataset.day) {
-                if (!dayTarget.classList.contains('other-month')) {
-                    event.stopPropagation(); // Evitar que el evento cierre todo el menú
-                    selectCalendarDate(parseInt(dayTarget.dataset.day, 10));
-                }
-                return; // Salir después de manejar el clic
+                event.stopPropagation();
+                selectCalendarDate(parseInt(dayTarget.dataset.day, 10));
+                return;
             }
 
-            // --- 3. MANEJAR TODAS LAS DEMÁS ACCIONES CON 'data-action' ---
             const actionTarget = event.target.closest('[data-action]');
-            if (!actionTarget) return; // Si no hay acción, salir
+            if (!actionTarget) return;
 
             const action = actionTarget.dataset.action;
 
-            // Manejar apertura/cierre de dropdowns
             if (dropdownMap[action]) {
                 toggleDropdown(action, parentMenu);
                 return;
             }
 
-            // Si la acción no es para un dropdown, se necesita un menú padre
             if (!parentMenu) return;
 
-            // Manejar todas las otras acciones dentro del switch
             switch (action) {
-                // === ACCIONES DE ALARMA ===
-                case 'increaseHour':
-                    state.alarm.hour = (state.alarm.hour + 1) % 24;
-                    updateAlarmDisplay(parentMenu);
-                    break;
-                case 'decreaseHour':
-                    state.alarm.hour = (state.alarm.hour - 1 + 24) % 24;
-                    updateAlarmDisplay(parentMenu);
-                    break;
-                case 'increaseMinute':
-                    state.alarm.minute = (state.alarm.minute + 1) % 60;
-                    updateAlarmDisplay(parentMenu);
-                    break;
-                case 'decreaseMinute':
-                    state.alarm.minute = (state.alarm.minute - 1 + 60) % 60;
-                    updateAlarmDisplay(parentMenu);
-                    break;
+                case 'increaseHour': state.alarm.hour = (state.alarm.hour + 1) % 24; updateAlarmDisplay(parentMenu); break;
+                case 'decreaseHour': state.alarm.hour = (state.alarm.hour - 1 + 24) % 24; updateAlarmDisplay(parentMenu); break;
+                case 'increaseMinute': state.alarm.minute = (state.alarm.minute + 1) % 60; updateAlarmDisplay(parentMenu); break;
+                case 'decreaseMinute': state.alarm.minute = (state.alarm.minute - 1 + 60) % 60; updateAlarmDisplay(parentMenu); break;
                 case 'selectAlarmSound':
                     event.stopPropagation();
                     handleSelect(actionTarget, '#alarm-selected-sound');
+                    state.alarm.sound = actionTarget.dataset.sound;
                     break;
 
-                // === ACCIONES DE TIMER ===
-                case 'increaseTimerHour':
-                    state.timer.duration.hours = (state.timer.duration.hours + 1) % 100;
-                    updateTimerDurationDisplay();
-                    break;
-                case 'decreaseTimerHour':
-                    state.timer.duration.hours = (state.timer.duration.hours - 1 + 100) % 100;
-                    updateTimerDurationDisplay();
-                    break;
-                case 'increaseTimerMinute':
-                    state.timer.duration.minutes = (state.timer.duration.minutes + 1) % 60;
-                    updateTimerDurationDisplay();
-                    break;
-                case 'decreaseTimerMinute':
-                    state.timer.duration.minutes = (state.timer.duration.minutes - 1 + 60) % 60;
-                    updateTimerDurationDisplay();
-                    break;
-                case 'increaseTimerSecond':
-                    state.timer.duration.seconds = (state.timer.duration.seconds + 1) % 60;
-                    updateTimerDurationDisplay();
-                    break;
-                case 'decreaseTimerSecond':
-                    state.timer.duration.seconds = (state.timer.duration.seconds - 1 + 60) % 60;
-                    updateTimerDurationDisplay();
-                    break;
+                case 'increaseTimerHour': state.timer.duration.hours = (state.timer.duration.hours + 1) % 100; updateTimerDurationDisplay(); break;
+                case 'decreaseTimerHour': state.timer.duration.hours = (state.timer.duration.hours - 1 + 100) % 100; updateTimerDurationDisplay(); break;
+                case 'increaseTimerMinute': state.timer.duration.minutes = (state.timer.duration.minutes + 1) % 60; updateTimerDurationDisplay(); break;
+                case 'decreaseTimerMinute': state.timer.duration.minutes = (state.timer.duration.minutes - 1 + 60) % 60; updateTimerDurationDisplay(); break;
+                case 'increaseTimerSecond': state.timer.duration.seconds = (state.timer.duration.seconds + 1) % 60; updateTimerDurationDisplay(); break;
+                case 'decreaseTimerSecond': state.timer.duration.seconds = (state.timer.duration.seconds - 1 + 60) % 60; updateTimerDurationDisplay(); break;
                 case 'selectTimerEndAction':
                     event.stopPropagation();
                     handleSelect(actionTarget, '#timer-selected-end-action');
+                    state.timer.endAction = actionTarget.dataset.endAction;
                     break;
                 case 'selectTimerSound':
                     event.stopPropagation();
                     handleSelect(actionTarget, '#timer-selected-sound');
+                    state.timer.sound = actionTarget.dataset.sound;
                     break;
 
-                // === ACCIONES DEL CALENDARIO (NAVEGACIÓN) ===
-                case 'prev-month':
-                    state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() - 1);
-                    renderCalendar();
-                    break;
-                case 'next-month':
-                    state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() + 1);
-                    renderCalendar();
-                    break;
+                case 'prev-month': state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() - 1); renderCalendar(); break;
+                case 'next-month': state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() + 1); renderCalendar(); break;
                 
-                // === ACCIONES DE SELECCIÓN DE HORA ===
                 case 'selectTimerHour':
                     event.stopPropagation();
                     const hour = parseInt(actionTarget.dataset.hour, 10);
@@ -372,37 +390,60 @@ document.addEventListener('DOMContentLoaded', () => {
                     state.timer.countTo.timeSelectionStep = 'hour';
                     break;
 
-                // === ACCIONES DE WORLD CLOCK ===
                 case 'selectCountry':
                     event.stopPropagation();
                     handleSelect(actionTarget, '#worldclock-selected-country');
+                    state.worldClock.country = actionTarget.querySelector('.menu-link-text span')?.textContent;
+                    updateDisplay('#worldclock-selected-timezone', 'Seleccionar zona horaria', parentMenu);
+                    state.worldClock.timezone = '';
+                    const timezones = JSON.parse(actionTarget.dataset.timezones || '[]');
+                    populateTimezoneDropdown(parentMenu, timezones);
                     break;
+
                 case 'selectTimezone':
                     event.stopPropagation();
                     handleSelect(actionTarget, '#worldclock-selected-timezone');
+                    state.worldClock.timezone = actionTarget.querySelector('.menu-link-text span')?.textContent;
                     break;
 
-                // === ACCIONES DE CREACIÓN ===
                 case 'createAlarm':
-                    console.log('Crear alarma:', state.alarm);
-                    break;
-                case 'createTimer':
-                    console.log('Crear timer:', state.timer);
-                    break;
-                case 'addWorldClock':
-                    console.log('Agregar world clock:', state.worldClock);
+                    const alarmTitle = parentMenu.querySelector('#alarm-title')?.value || 'Mi nueva alarma';
+                    const alarmData = { title: alarmTitle, ...state.alarm };
+                    console.group("⏰ Alarma Creada (Datos)");
+                    console.log("Datos:", alarmData);
+                    console.groupEnd();
                     break;
 
-                // === ACCIONES DE PREVIEW ===
+                case 'createTimer':
+                    if (state.timer.currentTab === 'countdown') {
+                        const timerTitle = timerMenu.querySelector('#timer-title')?.value || 'Mi nuevo temporizador';
+                        const timerData = { type: 'countdown', title: timerTitle, duration: { ...state.timer.duration }, endAction: state.timer.endAction, sound: state.timer.sound };
+                        console.group("⏱️ Temporizador Creado (Countdown)");
+                        console.log("Datos:", timerData);
+                        console.groupEnd();
+                    } else {
+                        const eventTitle = timerMenu.querySelector('#countto-title')?.value || 'Mi evento especial';
+                        const eventData = { type: 'count_to_date', title: eventTitle, ...state.timer.countTo };
+                        console.group("📅 Temporizador Creado (Conteo a Fecha)");
+                        console.log("Datos:", eventData);
+                        console.groupEnd();
+                    }
+                    break;
+                    
+                case 'addWorldClock':
+                    const clockTitle = parentMenu.querySelector('#worldclock-title')?.value || 'Nuevo reloj';
+                    const clockData = { title: clockTitle, ...state.worldClock };
+                    console.group("🌍 Reloj Mundial Agregado (Datos)");
+                    console.log("Datos:", clockData);
+                    console.groupEnd();
+                    break;
+
                 case 'previewAlarmSound':
                 case 'previewTimerSound':
                     console.log('Preview sound for:', action);
                     break;
             }
         });
-        // ================================================================
-        // FIN DE LA CORRECCIÓN
-        // ================================================================
     }
 
     initialize();
