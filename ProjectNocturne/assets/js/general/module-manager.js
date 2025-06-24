@@ -29,6 +29,9 @@ import {
 } from './language-manager.js';
 
 import { clearSearchColors } from '../tools/color-search-system.js';
+// ========== NUEVA INTEGRACIÓN CON MENU-INTERACTIONS ==========
+import { initializeMenuForOverlay, resetMenuForOverlay } from '../tools/menu-interactions.js';
+
 
 // ========== CONSTANTS AND CONFIGURATION ==========
 
@@ -395,6 +398,10 @@ function activateOverlayContainer(originalToggleName) {
         if (overlayToShow) {
             showSpecificOverlay(overlayToShow);
             moduleState.modules.overlayContainer.currentOverlay = overlayToShow;
+            
+            // ========== HOOK DE ACTIVACIÓN ==========
+            // Llama a la función de inicialización del menú correspondiente.
+            initializeMenuForOverlay(overlayToShow);
         }
     }
 }
@@ -463,9 +470,19 @@ function performModuleDeactivation(moduleName) {
             overlayContainer.classList.remove('active');
             overlayContainer.classList.add('disabled');
             module.active = false;
-            deactivatedToggle = getToggleFromOverlay(module.currentOverlay);
+            
+            // ========== HOOK DE DESACTIVACIÓN ==========
+            // Obtiene el nombre del overlay que se va a cerrar...
+            const overlayToReset = module.currentOverlay;
+            deactivatedToggle = getToggleFromOverlay(overlayToReset);
+
             hideAllOverlays();
             module.currentOverlay = null;
+
+            // ...y llama a su función de reseteo correspondiente.
+            if (overlayToReset) {
+                resetMenuForOverlay(overlayToReset);
+            }
         }
     }
     
