@@ -131,7 +131,20 @@
     justify-content: center;
     align-items: center;
 }
+.menu-list-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Crea 2 columnas de ancho igual */
+    gap: 4px; /* Espacio entre los elementos */
+}
 
+.menu-list-grid .menu-link {
+    padding: 8px 4px; /* Ajusta el padding para la rejilla */
+}
+
+.menu-list-grid .menu-link .menu-link-text {
+    text-align: center; /* Centra el texto dentro de cada celda */
+    width: 100%;
+}
 /* Contenedor genérico para menús desplegables */
 .dropdown-menu-container {
     width: 100%;

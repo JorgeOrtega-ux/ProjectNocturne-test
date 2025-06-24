@@ -157,12 +157,12 @@
                                     </div>
                                     
                                     <div class="dropdown-menu-container menu-timer-hour-selection overflow-y disabled" data-menu="timerHourMenu">
-                                        <div class="menu-list" data-list-type="hours">
+                                        <div class="menu-list menu-list-grid" data-list-type="hours">
                                             </div>
                                     </div>
 
                                     <div class="dropdown-menu-container menu-timer-minute-selection overflow-y disabled" data-menu="timerMinuteMenu">
-                                        <div class="menu-list" data-list-type="minutes">
+                                        <div class="menu-list menu-list-grid" data-list-type="minutes">
                                             </div>
                                     </div>
                                 </div>
