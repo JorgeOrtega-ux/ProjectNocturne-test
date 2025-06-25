@@ -1,3 +1,5 @@
+/* /assets/css/general/tools.css */
+
 .create-tool {
     display: flex;
     align-items: center;
@@ -335,8 +337,8 @@
 /* ====================================== */
 .world-clocks-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    padding: 8px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    padding: 16px;
     gap: 16px;
 }
 
@@ -344,13 +346,14 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    padding: 12px 16px;
-    gap: 4px;
+    padding: 16px;
+    gap: 8px;
     background-color: #ffffff;
     border: 1px solid #00000015;
-    border-radius: 12px;
+    border-radius: 16px;
     box-shadow: 0 1px 3px #00000010;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
+    overflow: hidden;
 }
 
 .world-clock-card:hover {
@@ -358,25 +361,50 @@
     transform: translateY(-2px);
 }
 
-.world-clock-card-top {
+.card-header, .card-body, .card-footer {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.8rem;
-    font-weight: 500;
-    opacity: 0.7;
 }
 
-.world-clock-card-top .location-text {
+.card-header {
+    font-weight: 500;
+    color: #000000;
+}
+
+.location-text {
+    font-size: 1rem;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
-.world-clock-card-bottom {
-    font-size: 1.75rem;
+.clock-offset {
+    font-size: 0.8rem;
+    color: #00000099;
+    background-color: #00000010;
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+
+.card-body {
+    justify-content: flex-start;
+}
+
+.clock-time {
+    font-size: 2.5rem;
     font-weight: 500;
-    text-align: left;
+    color: #000000;
+    line-height: 1.1;
+}
+
+.card-footer {
+    font-size: 0.875rem;
+    color: #00000099;
+}
+
+.day-night-indicator {
+    font-size: 1rem;
 }
 
 .card-menu-btn {
@@ -388,6 +416,7 @@
     justify-content: center;
     width: 32px;
     height: 32px;
+    color: #000000;
     background-color: transparent;
     border: none;
     border-radius: 50%;
@@ -424,9 +453,13 @@
     font-size: 0.875rem;
 }
 
-.world-clock-card.dragging {
-    opacity: 0.5;
+.world-clock-card.dragging,
+.world-clock-card.sortable-chosen {
+    opacity: 0.8;
     background-color: #eef2f9;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    transform: scale(1.02);
+    cursor: grabbing;
 }
 
 .world-clock-card.drag-over {
@@ -448,11 +481,4 @@
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-text span,
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-icon span {
     color: #ffffff;
-}
-
-.world-clock-card.sortable-chosen {
-    opacity: 0.8;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    transform: scale(1.02);
-    cursor: grabbing;
 }
