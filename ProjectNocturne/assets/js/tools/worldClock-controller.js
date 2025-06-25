@@ -1,13 +1,26 @@
 // /assets/js/tools/worldClock-controller.js
-import { PREMIUM_FEATURES } from '../general/main.js';
+import { PREMIUM_FEATURES, use24HourFormat } from '../general/main.js';
 
 (function() {
     "use strict";
 
-    // Objeto para almacenar los intervalos de cada reloj y poder limpiarlos después.
-    // La clave es el elemento (tarjeta o span) para una gestión precisa.
     const clockIntervals = new Map();
+    const CLOCKS_STORAGE_KEY = 'world-clocks';
+    let userClocks = [];
 
+    /**
+     * Carga la librería externa 'countries-and-timezones' si no está ya disponible.
+     * @returns {Promise<object>} - Una promesa que se resuelve con el objeto 'ct' de la librería.
+     */
+    const loadCountriesAndTimezones = () => new Promise((resolve, reject) => {
+        if (window.ct) return resolve(window.ct);
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/gh/manuelmhtr/countries-and-timezones@latest/dist/index.min.js';
+        script.onload = () => window.ct ? resolve(window.ct) : reject(new Error('Library loaded but ct object not found'));
+        script.onerror = (error) => reject(new Error('Failed to load countries-and-timezones script'));
+        document.head.appendChild(script);
+    });
+    
     /**
      * Actualiza la fecha y hora para un elemento de reloj (tarjeta o span).
      * @param {HTMLElement} element - El elemento del reloj (la tarjeta o el span principal).
@@ -18,13 +31,16 @@ import { PREMIUM_FEATURES } from '../general/main.js';
 
         try {
             const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', {
+             const timeOptions = {
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
-                timeZone: timezone,
-                hour12: false
-            });
+                hour12: !use24HourFormat,
+                timeZone: timezone
+            };
+
+            const timeString = now.toLocaleTimeString(navigator.language, timeOptions);
+
 
             // Si el elemento es solo el span del reloj principal.
             if (element.tagName === 'SPAN') {
@@ -95,36 +111,72 @@ import { PREMIUM_FEATURES } from '../general/main.js';
     }
 
     /**
+     * Guarda la lista de relojes del usuario en localStorage.
+     */
+    function saveClocksToStorage() {
+        try {
+            localStorage.setItem(CLOCKS_STORAGE_KEY, JSON.stringify(userClocks));
+        } catch (error) {
+            console.error('Error guardando los relojes en localStorage:', error);
+        }
+    }
+
+    /**
+     * Carga los relojes desde localStorage y los renderiza.
+     */
+    async function loadClocksFromStorage() {
+        try {
+            await loadCountriesAndTimezones();
+
+            const storedClocks = localStorage.getItem(CLOCKS_STORAGE_KEY);
+            if (storedClocks) {
+                userClocks = JSON.parse(storedClocks);
+                userClocks.forEach(clock => {
+                    createAndStartClockCard(clock.title, clock.country, clock.timezone, clock.id, false);
+                });
+            }
+        } catch (error) {
+            console.error('Error cargando los relojes desde localStorage:', error);
+            userClocks = [];
+        }
+    }
+
+
+    /**
      * Crea una nueva tarjeta de reloj y la añade al grid.
      * @param {string} title - El título de la tarjeta.
      * @param {string} country - El país para mostrar.
      * @param {string} timezone - La zona horaria IANA para el reloj.
+     * @param {string|null} existingId - Un ID existente si se está cargando desde storage.
+     * @param {boolean} save - Si se debe guardar en localStorage después de crear.
      */
-    function createAndStartClockCard(title, country, timezone) {
+    function createAndStartClockCard(title, country, timezone, existingId = null, save = true) {
         const grid = document.querySelector('.world-clocks-grid');
         if (!grid) return;
 
-        const clockLimit = PREMIUM_FEATURES ? 100 : 5;
-        const currentClocks = grid.querySelectorAll('.world-clock-card').length;
+        // --- INICIO DE LA CORRECCIÓN FINAL DEL LÍMITE ---
+        const totalClockLimit = PREMIUM_FEATURES ? 100 : 5;
+        const totalCurrentClocks = grid.querySelectorAll('.world-clock-card').length;
 
-        if (currentClocks >= clockLimit) {
-            alert(`Límite de relojes alcanzado (${clockLimit}).`);
+        if (save && totalCurrentClocks >= totalClockLimit) {
+            alert(`Límite de ${totalClockLimit} relojes alcanzado.`);
             return;
         }
+        // --- FIN DE LA CORRECCIÓN FINAL DEL LÍMITE ---
 
-        // Obtenemos el objeto de la zona horaria para el desplazamiento UTC
         const ct = window.ct;
-        const timezoneObject = ct.getTimezonesForCountry(ct.getCountryForTimezone(timezone)?.id)?.find(tz => tz.name === timezone);
+        const countryForTimezone = ct.getCountryForTimezone(timezone);
+        const timezoneObject = countryForTimezone ? ct.getTimezonesForCountry(countryForTimezone.id)?.find(tz => tz.name === timezone) : null;
         const utcOffsetText = timezoneObject ? `UTC ${timezoneObject.utcOffsetStr}` : '';
 
-        const cardId = `clock-card-${Date.now()}`;
 
-        // Obtenemos las traducciones para el menú de la tarjeta
+        const cardId = existingId || `clock-card-${Date.now()}`;
+        
         const editClockText = getTranslation('edit_clock', 'world_clock_options');
         const deleteClockText = getTranslation('delete_clock', 'world_clock_options');
 
         const cardHTML = `
-            <div class="world-clock-card" id="${cardId}" data-timezone="${timezone}">
+            <div class="world-clock-card" id="${cardId}" data-timezone="${timezone}" data-country="${country}" data-title="${title}">
                 <div class="card-header">
                     <div class="card-location-details">
                         <span class="location-text" title="${title}">${title}</span>
@@ -163,13 +215,17 @@ import { PREMIUM_FEATURES } from '../general/main.js';
         const newCardElement = document.getElementById(cardId);
         if (newCardElement) {
             startClockForElement(newCardElement, timezone);
-            // Adjuntar tooltips a los elementos recién creados
             if (window.attachTooltipsToNewElements) {
                 window.attachTooltipsToNewElements(newCardElement);
             }
         }
+        
+        if (save) {
+            userClocks.push({ id: cardId, title, country, timezone });
+            saveClocksToStorage();
+        }
     }
-
+    
     /**
      * Obtiene una traducción.
      * @param {string} key - La clave de la traducción.
@@ -193,11 +249,8 @@ import { PREMIUM_FEATURES } from '../general/main.js';
 
         if (!localClockCard && !mainClockElement) return;
 
-        // Usar la zona horaria del navegador directamente.
         const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        console.log(`WorldClock: Usando hora local del navegador: ${localTimezone}`);
 
-        // Configurar la tarjeta de reloj local si existe.
         if (localClockCard) {
             const locationText = localClockCard.querySelector('.location-text');
             const offsetText = localClockCard.querySelector('.clock-offset');
@@ -218,7 +271,6 @@ import { PREMIUM_FEATURES } from '../general/main.js';
             startClockForElement(localClockCard, localTimezone);
         }
 
-        // Configurar el reloj principal en la sección central.
         if (mainClockElement) {
             startClockForElement(mainClockElement, localTimezone);
         }
@@ -232,13 +284,17 @@ import { PREMIUM_FEATURES } from '../general/main.js';
         if (grid && typeof Sortable !== 'undefined') {
             new Sortable(grid, {
                 animation: 150,
-                filter: '.local-clock-card, .card-menu-btn, .card-dropdown-menu', // Evita el arrastre en la tarjeta local y su menú
+                filter: '.local-clock-card, .card-menu-btn, .card-dropdown-menu',
                 draggable: '.world-clock-card',
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'sortable-chosen',
                 onMove: function(evt) {
-                    // No permitir que otros elementos se muevan antes de la tarjeta local
                     return !evt.related.classList.contains('local-clock-card');
+                },
+                onEnd: function() {
+                    const newOrder = Array.from(grid.querySelectorAll('.world-clock-card:not(.local-clock-card)')).map(card => card.id);
+                    userClocks.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
+                    saveClocksToStorage();
                 }
             });
         } else if (typeof Sortable === 'undefined') {
@@ -257,7 +313,6 @@ import { PREMIUM_FEATURES } from '../general/main.js';
             const card = actionTarget.closest('.world-clock-card');
             if (!card) return;
 
-            // Cerrar otros menús desplegables abiertos
             document.querySelectorAll('.card-dropdown-menu:not(.disabled)').forEach(menu => {
                 if (!card.contains(menu)) {
                     menu.classList.add('disabled');
@@ -269,11 +324,16 @@ import { PREMIUM_FEATURES } from '../general/main.js';
                 const dropdown = card.querySelector('.card-dropdown-menu');
                 if (dropdown) dropdown.classList.toggle('disabled');
             } else if (action === 'delete-clock') {
-                // Detener el intervalo antes de eliminar la tarjeta
                 if (clockIntervals.has(card)) {
                     clearInterval(clockIntervals.get(card));
                     clockIntervals.delete(card);
                 }
+                
+                // Eliminar del array y de localStorage
+                const cardId = card.id;
+                userClocks = userClocks.filter(clock => clock.id !== cardId);
+                saveClocksToStorage();
+
                 card.remove();
             } else if (action === 'edit-clock') {
                 console.log('Funcionalidad "Editar reloj" pendiente de implementación.');
@@ -301,10 +361,12 @@ import { PREMIUM_FEATURES } from '../general/main.js';
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             initializeLocalClock();
+            loadClocksFromStorage(); // Cargar relojes guardados
             initializeSortable();
         });
     } else {
         initializeLocalClock();
+        loadClocksFromStorage(); // Cargar relojes guardados
         initializeSortable();
     }
 })();

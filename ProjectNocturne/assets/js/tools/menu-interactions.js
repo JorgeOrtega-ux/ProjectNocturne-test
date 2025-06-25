@@ -1,4 +1,5 @@
 "use strict";
+import { use24HourFormat } from '../general/main.js';
 
 // --- ESTADO INICIAL (VALORES POR DEFECTO) ---
 const initialState = {
@@ -233,11 +234,24 @@ const resetDropdownDisplay = (menuElement, displaySelector, translateKey, transl
 };
 
 const updateAlarmDisplay = (parent) => {
-    const hourText = typeof window.getTranslation === 'function' ? window.getTranslation('hours', 'timer') : 'horas';
+    let finalHourText;
+    if (use24HourFormat) {
+        const hourText = typeof window.getTranslation === 'function' ? window.getTranslation('hours', 'timer') : 'horas';
+        finalHourText = `${state.alarm.hour} ${hourText}`;
+    } else {
+        const hour = state.alarm.hour;
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        let hour12 = hour % 12;
+        hour12 = hour12 ? hour12 : 12; // Convert 0 to 12
+        finalHourText = `${hour12} ${ampm}`;
+    }
+
     const minuteText = typeof window.getTranslation === 'function' ? window.getTranslation('minutes', 'timer') : 'minutos';
-    updateDisplay('#hour-display', `${state.alarm.hour} ${hourText}`, parent);
+    
+    updateDisplay('#hour-display', finalHourText, parent);
     updateDisplay('#minute-display', `${state.alarm.minute} ${minuteText}`, parent);
 };
+
 
 const setAlarmDefaults = () => {
     const now = new Date();

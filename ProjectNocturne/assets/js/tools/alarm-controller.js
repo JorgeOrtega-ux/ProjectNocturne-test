@@ -1,3 +1,5 @@
+import { use24HourFormat } from '../general/main.js';
+
 (function() {
     "use strict";
 
@@ -8,11 +10,13 @@
 
         if (alarmClockElement) {
             const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            
-            alarmClockElement.textContent = `${hours}:${minutes}:${seconds}`;
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: !use24HourFormat
+            };
+            alarmClockElement.textContent = now.toLocaleTimeString(navigator.language, options);
         }
     }
 

@@ -42,7 +42,7 @@
                                     <div class="enter-date-tool-left" data-action="decreaseHour">
                                         <span class="material-symbols-rounded">arrow_left</span>
                                     </div>
-                                    <div class="enter-date-tool-center" id="hour-display">24 horas</div>
+                                    <div class="enter-date-tool-center" id="hour-display">--:--</div>
                                     <div class="enter-date-tool-right" data-action="increaseHour">
                                         <span class="material-symbols-rounded">arrow_right</span>
                                     </div>
