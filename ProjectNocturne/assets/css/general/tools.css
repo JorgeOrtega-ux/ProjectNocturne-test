@@ -1,22 +1,22 @@
 .create-tool {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     height: 45px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #000000;
     color: #ffffff;
+    background-color: #000000;
     border-radius: 8px;
     cursor: pointer;
     user-select: none;
 }
 
 .enter-text-tool {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     width: 100%;
     height: 45px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
     border: 1px solid #00000020;
     border-radius: 8px;
 }
@@ -25,10 +25,10 @@
     width: 100%;
     height: 90%;
     padding: 0 12px;
+    color: #000000;
     background-color: transparent;
     border: none;
     outline: none;
-    color: #000000;
 }
 
 .enter-date-content {
@@ -39,24 +39,24 @@
 }
 
 .enter-date-tool {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     height: 45px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    overflow: hidden;
     border: 1px solid #00000020;
     border-radius: 8px;
-    overflow: hidden;
 }
 
 .enter-date-tool-left,
 .enter-date-tool-right {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
     width: 45px;
     height: 100%;
-    flex: 0 0 auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
@@ -72,21 +72,21 @@
 }
 
 .enter-sound-wrapper {
-    width: 100%;
-    height: 45px;
+    position: relative;
     display: flex;
     flex-direction: row;
+    width: 100%;
+    height: 45px;
     gap: 8px;
-    position: relative;
 }
 
 .enter-sound-content {
+    display: flex;
+    flex-direction: row;
     width: 100%;
     height: 100%;
-    display: flex;
     border: 1px solid #00000020;
     border-radius: 8px;
-    flex-direction: row;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
@@ -96,65 +96,65 @@
 }
 
 .enter-sound-content-left {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
     width: 100%;
     height: 100%;
     padding: 0 12px;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
     overflow: hidden;
     white-space: nowrap;
 }
 
 .enter-sound-content-left > span {
-    text-overflow: ellipsis;
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .enter-sound-content-right {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
     width: 45px;
     height: 100%;
-    flex: 0 0 auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
+
 .menu-list-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Crea 2 columnas de ancho igual */
-    gap: 4px; /* Espacio entre los elementos */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
 }
 
 .menu-list-grid .menu-link {
-    padding: 8px 4px; /* Ajusta el padding para la rejilla */
+    padding: 8px 4px;
 }
 
 .menu-list-grid .menu-link .menu-link-text {
-    text-align: center; /* Centra el texto dentro de cada celda */
     width: 100%;
+    text-align: center;
 }
-/* Contenedor genérico para menús desplegables - PADDING RESTAURADO */
+
 .dropdown-menu-container {
+    position: absolute;
+    top: calc(100% + 5px);
+    z-index: 10;
     width: 100%;
     height: auto;
-    position: absolute;
+    max-height: 250px;
     padding: 8px;
-    top: calc(100% + 5px);
+    overflow-y: auto;
     background-color: #ffffff;
     border: 1px solid #00000020;
     border-radius: 12px;
-    z-index: 10;
     filter: drop-shadow(0 4px 12px #00000020);
-    max-height: 250px; /* Altura máxima para permitir scroll */
-    overflow-y: auto;
 }
 
-/* NUEVA REGLA: Clase para dropdowns con estructura interna (como el de países) */
 .dropdown-menu-container.dropdown-menu--structured {
-    padding: 0;
-    overflow: hidden; /* El scroll lo maneja el hijo */
     display: flex;
     flex-direction: column;
+    padding: 0;
+    overflow: hidden;
 }
 
 .dropdown-menu-top {
@@ -164,21 +164,20 @@
 
 .dropdown-menu-bottom {
     flex: 1;
-    overflow-y: auto;
     padding: 8px;
+    overflow-y: auto;
 }
-
 
 .dropdown-menu-container.disabled {
     display: none;
 }
 
 .menu-action-button {
-    width: 45px;
     display: flex;
-    justify-content: center;
     flex: 0 0 auto;
     align-items: center;
+    justify-content: center;
+    width: 45px;
     height: 45px;
     border: 1px solid #00000020;
     border-radius: 8px;
@@ -190,64 +189,26 @@
     background-color: #f5f5fa;
 }
 
-
-/* ====================================== */
-/* =========== DARK MODE ================ */
-/* ====================================== */
-
-.dark-mode .create-tool {
-    background-color: #ffffff;
-    color: #000000;
-}
-
-.dark-mode .enter-text-tool,
-.dark-mode .enter-date-tool,
-.dark-mode .enter-sound-content,
-.dark-mode .menu-action-button {
-    border-color: #ffffff20;
-}
-
-.dark-mode .enter-text-tool > input {
-    color: #fff;
-}
-
-.dark-mode .enter-date-tool-left:hover,
-.dark-mode .enter-date-tool-right:hover,
-.dark-mode .enter-sound-content:hover,
-.dark-mode .menu-action-button:hover {
-    background-color: #ffffff20;
-}
-
-.dark-mode .dropdown-menu-container {
-    background-color: #252627;
-    border-color: #ffffff20;
-    filter: unset;
-}
-
-.dark-mode .dropdown-menu-top {
-    border-bottom-color: #ffffff20;
-}
-
 /* ====================================== */
 /* ========= ESTILOS MENU TIMER ========= */
 /* ====================================== */
 .menu-tabs {
     display: flex;
     width: 100%;
-    gap: 8px;
     padding: 8px;
+    gap: 8px;
     border-bottom: 1px solid #00000020;
 }
 
 .menu-tab {
     flex: 1;
-    text-align: center;
     padding: 8px;
-    cursor: pointer;
-    border-radius: 8px;
-    border: 1px solid transparent;
-    transition: all 0.2s ease;
     font-weight: 500;
+    text-align: center;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .menu-tab:hover {
@@ -258,24 +219,11 @@
     border-color: #00000020;
 }
 
-.dark-mode .menu-tabs {
-    border-color: #ffffff20;
-}
-
-.dark-mode .menu-tab:hover {
-    background-color: #ffffff20;
-}
-
-.dark-mode .menu-tab.active {
-    border-color: #ffffff20;
-    background-color: #ffffff20;
-}
-
 .enter-duration-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
     width: 100%;
+    gap: 8px;
 }
 
 .enter-duration-grid .enter-date-tool {
@@ -285,8 +233,8 @@
 }
 
 .enter-duration-grid .enter-date-tool-center {
-    font-size: 1.2rem;
     padding: 8px 0;
+    font-size: 1.2rem;
 }
 
 /* Calendario */
@@ -296,38 +244,38 @@
     height: 45px;
 }
 .date-time-content {
-    width: 100%;
-    height: auto;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    height: auto;
     gap: 8px;
 }
 .calendar-container, .time-selector-container {
     position: absolute;
+    top: calc(100% + 5px);
+    z-index: 11;
     width: 100%;
+    padding: 8px;
     background: #ffffff;
     border: 1px solid #00000020;
     border-radius: 8px;
-    padding: 8px;
-    top: calc(100% + 5px);
-    z-index: 11;
     filter: drop-shadow(0 4px 12px #00000020);
 }
 
 .calendar-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     margin-bottom: 8px;
     font-weight: 500;
 }
 
 .calendar-nav {
+    padding: 4px 8px;
     background: none;
     border: none;
-    cursor: pointer;
-    padding: 4px 8px;
     border-radius: 4px;
+    cursor: pointer;
 }
 .calendar-nav:hover { background-color: #f5f5fa; }
 
@@ -338,24 +286,23 @@
 }
 
 .calendar-weekdays {
+    margin-bottom: 4px;
     font-size: 0.8rem;
     color: #888;
-    margin-bottom: 4px;
 }
 
 .calendar-days .day {
     padding: 6px 0;
-    cursor: pointer;
     border-radius: 8px;
+    cursor: pointer;
 }
 .calendar-days .day:not(.other-month):hover { background-color: #f5f5fa; }
 .calendar-days .day.other-month { color: #ccc; }
-.calendar-days .day.selected { background-color: #000; color: #fff; }
+.calendar-days .day.selected { color: #fff; background-color: #000; }
 .calendar-days .day.today { font-weight: bold; border: 1px solid #00000080; }
 
 /* Selector de Hora */
 .time-selector-container {
-   
     height: 250px;
 }
 .time-selector-hours, .time-selector-minutes {
@@ -364,49 +311,41 @@
 }
 .time-selector-hours .hour-item, .time-selector-minutes .minute-item {
     padding: 8px 12px;
-    cursor: pointer;
     border-radius: 4px;
+    cursor: pointer;
 }
 .time-selector-hours .hour-item:hover, .time-selector-minutes .minute-item:hover { background-color: #f5f5fa; }
 .time-selector-hours .hour-item.selected { background-color: #e0e0e0; }
 
-/* Dark Mode para nuevos componentes */
-.dark-mode .calendar-container, .dark-mode .time-selector-container { background-color: #252627; border-color: #ffffff20; }
-.dark-mode .calendar-nav:hover { background-color: #ffffff20; }
-.dark-mode .calendar-days .day:not(.other-month):hover { background-color: #ffffff20; }
-.dark-mode .calendar-days .day.other-month { color: #555; }
-.dark-mode .calendar-days .day.selected { background-color: #fff; color: #000; }
-.dark-mode .calendar-days .day.today { border-color: #ffffff80; }
-.dark-mode .time-selector-hours .hour-item:hover, .dark-mode .time-selector-minutes .minute-item:hover { background-color: #ffffff20; }
-.dark-mode .time-selector-hours .hour-item.selected { background-color: #ffffff40; }/* Estilo para las etiquetas de los selectores de duración */
 .duration-label {
-    font-size: 0.8rem;
-    font-weight: 500;
     margin-top: 8px;
     margin-bottom: 2px;
+    font-size: 0.8rem;
+    font-weight: 500;
     text-align: left;
     opacity: 0.7;
 }
 
-/* El primer label no necesita margen superior */
 .duration-label:first-of-type {
     margin-top: 0;
-}/* ====================================== */
+}
+
+/* ====================================== */
 /* ========= WORLD CLOCK CARDS ========== */
 /* ====================================== */
 .world-clocks-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 16px;
     padding: 8px;
+    gap: 16px;
 }
 
 .world-clock-card {
-    position: relative; /* Necesario para posicionar el menú */
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 4px;
     padding: 12px 16px;
+    gap: 4px;
     background-color: #ffffff;
     border: 1px solid #00000015;
     border-radius: 12px;
@@ -415,22 +354,22 @@
 }
 
 .world-clock-card:hover {
-    transform: translateY(-2px);
     box-shadow: 0 4px 8px #00000015;
+    transform: translateY(-2px);
 }
 
 .world-clock-card-top {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     font-size: 0.8rem;
     font-weight: 500;
     opacity: 0.7;
 }
 
 .world-clock-card-top .location-text {
-    white-space: nowrap;
     overflow: hidden;
+    white-space: nowrap;
     text-overflow: ellipsis;
 }
 
@@ -440,16 +379,15 @@
     text-align: left;
 }
 
-/* === Botón de Menú y Desplegable de la Tarjeta === */
 .card-menu-btn {
     position: absolute;
     top: 8px;
     right: 8px;
-    width: 32px;
-    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 32px;
+    height: 32px;
     background-color: transparent;
     border: none;
     border-radius: 50%;
@@ -463,18 +401,18 @@
 
 .card-dropdown-menu {
     position: absolute;
-    top: 44px; /* Posición debajo del botón */
+    top: 44px;
     right: 8px;
-    width: 180px;
-    background-color: #ffffff;
-    border-radius: 8px;
-    border: 1px solid #00000015;
-    box-shadow: 0 4px 12px #00000020;
     z-index: 10;
-    padding: 4px;
     display: flex;
     flex-direction: column;
+    width: 180px;
+    padding: 4px;
     gap: 4px;
+    background-color: #ffffff;
+    border: 1px solid #00000015;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px #00000020;
 }
 
 .card-dropdown-menu.disabled {
@@ -484,43 +422,23 @@
 .card-dropdown-menu .menu-link {
     height: 36px;
     font-size: 0.875rem;
-}/* ====================================== */
-/* ==== WORLD CLOCK CARDS (DARK MODE) === */
-/* ====================================== */
-.dark-mode .world-clock-card {
-    background-color: #2e2f31;
-    border-color: #ffffff18;
-    box-shadow: 0 1px 3px #00000020;
-    color: #ffffff;
 }
 
-.dark-mode .world-clock-card:hover {
-    box-shadow: 0 4px 8px #00000030;
-}
-
-.dark-mode .card-menu-btn:hover {
-    background-color: #ffffff18;
-}
-
-.dark-mode .card-dropdown-menu {
-    background-color: #3a3b3d;
-    border-color: #ffffff18;
-    box-shadow: 0 4px 12px #00000040;
-}/* === AÑADIDO: Estilos para arrastrar y soltar === */
 .world-clock-card.dragging {
     opacity: 0.5;
     background-color: #eef2f9;
 }
 
 .world-clock-card.drag-over {
+    background-color: #f5f8ff;
     border-style: dashed;
     border-color: #005fcc;
-    background-color: #f5f8ff;
-}/* AÑADIDO: Estilo para el botón de borrar */
+}
+
 .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-text span,
 .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-icon span {
-    color: #c62828;
     font-weight: 500;
+    color: #c62828;
 }
 
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover {
@@ -530,37 +448,11 @@
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-text span,
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-icon span {
     color: #ffffff;
-}/* === AÑADIDO: Estilos para arrastrar y soltar en Dark Mode === */
-.dark-mode .world-clock-card.dragging {
-    opacity: 0.5;
-    background-color: #3a3b3d;
 }
 
-.dark-mode .world-clock-card.drag-over {
-    border-style: dashed;
-    border-color: #64b5f6;
-    background-color: #2c3e50;
-}
 .world-clock-card.sortable-chosen {
-    cursor: grabbing;
+    opacity: 0.8;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     transform: scale(1.02);
-    opacity: 0.8; /* Ajusta este valor para la opacidad deseada (0.0 - transparente, 1.0 - opaco) */
-}.dark-mode .world-clock-card.sortable-chosen {
-    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-    opacity: 0.8; /* Usa el mismo valor de opacidad para consistencia */
-}
-/* AÑADIDO: Estilo para el botón de borrar en Dark Mode */
-.dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-text span,
-.dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-icon span {
-    color: #ef9a9a;
-}
-
-.dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover {
-    background-color: #ef9a9a;
-}
-
-.dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-text span,
-.dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-icon span {
-    color: #252627;
+    cursor: grabbing;
 }

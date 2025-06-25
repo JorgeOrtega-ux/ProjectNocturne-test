@@ -7,9 +7,9 @@
 /* ===== GLOBAL RESET & BASE STYLES ===== */
 /* ====================================== */
 * {
-    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
     font-family: Roboto, sans-serif;
     -webkit-tap-highlight-color: transparent;
 }
@@ -31,8 +31,8 @@ body {
     font-size: 0.875rem;
     font-weight: 500;
     line-height: 1.25rem;
-    letter-spacing: 0.0178571429em;
     color: #000000;
+    letter-spacing: 0.0178571429em;
 }
 
 /* GRADIENT TEXT STYLES */
@@ -42,8 +42,8 @@ body {
 .tool-worldClock span {
     color: unset;
     background-image: none;
-    -webkit-background-clip: unset;
     background-clip: unset;
+    -webkit-background-clip: unset;
     -webkit-text-fill-color: unset;
 }
 
@@ -83,8 +83,8 @@ body {
 .sidebar-wrapper.desktop-sidebar .sidebar {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     width: auto;
     height: 100%;
     padding: 8px;
@@ -105,8 +105,8 @@ body {
 .sidebar-wrapper.mobile-sidebar .sidebar {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     width: auto;
     height: 100%;
     padding: 8px;
@@ -128,16 +128,16 @@ body {
 .sidebar-item {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     gap: 8px;
 }
 
 /* Sidebar Buttons */
 .sidebar-button {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 40px;
     height: 40px;
     background-color: transparent;
@@ -195,8 +195,8 @@ body {
 .header {
     position: relative;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
     height: auto;
     padding: 8px;
@@ -231,8 +231,8 @@ body {
 .header-button {
     display: flex;
     flex: 0 0 auto;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 40px;
     height: 40px;
     background-color: transparent;
@@ -268,8 +268,8 @@ body {
 .general-content-bottom {
     position: relative;
     display: flex;
-    flex-direction: column;
     flex: 0 0 auto;
+    flex-direction: column;
     height: 100%;
 }
 
@@ -294,16 +294,16 @@ body {
 .section-worldClock {
     position: relative;
     display: flex;
-    flex-direction: column;
     flex: 1 1 auto;
+    flex-direction: column;
 }
 
 .section-top {
     position: relative;
     display: flex;
     flex: 0 0 auto;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
     padding: 8px;
     gap: 8px;
@@ -430,8 +430,8 @@ body {
 
 .menu-link {
     display: flex;
-    flex-direction: row;
     flex: 0 0 auto;
+    flex-direction: row;
     width: 100%;
     height: 40px;
     color: #000000;
@@ -450,8 +450,8 @@ body {
 .menu-link-icon {
     display: flex;
     flex: 0 0 auto;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 45px;
     height: 100%;
 }
@@ -460,16 +460,16 @@ body {
     display: block;
     flex: 1 1 auto;
     align-self: center;
-    text-align: start;
     overflow: hidden;
+    text-align: start;
 }
 
 .menu-link-text span {
     display: block;
     width: 100%;
     overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 /* ====================================== */
@@ -493,8 +493,8 @@ body {
 .menu-content-header {
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
     align-items: center;
+    justify-content: flex-start;
     width: 100%;
     height: 45px;
     padding: 12px;
@@ -513,8 +513,8 @@ body {
 .color-wrapper {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
-    gap: 8px;
     width: 100%;
+    gap: 8px;
 }
 
 .color-content {
@@ -536,18 +536,18 @@ body {
 }
 
 .color::before {
-    content: '';
     position: absolute;
     top: -5px;
-    left: -5px;
     right: -5px;
     bottom: -5px;
+    left: -5px;
+    content: '';
     border: 2px solid transparent;
     border-radius: 50%;
     opacity: 0;
+    pointer-events: none;
     transform: scale(0.8);
     transition: all 0.2s ease;
-    pointer-events: none;
 }
 
 /* Interactive Color States */
@@ -610,12 +610,12 @@ body {
     top: 50%;
     left: 50%;
     z-index: 2;
-    transform: translate(-50%, -50%);
     font-family: 'Roboto', sans-serif;
-    font-weight: 700;
     font-size: 12px;
+    font-weight: 700;
     color: #ffffff;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    transform: translate(-50%, -50%);
     transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
@@ -635,18 +635,17 @@ body {
 
 /* Gradient color previews */
 .color.gradient-preview {
-    background-color: transparent;
-    background-size: 150% 100%;
-    background-position: center;
     border: 1px solid #00000020;
+    background-color: transparent;
+    background-position: center;
+    background-size: 150% 100%;
 }
 
 .menu-content-scrolleable {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
-    flex-direction: column;
-    display: flex
-;
 }
 /* ====================================== */
 /* ============== SEARCH ================ */
@@ -663,8 +662,8 @@ body {
 .search-content-icon {
     display: flex;
     flex: 0 0 auto;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 45px;
     height: 100%;
 }
@@ -672,8 +671,8 @@ body {
 .search-content-text {
     display: flex;
     flex: 1 1 auto;
-    justify-content: flex-start;
     align-items: center;
+    justify-content: flex-start;
 }
 
 .search-content-text > input {
@@ -684,8 +683,8 @@ body {
     border: none;
     outline: none;
     overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 /* ====================================== */
@@ -694,8 +693,8 @@ body {
 .tool-options-wrapper {
     position: relative;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     width: 100%;
     gap: 8px;
     overflow-x: auto;
@@ -711,8 +710,8 @@ body {
 .tool-options-content {
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
     align-items: center;
+    justify-content: flex-end;
     width: max-content;
     min-width: auto;
     height: auto;
@@ -740,8 +739,8 @@ body {
 .tool-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
 }
@@ -753,16 +752,16 @@ body {
     width: 100%;
     max-width: max-content;
     height: 40px;
+    overflow: hidden;
     border: 1px solid #00000020;
     border-radius: 8px;
-    overflow: hidden;
 }
 
 .increse-font-zise-left,
 .increse-font-zise-right {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: auto;
     height: 100%;
     padding: 0 4px;
@@ -772,8 +771,8 @@ body {
 
 .increse-font-zise-center {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
     padding: 0 8px;
@@ -791,14 +790,14 @@ body {
     top: 50%;
     z-index: 1;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 35px;
     height: 35px;
-    transform: translateY(-50%);
     background: #ffffff;
     border: 1px solid #00000020;
     border-radius: 50%;
+    transform: translateY(-50%);
     cursor: pointer;
 }
 
@@ -820,8 +819,8 @@ body {
 .tool-worldClock {
     display: flex;
     flex: 1 1 auto;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     height: 100%;
     overflow: hidden;
 }
@@ -861,9 +860,9 @@ body {
     font-size: 0.875rem;
     font-weight: 500;
     line-height: 1.3;
-    letter-spacing: 0.0178571429em;
-    text-align: center;
     color: #ffffff;
+    text-align: center;
+    letter-spacing: 0.0178571429em;
     background-color: #252627;
     border: 1px solid #252627;
     border-radius: 8px;
@@ -871,8 +870,8 @@ body {
 
 /* Tooltip Arrows */
 .tooltip::before {
-    content: "";
     position: absolute;
+    content: "";
     background-color: #252627;
     border: 1px solid #252627;
 }
@@ -882,10 +881,10 @@ body {
     left: 50%;
     width: 10px;
     height: 10px;
-    transform: translateX(-50%) rotate(45deg);
     border-bottom: none;
     border-right: none;
     border-radius: 2px 0 0 0;
+    transform: translateX(-50%) rotate(45deg);
 }
 
 .tooltip[data-popper-placement^="top"]::before {
@@ -893,10 +892,10 @@ body {
     left: 50%;
     width: 10px;
     height: 10px;
-    transform: translateX(-50%) rotate(45deg);
     border-top: none;
     border-left: none;
     border-radius: 0 0 2px 0;
+    transform: translateX(-50%) rotate(45deg);
 }
 
 .tooltip[data-popper-placement^="right"]::before {
@@ -904,10 +903,10 @@ body {
     left: -6px;
     width: 10px;
     height: 10px;
-    transform: translateY(-50%) rotate(45deg);
     border-right: none;
     border-top: none;
     border-radius: 0 0 0 2px;
+    transform: translateY(-50%) rotate(45deg);
 }
 
 .tooltip[data-popper-placement^="left"]::before {
@@ -915,10 +914,10 @@ body {
     right: -6px;
     width: 10px;
     height: 10px;
-    transform: translateY(-50%) rotate(45deg);
     border-left: none;
     border-bottom: none;
     border-radius: 0 2px 0 0;
+    transform: translateY(-50%) rotate(45deg);
 }
 
 /* ====================================== */
@@ -939,8 +938,8 @@ body {
 }
 
 .slide-out-mobile {
-    transform: translateY(100%);
     opacity: 0;
+    transform: translateY(100%);
     transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s ease;
 }
 
@@ -956,8 +955,8 @@ body {
 }
 
 .preview-active {
-    background-color: #f5f5fa;
     opacity: 0.5;
+    background-color: #f5f5fa;
 }
 
 .disabled-interactive {
@@ -971,21 +970,21 @@ body {
 .overflow-y {
     overflow-x: hidden;
     overflow-y: auto;
-    overscroll-behavior: none;
-    scrollbar-width: thin;
-    scrollbar-color: #00000080 transparent;
-    -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+    overscroll-behavior: none;
+    scrollbar-color: #00000080 transparent;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
 }
 
 .overflow-x {
     overflow-x: auto;
     overflow-y: hidden;
-    overscroll-behavior: none;
-    scrollbar-width: thin;
-    scrollbar-color: #00000080 transparent;
-    -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+    overscroll-behavior: none;
+    scrollbar-color: #00000080 transparent;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* ====================================== */
@@ -1011,8 +1010,8 @@ body {
         position: fixed;
         top: 0;
         left: 0;
-        justify-content: center;
         align-items: flex-end;
+        justify-content: center;
         width: 100%;
         height: 100%;
         background-color: #00000080;
@@ -1030,8 +1029,8 @@ body {
         position: fixed;
         top: 0;
         left: 0;
-        justify-content: center;
         align-items: flex-end;
+        justify-content: center;
         width: 100%;
         height: 100%;
         padding: 0;
@@ -1057,23 +1056,23 @@ body {
     display: flex;
     flex: 1 1 auto;
     flex-direction: row;
-    justify-content: flex-start;
     align-items: center;
+    justify-content: flex-start;
     gap: 8px;
 }
 
 .menu-content-header-secondary {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: auto;
     height: 100%;
 }
 
 .collapse-btn {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     width: 32px;
     height: 32px;
     padding: 0;
@@ -1097,8 +1096,8 @@ body {
     max-height: 0;
     padding-top: 0;
     padding-bottom: 0;
-    opacity: 0;
     overflow: hidden;
+    opacity: 0;
 }
 
 .menu-content-general.expanded {
@@ -1107,13 +1106,13 @@ body {
 }
 
 .menu-content-general {
-    width: auto;
-    height: auto;
     display: flex;
     flex-direction: column;
-    text-align: center;
+    width: auto;
+    height: auto;
     padding-top: 8px;
     padding-bottom: 0;
+    text-align: center;
 }
 
 .menu-content-wrapper {
