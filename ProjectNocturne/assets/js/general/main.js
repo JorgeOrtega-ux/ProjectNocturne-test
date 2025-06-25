@@ -21,7 +21,7 @@ import { initializeTextStyleManager } from '../tools/general-tools.js';
 import { getCurrentColor, getColorInfo, isGradientColor } from '../tools/palette-colors.js';
 
 // ========== GLOBAL TIME FORMAT SETTING ==========
-export let use24HourFormat = false; // true for 24-hour, false for 12-hour
+export let use24HourFormat = true; // true for 24-hour, false for 12-hour
 
 // ========== PREMIUM FEATURES CONSTANT ==========
 export const PREMIUM_FEATURES = false;

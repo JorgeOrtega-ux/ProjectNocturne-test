@@ -56,6 +56,9 @@ import {
     refreshColorSystem
 } from '../tools/palette-colors.js';
 
+import { initializeAlarmClock } from '../tools/alarm-controller.js';
+import { initWorldClock } from '../tools/worldClock-controller.js';
+
 // ========== CONFIGURATION CONSTANTS ==========
 
 const TIMING_CONFIG = {
@@ -186,14 +189,12 @@ function forceRefresh(options = {}) {
     const config = createRefreshConfig(options);
     const now = Date.now();
     
-    // FIX: List of sources that should bypass throttling for immediate UI feedback.
     const criticalUiSources = [
         REFRESH_SOURCES.SEARCH_UPDATE,
         REFRESH_SOURCES.RECENT_COLORS_RENDERED,
         REFRESH_SOURCES.DYNAMIC_ELEMENTS
     ];
 
-    // FIX: Modify throttling guard to allow critical sources through.
     if (now - applicationState.lastRefreshTime < TIMING_CONFIG.MIN_INTERVAL_BETWEEN_REFRESHES && !criticalUiSources.includes(config.source)) {
         if (debugConfig.enableLogs) {
             console.log(`⏸️ Refresh skipped - Too frequent (${config.source})`);
@@ -227,7 +228,6 @@ function forceRefresh(options = {}) {
 
     const executeRefresh = () => performRefreshOperation(config);
     
-    // FIX: Keep immediate execution logic for critical sources.
     if (config.immediate || criticalUiSources.includes(config.source)) {
         executeRefresh();
     } else {
@@ -380,12 +380,14 @@ function initializeMainComponents() {
     initMobileDragController();
     initNewOverlayModules();
 
-    // ========== GENERAL TOOLS INITIALIZATION ==========
     initializeCategorySliderService();
     initializeCentralizedFontManager();
     initializeFullScreenManager();
     initColorTextSystem();
-  initColorSearchSystem(); 
+    initColorSearchSystem(); 
+    initializeAlarmClock();
+    initWorldClock();
+
     setupEventListeners();
     batchMigrateTooltips();
     initializeMobileSidebarTooltips();
