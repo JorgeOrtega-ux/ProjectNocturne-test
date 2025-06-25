@@ -1,104 +1,215 @@
 (function() {
     "use strict";
 
-    let clockInterval = null;
+    // Objeto para almacenar los intervalos de cada reloj y poder limpiarlos después.
+    const clockIntervals = new Map();
 
     /**
-     * Actualiza el reloj principal en la sección "World Clock" para mostrar la hora de una zona horaria específica.
-     * @param {string} timezone - El nombre de la zona horaria IANA (ej. "America/Mexico_City").
+     * Actualiza la hora de un elemento de reloj específico.
+     * @param {HTMLElement} element - El elemento <span> que mostrará la hora.
+     * @param {string} timezone - La zona horaria IANA (ej. "America/Mexico_City").
      */
-    function updateWorldClockTime(timezone) {
-        const worldClockElement = document.querySelector('.tool-worldClock span');
-        if (!worldClockElement) return;
-
+    function updateTimeForElement(element, timezone) {
+        if (!element) return;
         try {
             const now = new Date();
-            // Usamos toLocaleTimeString con la opción timeZone para obtener la hora correcta.
-            const timeString = now.toLocaleTimeString('en-US', { // 'en-US' para un formato predecible HH:MM:SS
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                timeZone: timezone,
-                hour12: false // Usar formato de 24 horas
-            });
-            
-            worldClockElement.textContent = timeString;
-
+            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: timezone, hour12: false });
+            element.textContent = timeString;
         } catch (error) {
             console.error(`Zona horaria inválida: ${timezone}`, error);
-            // Si la zona horaria no es válida, mostramos la hora local como respaldo.
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            worldClockElement.textContent = `${hours}:${minutes}:${seconds}`;
-            
-            // Detenemos el intervalo para prevenir errores repetidos.
-            if (clockInterval) {
-                clearInterval(clockInterval);
+            element.textContent = "Error";
+            if (clockIntervals.has(element)) {
+                clearInterval(clockIntervals.get(element));
+                clockIntervals.delete(element);
             }
         }
     }
 
     /**
-     * Inicia el intervalo para actualizar la hora del reloj mundial cada segundo para una zona horaria dada.
-     * @param {string|null} timezone - El nombre de la zona horaria IANA. Si es nulo, usa la hora local.
+     * Inicia un intervalo para actualizar un elemento de reloj cada segundo.
+     * @param {HTMLElement} element - El elemento <span> a actualizar.
+     * @param {string} timezone - La zona horaria IANA.
      */
-    function startWorldClock(timezone) {
-        if (clockInterval) {
-            clearInterval(clockInterval);
+    function startClockForElement(element, timezone) {
+        if (clockIntervals.has(element)) {
+            clearInterval(clockIntervals.get(element));
         }
-        
-        // Actualiza la hora inmediatamente.
-        updateWorldClockTime(timezone); 
-        
-        // Y luego la actualiza cada segundo.
-        clockInterval = setInterval(() => updateWorldClockTime(timezone), 1000);
+        updateTimeForElement(element, timezone);
+        const intervalId = setInterval(() => updateTimeForElement(element, timezone), 1000);
+        clockIntervals.set(element, intervalId);
     }
 
     /**
-     * Obtiene los datos de ubicación del usuario e inicia el reloj con la zona horaria detectada.
+     * Crea una nueva tarjeta de reloj y la añade al grid.
+     * @param {string} title - El título de la tarjeta.
+     * @param {string} country - El país para mostrar.
+     * @param {string} timezone - La zona horaria IANA para el reloj.
      */
-    async function initializeWorldClock() {
-        try {
-            const response = await fetch('http://ip-api.com/json');
-            
-            if (!response.ok) {
-                throw new Error(`Error HTTP! estado: ${response.status}`);
-            }
+    function createAndStartClockCard(title, country, timezone) {
+        const grid = document.querySelector('.world-clocks-grid');
+        if (!grid) return;
 
-            const data = await response.json();
+        const cardId = `clock-card-${Date.now()}`;
+        const timeId = `time-${cardId}`;
 
-            if (data.status === 'success' && data.timezone) {
-                const country = data.country;
-                const timezone = data.timezone;
+        const editClockText = getTranslation('edit_clock', 'world_clock_options');
+        const deleteClockText = getTranslation('delete_clock', 'world_clock_options');
+        const optionsTooltipText = getTranslation('options', 'world_clock_options');
 
-                console.log("===== Información de Ubicación del Usuario =====");
-                console.log(`País detectado: ${country}`);
-                console.log(`Zona horaria detectada: ${timezone}`);
-                console.log("=============================================");
+        const cardHTML = `
+            <div class="world-clock-card" id="${cardId}">
+                <div class="world-clock-card-top">
+                    <span class="location-text" title="${title}">${title}</span>
+                </div>
+                <div class="world-clock-card-bottom">
+                    <span id="${timeId}">--:--:--</span>
+                </div>
+                
+                <button class="card-menu-btn" data-action="toggle-card-menu" data-tooltip="${optionsTooltipText}">
+                    <span class="material-symbols-rounded">more_vert</span>
+                </button>
+                
+                <div class="card-dropdown-menu disabled">
+                    <div class="menu-link" data-action="edit-clock">
+                        <div class="menu-link-icon"><span class="material-symbols-rounded">edit</span></div>
+                        <div class="menu-link-text"><span>${editClockText}</span></div>
+                    </div>
+                    <div class="menu-link" data-action="delete-clock">
+                        <div class="menu-link-icon"><span class="material-symbols-rounded">delete</span></div>
+                        <div class="menu-link-text"><span>${deleteClockText}</span></div>
+                    </div>
+                </div>
+            </div>
+        `;
 
-                // Inicia el reloj con la zona horaria detectada.
-                startWorldClock(timezone);
+        grid.insertAdjacentHTML('beforeend', cardHTML);
 
-            } else {
-                console.error('No se pudo obtener la zona horaria. Estado de la API: ' + data.status);
-                // Respaldo a la hora local del usuario.
-                startWorldClock(null);
-            }
-
-        } catch (error) {
-            console.error('Error al obtener la ubicación del usuario. Usando hora local como respaldo.', error);
-            // Respaldo a la hora local del usuario en caso de error de red.
-            startWorldClock(null);
+        const newTimeElement = document.getElementById(timeId);
+        if (newTimeElement) {
+            startClockForElement(newTimeElement, timezone);
+        }
+        
+        if (window.attachTooltipsToNewElements) {
+             const newCardElement = document.getElementById(cardId);
+             window.attachTooltipsToNewElements(newCardElement);
         }
     }
     
-    // Cuando el DOM esté completamente cargado, se inicializa el reloj mundial.
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initializeWorldClock);
-    } else {
-        initializeWorldClock();
+    function getTranslation(key, category) {
+        if (typeof window.getTranslation === 'function') {
+            return window.getTranslation(key, category);
+        }
+        return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
 
+    async function initializeLocalClock() {
+        const mainClockElement = document.querySelector('.tool-worldClock span');
+        const localTimezoneElement = document.getElementById('local-timezone');
+        const localTimeElement = document.getElementById('local-time');
+
+        try {
+            const response = await fetch('http://ip-api.com/json');
+            if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+            const data = await response.json();
+            if (data.status === 'success' && data.timezone) {
+                const { country, timezone } = data;
+                if (localTimezoneElement) localTimezoneElement.textContent = `${timezone.replace(/_/g, ' ')}, ${country}`;
+                if (mainClockElement) startClockForElement(mainClockElement, timezone);
+                if (localTimeElement) startClockForElement(localTimeElement, timezone);
+            } else {
+                throw new Error('API de IP no retornó una zona horaria válida.');
+            }
+        } catch (error) {
+            console.warn(`No se pudo obtener la ubicación por IP (${error.message}). Usando hora local del navegador.`);
+            const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            if (localTimezoneElement) localTimezoneElement.textContent = `${localTimezone.replace(/_/g, ' ')}, Local`;
+            if (mainClockElement) startClockForElement(mainClockElement, localTimezone);
+            if (localTimeElement) startClockForElement(localTimeElement, localTimezone);
+        }
+    }
+
+    /**
+     * INICIO DE LA LÓGICA CON SORTABLEJS (ACTUALIZADA)
+     */
+    function initializeSortable() {
+        const grid = document.querySelector('.world-clocks-grid');
+        if (grid && typeof Sortable !== 'undefined') {
+            new Sortable(grid, {
+                animation: 150,
+                filter: '.local-clock-card', // Evita que la tarjeta local se pueda arrastrar
+                draggable: '.world-clock-card',
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                // AÑADIDO: Evita que otras tarjetas se puedan mover a la posición de la tarjeta local
+                onMove: function (evt) {
+                    // Retorna 'false' si el movimiento es hacia un elemento filtrado (nuestra tarjeta local)
+                    return !evt.related.classList.contains('local-clock-card');
+                }
+            });
+        } else if (typeof Sortable === 'undefined') {
+            console.error('La librería SortableJS no está cargada. La función de arrastrar y soltar no funcionará.');
+        }
+    }
+
+    // --- MANEJO DE EVENTOS PARA CLICS ---
+    const grid = document.querySelector('.world-clocks-grid');
+    if (grid) {
+        grid.addEventListener('click', function(e) {
+            const actionTarget = e.target.closest('[data-action]');
+            if (!actionTarget) return;
+
+            const action = actionTarget.getAttribute('data-action');
+            const card = actionTarget.closest('.world-clock-card');
+            if (!card) return;
+
+            document.querySelectorAll('.card-dropdown-menu:not(.disabled)').forEach(menu => {
+                if (!card.contains(menu)) {
+                    menu.classList.add('disabled');
+                }
+            });
+
+            if (action === 'toggle-card-menu') {
+                e.stopPropagation();
+                const dropdown = card.querySelector('.card-dropdown-menu');
+                if (dropdown) dropdown.classList.toggle('disabled');
+            } else if (action === 'delete-clock') {
+                const timeElement = card.querySelector('span[id^="time-"]');
+                for (const [keyElement, intervalId] of clockIntervals.entries()) {
+                    if (keyElement.id === timeElement.id) {
+                         clearInterval(intervalId);
+                         clockIntervals.delete(keyElement);
+                         break;
+                    }
+                }
+                card.remove();
+            } else if (action === 'edit-clock') {
+                console.log('Funcionalidad "Editar reloj" pendiente de implementación.');
+                const dropdown = card.querySelector('.card-dropdown-menu');
+                if (dropdown) dropdown.classList.add('disabled');
+            }
+        });
+    }
+    
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.card-dropdown-menu') && !e.target.closest('[data-action="toggle-card-menu"]')) {
+            document.querySelectorAll('.card-dropdown-menu:not(.disabled)').forEach(menu => {
+                menu.classList.add('disabled');
+            });
+        }
+    });
+
+    window.worldClockManager = {
+        createAndStartClockCard
+    };
+
+    // --- INICIALIZACIÓN PRINCIPAL ---
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeLocalClock();
+            initializeSortable(); 
+        });
+    } else {
+        initializeLocalClock();
+        initializeSortable();
+    }
 })();

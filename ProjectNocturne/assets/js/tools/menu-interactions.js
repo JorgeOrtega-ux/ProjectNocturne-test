@@ -558,52 +558,31 @@ function setupGlobalEventListeners() {
                 }
                 break;
             }
+            // Dentro del event listener 'click' en document.body
             case 'addWorldClock': {
                 const clockTitleInput = parentMenu.querySelector('#worldclock-title');
                 const clockTitle = clockTitleInput ? clockTitleInput.value.trim() : '';
                 const { country, timezone } = state.worldClock;
             
-                if (!clockTitle) {
-                    console.warn('⚠️ Se bloqueó la creación del reloj: falta el título.');
-                    return;
-                }
-                if (!country) {
-                    console.warn('⚠️ Se bloqueó la creación del reloj: falta seleccionar el país.');
-                    return;
-                }
-                if (!timezone) {
-                    console.warn('⚠️ Se bloqueó la creación del reloj: falta seleccionar la zona horaria.');
+                if (!clockTitle || !country || !timezone) {
+                    console.warn('⚠️ Se bloqueó la creación del reloj: faltan datos (título, país o zona horaria).');
                     return;
                 }
             
-                // --- CÁLCULO DE LA HORA LOCAL ---
-                let currentTimeInZone = 'No se pudo obtener la hora.';
-                try {
-                    const date = new Date();
-                    const appLanguage = typeof window.getCurrentLanguage === 'function' ? window.getCurrentLanguage() : 'en-US';
-                    
-                    const options = {
-                        timeZone: timezone,
-                        year: 'numeric', month: 'long', day: 'numeric',
-                        hour: 'numeric', minute: 'numeric', second: 'numeric',
-                    };
-
-                    currentTimeInZone = new Intl.DateTimeFormat(appLanguage, options).format(date);
-                } catch (e) {
-                    console.error(`Error al formatear la fecha para la zona horaria ${timezone}:`, e);
+                // Llamar a la función expuesta para crear la tarjeta.
+                if (window.worldClockManager && typeof window.worldClockManager.createAndStartClockCard === 'function') {
+                    window.worldClockManager.createAndStartClockCard(clockTitle, country, timezone);
+                } else {
+                    console.error('El worldClockManager no está disponible.');
                 }
-                // --- FIN DEL CÁLCULO ---
+                
+                // Opcional: Cerrar el menú después de agregar el reloj
+                if (window.deactivateModule) {
+                    window.deactivateModule('overlayContainer', { source: 'add-world-clock' });
+                }
 
-                const clockData = { 
-                    title: clockTitle, 
-                    country: country,
-                    timezone: timezone,
-                    currentTime: currentTimeInZone // <- Dato añadido
-                };
-
-                console.group("🌍 Reloj Mundial Agregado");
-                console.log("Datos:", clockData);
-                console.groupEnd();
+                // Resetea el menú para la próxima vez que se abra
+                resetWorldClockMenu(parentMenu);
                 break;
             }
         }

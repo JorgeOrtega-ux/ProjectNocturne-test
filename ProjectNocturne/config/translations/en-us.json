@@ -172,5 +172,10 @@
     "hours": "Hours",
     "minutes": "Minutes",
     "seconds": "Seconds"
-  }
+  },
+  "world_clock_options": {
+  "options": "Clock options",
+  "edit_clock": "Edit clock",
+  "delete_clock": "Delete clock"
+}
 }

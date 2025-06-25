@@ -65,5 +65,16 @@
             </div>
         </div>
     </div>
-    <div class="section-bottom"></div>
+    <div class="section-bottom">
+        <div class="world-clocks-grid">
+            <div class="world-clock-card local-clock-card">
+                <div class="world-clock-card-top">
+                    <span id="local-timezone" data-translate="world_clock.loading_countries" data-translate-category="world_clock">Loading...</span>
+                </div>
+                <div class="world-clock-card-bottom">
+                    <span id="local-time">--:--:--</span>
+                </div>
+            </div>
+            </div>
+    </div>
 </div>
