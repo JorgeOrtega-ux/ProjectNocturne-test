@@ -233,8 +233,10 @@ const resetDropdownDisplay = (menuElement, displaySelector, translateKey, transl
 };
 
 const updateAlarmDisplay = (parent) => {
-    updateDisplay('#hour-display', `${state.alarm.hour} horas`, parent);
-    updateDisplay('#minute-display', `${state.alarm.minute} minutos`, parent);
+    const hourText = typeof window.getTranslation === 'function' ? window.getTranslation('hours', 'timer') : 'horas';
+    const minuteText = typeof window.getTranslation === 'function' ? window.getTranslation('minutes', 'timer') : 'minutos';
+    updateDisplay('#hour-display', `${state.alarm.hour} ${hourText}`, parent);
+    updateDisplay('#minute-display', `${state.alarm.minute} ${minuteText}`, parent);
 };
 
 const setAlarmDefaults = () => {
@@ -321,7 +323,8 @@ async function populateCountryDropdown(parentMenu) {
     const countryList = parentMenu.querySelector('.menu-worldclock-country .menu-list');
     if (!countryList) return;
     if (countryList.children.length > 1) return; // Already populated
-    countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>Cargando países...</span></div>`;
+    const loadingText = (typeof window.getTranslation === 'function') ? window.getTranslation('loading_countries', 'world_clock') : 'Loading countries...';
+    countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>${loadingText}</span></div>`;
     try {
         const ct = await loadCountriesAndTimezones();
         const countries = Object.values(ct.getAllCountries()).sort((a, b) => a.name.localeCompare(b.name));
@@ -332,7 +335,10 @@ async function populateCountryDropdown(parentMenu) {
             link.innerHTML = `<div class="menu-link-icon"><span class="material-symbols-rounded">public</span></div><div class="menu-link-text"><span>${country.name}</span></div>`;
             countryList.appendChild(link);
         });
-    } catch (error) { countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>❌ Error al cargar países.</span></div>`; }
+    } catch (error) {
+        const errorText = (typeof window.getTranslation === 'function') ? window.getTranslation('error_loading_countries', 'world_clock') : '❌ Error loading countries.';
+        countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>${errorText}</span></div>`;
+    }
 }
 
 
@@ -355,10 +361,15 @@ async function populateTimezoneDropdown(parentMenu, countryCode) {
             });
             timezoneSelector.classList.remove('disabled-interactive');
         } else {
-            timezoneList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>⚠️ No hay zonas horarias.</span></div>`;
+            const noTimezonesText = (typeof window.getTranslation === 'function') ? window.getTranslation('no_timezones_found', 'world_clock') : '⚠️ No timezones found.';
+            timezoneList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>${noTimezonesText}</span></div>`;
             timezoneSelector.classList.add('disabled-interactive');
         }
-    } catch (error) { timezoneList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>❌ Error al cargar zonas horarias.</span></div>`; timezoneSelector.classList.add('disabled-interactive'); }
+    } catch (error) {
+        const errorText = (typeof window.getTranslation === 'function') ? window.getTranslation('error_loading_timezones', 'world_clock') : '❌ Error loading timezones.';
+        timezoneList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>${errorText}</span></div>`;
+        timezoneSelector.classList.add('disabled-interactive');
+    }
 }
 
 

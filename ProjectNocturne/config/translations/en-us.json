@@ -143,7 +143,11 @@
     "select_country": "Select a country",
     "select_a_country": "Select a country",
     "select_timezone": "Select a timezone",
-    "select_a_timezone": "Select a timezone"
+    "select_a_timezone": "Select a timezone",
+    "loading_countries": "Loading countries...",
+    "error_loading_countries": "Error loading countries.",
+    "no_timezones_found": "No timezones found.",
+    "error_loading_timezones": "Error loading timezones."
   },
   "sounds": {
     "classic_beep": "Classic Beep",
@@ -155,7 +159,7 @@
   "timer": {
     "countdown": "Countdown",
     "count_to_date": "Count to Date",
-    "timer_title": "Title",
+    "timer_title": "Timer Title",
     "my_new_timer_placeholder": "My new timer",
     "my_event_placeholder": "My special event",
     "set_duration": "Set Duration",

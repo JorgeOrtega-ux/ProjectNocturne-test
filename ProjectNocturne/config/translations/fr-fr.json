@@ -143,7 +143,11 @@
     "select_country": "Sélectionnez un pays",
     "select_a_country": "Sélectionnez un pays",
     "select_timezone": "Sélectionnez un fuseau horaire",
-    "select_a_timezone": "Sélectionnez un fuseau horaire"
+    "select_a_timezone": "Sélectionnez un fuseau horaire",
+    "loading_countries": "Chargement des pays...",
+    "error_loading_countries": "Erreur lors du chargement des pays.",
+    "no_timezones_found": "Aucun fuseau horaire trouvé.",
+    "error_loading_timezones": "Erreur lors du chargement des fuseaux horaires."
   },
   "sounds": {
     "classic_beep": "Bip Classique",
@@ -155,7 +159,7 @@
   "timer": {
     "countdown": "Compte à rebours",
     "count_to_date": "Compter jusqu'à la date",
-    "timer_title": "Titre",
+    "timer_title": "Titre de la minuterie",
     "my_new_timer_placeholder": "Mon nouveau minuteur",
     "my_event_placeholder": "Mon événement spécial",
     "set_duration": "Définir la durée",

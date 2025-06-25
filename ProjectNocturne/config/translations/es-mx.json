@@ -143,7 +143,11 @@
     "select_country": "Selecciona un país",
     "select_a_country": "Seleccionar un país",
     "select_timezone": "Selecciona una zona horaria",
-    "select_a_timezone": "Seleccionar una zona horaria"
+    "select_a_timezone": "Seleccionar una zona horaria",
+    "loading_countries": "Cargando países...",
+    "error_loading_countries": "Error al cargar los países.",
+    "no_timezones_found": "No se encontraron zonas horarias.",
+    "error_loading_timezones": "Error al cargar las zonas horarias."
   },
   "sounds": {
     "classic_beep": "Beep Clásico",
@@ -155,7 +159,7 @@
   "timer": {
     "countdown": "Cuenta atrás",
     "count_to_date": "Contar hasta fecha",
-    "timer_title": "Título",
+    "timer_title": "Título del temporizador",
     "my_new_timer_placeholder": "Mi nuevo temporizador",
     "my_event_placeholder": "Mi evento especial",
     "set_duration": "Establecer Duración",
