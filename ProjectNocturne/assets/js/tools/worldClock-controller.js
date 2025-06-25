@@ -117,8 +117,16 @@
         const cardHTML = `
             <div class="world-clock-card" id="${cardId}" data-timezone="${timezone}">
                 <div class="card-header">
-                    <span class="location-text" title="${title}">${title}</span>
-                    <span class="clock-offset">${utcOffsetText}</span>
+                    <div class="card-location-details">
+                        <span class="location-text" title="${title}">${title}</span>
+                        <span class="clock-offset">${utcOffsetText}</span>
+                    </div>
+                    <button class="card-menu-btn" data-action="toggle-card-menu" 
+                            data-translate="options"
+                            data-translate-category="world_clock_options"
+                            data-translate-target="tooltip">
+                        <span class="material-symbols-rounded">more_vert</span>
+                    </button>
                 </div>
                 <div class="card-body">
                     <span class="clock-time">--:--:--</span>
@@ -127,13 +135,6 @@
                     <span class="clock-date">---, -- ----</span>
                     <span class="day-night-indicator material-symbols-rounded"></span>
                 </div>
-                
-                <button class="card-menu-btn" data-action="toggle-card-menu" 
-                        data-translate="options"
-                        data-translate-category="world_clock_options"
-                        data-translate-target="tooltip">
-                    <span class="material-symbols-rounded">more_vert</span>
-                </button>
                 
                 <div class="card-dropdown-menu disabled">
                     <div class="menu-link" data-action="edit-clock">
