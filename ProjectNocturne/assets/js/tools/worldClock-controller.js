@@ -1,4 +1,5 @@
 // /assets/js/tools/worldClock-controller.js
+import { PREMIUM_FEATURES } from '../general/main.js';
 
 (function() {
     "use strict";
@@ -6,7 +7,6 @@
     // Objeto para almacenar los intervalos de cada reloj y poder limpiarlos después.
     // La clave es el elemento (tarjeta o span) para una gestión precisa.
     const clockIntervals = new Map();
-    let isPremium = false; // O 'true' para activar el modo premium
 
     /**
      * Actualiza la fecha y hora para un elemento de reloj (tarjeta o span).
@@ -104,7 +104,7 @@
         const grid = document.querySelector('.world-clocks-grid');
         if (!grid) return;
 
-        const clockLimit = isPremium ? 100 : 5;
+        const clockLimit = PREMIUM_FEATURES ? 100 : 5;
         const currentClocks = grid.querySelectorAll('.world-clock-card').length;
 
         if (currentClocks >= clockLimit) {

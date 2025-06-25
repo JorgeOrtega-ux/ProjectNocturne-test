@@ -2,6 +2,7 @@
 
 // ========== IMPORTS ==========
 import { attachTooltipsToNewElements } from '../general/tooltip-controller.js';
+import { PREMIUM_FEATURES } from '../general/main.js';
 
 // ========== CONFIGURATION AND CONSTANTS ==========
 const COLOR_SYSTEM_CONFIG = {
@@ -35,9 +36,6 @@ const COLOR_SYSTEM_CONFIG = {
     collapsedSectionsKey: 'collapsed-color-sections',
     moveRecentToFront: true,
 };
-
-const PALETTE_PREMIUM_FEATURES = true;
-
 
 // ========== CENTRALIZED STATE ==========
 
@@ -129,7 +127,7 @@ function handleThemeColorCompatibility() {
             localStorage.setItem(COLOR_SYSTEM_CONFIG.storageKey, 'auto');
             localStorage.setItem(COLOR_SYSTEM_CONFIG.activeColorKey, 'auto');
             localStorage.setItem(COLOR_SYSTEM_CONFIG.activeColorSectionKey, 'auto');
-            
+
             setTimeout(() => {
                 renderRecentColors('theme_change');
             }, 100);
@@ -235,7 +233,7 @@ function initColorTextSystem() {
         isValidForTheme: isValidForTheme,
         getCurrentTheme: () => colorSystemState.currentTheme,
         toggleSectionCollapse: toggleSectionCollapse,
-        arePremiumFeaturesEnabled: () => PALETTE_PREMIUM_FEATURES 
+        arePremiumFeaturesEnabled: () => PREMIUM_FEATURES
     };
 }
 
@@ -314,7 +312,7 @@ function updateColorSectionHeaders() {
         defaultColorsHeader.textContent = getDefaultColorsHeader();
     }
 
-    if (PALETTE_PREMIUM_FEATURES) {
+    if (PREMIUM_FEATURES) {
         const gradientColorsHeader = document.querySelector('[data-section="gradient-colors"] .menu-content-header span:last-child');
         if (gradientColorsHeader) {
             gradientColorsHeader.textContent = getGradientColorsHeader();
@@ -333,7 +331,7 @@ function updateSingleColorTooltip(element) {
     const colorName = element.getAttribute('data-color');
     const colorSection = element.getAttribute('data-section');
     const baseTooltipKey = element.getAttribute('data-translate');
-    
+
     // Determine the correct category. 'auto' is a UI concept, not just a color.
     const tooltipCategory = (baseTooltipKey === 'auto') ? 'tooltips' : 'colors';
 
@@ -353,7 +351,7 @@ function updateSingleColorTooltip(element) {
         tooltipText = getTranslation('auto', 'tooltips');
     } else {
         const knownColorKey = getTranslatedColorNameFromHex(colorHex);
-        
+
         if (knownColorKey) {
             tooltipText = getTranslation(knownColorKey, 'colors');
         } else {
@@ -392,7 +390,7 @@ function updateSingleColorTooltip(element) {
             }
         }
     }
-    
+
     element.setAttribute('data-tooltip', tooltipText);
 }
 
@@ -427,7 +425,7 @@ function loadStoredData() {
             initializeDefaultRecentColors();
         }
 
-        if (!PALETTE_PREMIUM_FEATURES) {
+        if (!PREMIUM_FEATURES) {
             let wasModified = false;
 
             // Paso 1: Resetear el color activo si era premium.
@@ -464,7 +462,7 @@ function loadStoredData() {
                     wasModified = true;
                 }
             }
-            
+
             // Paso 4: Si la lista quedó vacía, la inicializamos (solución anterior).
             if (colorSystemState.recentColors.length === 0) {
                 initializeDefaultRecentColors(); // Esta función ya guarda los cambios.
@@ -510,7 +508,7 @@ function saveRecentColors() {
         if (Array.isArray(colorSystemState.recentColors)) {
             const jsonString = JSON.stringify(colorSystemState.recentColors);
             localStorage.setItem(COLOR_SYSTEM_CONFIG.recentColorsKey, jsonString);
-            
+
             const verification = localStorage.getItem(COLOR_SYSTEM_CONFIG.recentColorsKey);
             if (!verification) {
                 console.error('❌ Failed to save recent colors to localStorage');
@@ -533,7 +531,7 @@ function addToRecentColors(colorHex, colorNameForRecent, source = 'manual', forc
         actualName = getTranslatedColorNameFromHex(actualHex);
     }
     else if (isGradientColor(colorHex)) {
-        if (!PALETTE_PREMIUM_FEATURES) return;
+        if (!PREMIUM_FEATURES) return;
         const gradient = COLOR_SYSTEM_CONFIG.gradientColors.find(g => g.hex === colorHex);
         actualName = gradient ? gradient.name : colorNameForRecent;
     } else {
@@ -574,9 +572,9 @@ function addToRecentColors(colorHex, colorNameForRecent, source = 'manual', forc
         if (colorSystemState.recentColors.length > COLOR_SYSTEM_CONFIG.maxRecentColors) {
             colorSystemState.recentColors = colorSystemState.recentColors.slice(0, COLOR_SYSTEM_CONFIG.maxRecentColors);
         }
-        
+
         saveRecentColors();
-        
+
         if (source !== 'theme_change' && !colorSystemState.isThemeChanging) {
             renderRecentColors(source);
         }
@@ -634,7 +632,7 @@ function createRecentColorElement(recentColor) {
     } else {
         colorContent.setAttribute('data-translate', recentColor.hex);
     }
-    
+
     colorContent.setAttribute('data-translate-category', 'colors');
     colorContent.setAttribute('data-translate-target', 'tooltip');
 
@@ -678,7 +676,7 @@ function setupRecentColorEvents() {
             e.stopPropagation();
             handleColorClick(element, { hex: colorHex, name: colorName, section: colorSection });
         };
-        
+
         // Let CSS handle hover effects
         const mouseEnterHandler = () => {};
         const mouseLeaveHandler = () => {};
@@ -761,7 +759,7 @@ function renderGradientColors() {
 
     let gradientSection = document.querySelector('[data-section="gradient-colors"]');
 
-    if (PALETTE_PREMIUM_FEATURES) {
+    if (PREMIUM_FEATURES) {
         if (!gradientSection) {
             gradientSection = document.createElement('div');
             gradientSection.className = 'menu-content';
@@ -849,7 +847,7 @@ function attachEventListeners() {
             e.stopPropagation();
             handleColorClick(element, { hex: colorHex, name: colorName, section: colorSection });
         };
-        
+
         // Let CSS handle hover effects
         const mouseEnterHandler = () => {};
         const mouseLeaveHandler = () => {};
@@ -990,8 +988,8 @@ function setupCollapsibleSectionEvents() {
             secondaryHeaderContainer.remove();
         }
     });
-    
-    if (!PALETTE_PREMIUM_FEATURES) {
+
+    if (!PREMIUM_FEATURES) {
         return;
     }
 
@@ -1013,11 +1011,11 @@ function setupCollapsibleSectionEvents() {
             collapseButton.setAttribute('data-collapsible', 'true');
             collapseButton.innerHTML = '<span class="material-symbols-rounded expand-icon">expand_more</span>';
             secondaryHeader.appendChild(collapseButton);
-            
+
             // MEJORA: Aplicar estado inicial inmediatamente al crear el botón
             const sectionId = sectionContainer.getAttribute('data-section');
             const expandIcon = collapseButton.querySelector('.expand-icon');
-            
+
             if (expandIcon) {
                 expandIcon.style.transition = 'none';
                 if (colorSystemState.collapsedSections.has(sectionId)) {
@@ -1027,7 +1025,7 @@ function setupCollapsibleSectionEvents() {
                     expandIcon.style.transform = 'rotate(0deg)';
                     collapseButton.setAttribute('aria-expanded', 'true');
                 }
-                
+
                 requestAnimationFrame(() => {
                     expandIcon.style.transition = '';
                 });
@@ -1054,7 +1052,7 @@ function setupCollapsibleSections() {
     applyCollapsedSectionsState(); // CAMBIO: Ya no usa setTimeout internamente
 }
 function toggleSectionCollapse(sectionId) {
-    if (!PALETTE_PREMIUM_FEATURES) return;
+    if (!PREMIUM_FEATURES) return;
 
     const sectionContainer = document.querySelector(`.menu-content[data-section="${sectionId}"]`);
     if (!sectionContainer) return;
@@ -1087,7 +1085,7 @@ function toggleSectionCollapse(sectionId) {
 }
 
 function loadCollapsedSectionsState() {
-    if (!PALETTE_PREMIUM_FEATURES) return;
+    if (!PREMIUM_FEATURES) return;
     try {
         const storedCollapsed = localStorage.getItem(COLOR_SYSTEM_CONFIG.collapsedSectionsKey);
         if (storedCollapsed) {
@@ -1102,7 +1100,7 @@ function loadCollapsedSectionsState() {
 }
 
 function saveCollapsedSectionsState() {
-    if (!PALETTE_PREMIUM_FEATURES) return;
+    if (!PREMIUM_FEATURES) return;
     try {
         localStorage.setItem(COLOR_SYSTEM_CONFIG.collapsedSectionsKey, JSON.stringify(Array.from(colorSystemState.collapsedSections)));
     }
@@ -1112,7 +1110,7 @@ function saveCollapsedSectionsState() {
 }
 
 function applyCollapsedSectionsState() {
-    if (!PALETTE_PREMIUM_FEATURES) return;
+    if (!PREMIUM_FEATURES) return;
 
     // CAMBIO: Remover setTimeout y aplicar inmediatamente
     document.querySelectorAll('.menu-content[data-collapsible-section="true"]').forEach(sectionContainer => {
@@ -1124,7 +1122,7 @@ function applyCollapsedSectionsState() {
         if (contentElement && collapseButton && expandIcon) {
             // MEJORA: Desactivar temporalmente las transiciones CSS
             expandIcon.style.transition = 'none';
-            
+
             if (colorSystemState.collapsedSections.has(sectionId)) {
                 contentElement.classList.add('collapsed');
                 contentElement.classList.remove('expanded');
@@ -1138,7 +1136,7 @@ function applyCollapsedSectionsState() {
                 collapseButton.setAttribute('aria-expanded', 'true');
                 expandIcon.style.transform = 'rotate(0deg)';
             }
-            
+
             // MEJORA: Reactivar las transiciones después de un frame
             requestAnimationFrame(() => {
                 expandIcon.style.transition = '';
@@ -1310,15 +1308,15 @@ function getColorInfo() {
         currentColor: colorSystemState.currentColor,
         activeColorName: activeColorName,
         totalElements: getElementCount(),
-        totalColors: colorSystemState.colorElements.size + (PALETTE_PREMIUM_FEATURES ? COLOR_SYSTEM_CONFIG.gradientColors.length : 0),
+        totalColors: colorSystemState.colorElements.size + (PREMIUM_FEATURES ? COLOR_SYSTEM_CONFIG.gradientColors.length : 0),
         recentColorsCount: colorSystemState.recentColors.length,
         recentColors: [...colorSystemState.recentColors],
         currentTheme: colorSystemState.currentTheme,
         isThemeChanging: colorSystemState.isThemeChanging,
         isInitialized: colorSystemState.isInitialized,
-        collapsibleSectionsEnabled: PALETTE_PREMIUM_FEATURES,
+        collapsibleSectionsEnabled: PREMIUM_FEATURES,
         collapsedSections: Array.from(colorSystemState.collapsedSections),
-        gradientColorsSectionEnabled: PALETTE_PREMIUM_FEATURES
+        gradientColorsSectionEnabled: PREMIUM_FEATURES
     };
 }
 
@@ -1383,7 +1381,7 @@ function createSearchColorElement(colorData) {
 
 function debugColorSystem() {
     console.group('🎨 Color Text Manager Debug (Enhanced with Translations)');
-    console.log('Premium Features Enabled:', PALETTE_PREMIUM_FEATURES);
+    console.log('Premium Features Enabled:', PREMIUM_FEATURES);
     console.log('Current color:', colorSystemState.currentColor);
     console.log('Current theme:', colorSystemState.currentTheme);
     console.log('Auto color would be:', getAutoColor());
@@ -1398,7 +1396,7 @@ function debugColorSystem() {
     console.log('Last active color section (from localStorage):', localStorage.getItem(COLOR_SYSTEM_CONFIG.activeColorSectionKey));
 
     console.group('Collapsible Sections Debug');
-    console.log('Collapsible sections enabled:', PALETTE_PREMIUM_FEATURES);
+    console.log('Collapsible sections enabled:', PREMIUM_FEATURES);
     document.querySelectorAll('.menu-content[data-collapsible-section="true"]').forEach(section => {
         const sectionId = section.getAttribute('data-section');
         const content = section.querySelector('.menu-content-general');
@@ -1412,7 +1410,7 @@ function debugColorSystem() {
     console.groupEnd();
 
     console.group('Gradient Colors Section Debug');
-    console.log('Gradient colors section enabled:', PALETTE_PREMIUM_FEATURES);
+    console.log('Gradient colors section enabled:', PREMIUM_FEATURES);
     const gradientSectionElement = document.querySelector('[data-section="gradient-colors"]');
     console.log('Gradient section element present in DOM:', !!gradientSectionElement);
     console.groupEnd();
@@ -1587,7 +1585,7 @@ function getTranslatedColorNameFromHex(hex) {
     if (colorKey) {
         return colorKey;
     }
-    
+
     return null;
 }
 // ========== EXPORTS ==========

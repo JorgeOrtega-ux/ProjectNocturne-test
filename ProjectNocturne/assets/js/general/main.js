@@ -20,6 +20,9 @@ import { initializeTextStyleManager } from '../tools/general-tools.js';
 
 import { getCurrentColor, getColorInfo, isGradientColor } from '../tools/palette-colors.js';
 
+// ========== PREMIUM FEATURES CONSTANT ==========
+export const PREMIUM_FEATURES = false;
+
 
 // ========== MOBILE SIDEBAR MODULE ==========
 
@@ -101,7 +104,7 @@ function activateSection(sectionName, showLog) {
     // =========> INICIO DE LA MODIFICACIÓN <=========
     // Si la sección que se quiere activar ya es la activa, no hagas nada.
     if (activeSectionStates[sectionName] === true) {
-        return; 
+        return;
     }
     // =========> FIN DE LA MODIFICACIÓN <=========
 
@@ -239,7 +242,7 @@ function closeActiveModule(options = {}) {
 
 function closeAllModules(options = {}) {
     const { source = 'closeAllModules' } = options;
-    
+
     if (isAnyModuleActive()) {
         deactivateAllModules();
         console.log('🔧 All modules closed from:', source);
@@ -268,9 +271,9 @@ function isControlCenterActive() {
 }
 
 function isAnyOverlayActive() {
-    return isModuleActive('menuAlarm') || 
-           isModuleActive('menuTimer') || 
-           isModuleActive('menuWorldClock') || 
+    return isModuleActive('menuAlarm') ||
+           isModuleActive('menuTimer') ||
+           isModuleActive('menuWorldClock') ||
            isModuleActive('menuPaletteColors') ||
            isModuleActive('overlayContainer');
 }
@@ -530,57 +533,57 @@ export {
     initSidebarSections,
     initControlCenter,
     initNewOverlayModules,
-    
+
     logSectionStates,
     getActiveSection,
     getAllSectionStates,
     switchToSection,
     activateSection,
-    
+
     activateModuleByName as activateModule,
     deactivateModule,
     toggleModuleByName as toggleModule,
     closeActiveModule,
     closeAllModules,
-    
+
     activateControlCenterMenu,
     switchControlCenterMenu,
     showControlCenterMenu,
-    
+
     activateSpecificOverlay,
     closeSpecificOverlay,
     switchOverlay,
     getCurrentActiveOverlay,
     showSpecificOverlay,
-    
+
     isModuleCurrentlyChanging,
     isModuleBusy,
     resetModuleChangeFlag,
     logModuleStates,
-    
+
     isAnyModuleActive,
     isControlCenterActive,
     isAnyOverlayActive,
     getModuleInfo,
     getSystemStatus,
     logAllStates,
-    
+
     getActiveModule,
     isModuleActive,
-    
+
     closeControlCenter,
     closeOverlays,
     closeOverlayByName,
-    
+
 
     waitForModuleReady,
     executeWhenModuleReady,
-    
+
     dispatchModuleEvent,
     onModuleActivated,
     onModuleDeactivated,
     onOverlayChanged,
-    
+
     setModulePreference,
     getModulePreference,
 
