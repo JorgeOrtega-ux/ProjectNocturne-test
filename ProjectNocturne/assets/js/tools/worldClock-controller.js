@@ -6,6 +6,7 @@
     // Objeto para almacenar los intervalos de cada reloj y poder limpiarlos después.
     // La clave es el elemento (tarjeta o span) para una gestión precisa.
     const clockIntervals = new Map();
+    let isPremium = false; // O 'true' para activar el modo premium
 
     /**
      * Actualiza la fecha y hora para un elemento de reloj (tarjeta o span).
@@ -103,6 +104,14 @@
         const grid = document.querySelector('.world-clocks-grid');
         if (!grid) return;
 
+        const clockLimit = isPremium ? 100 : 5;
+        const currentClocks = grid.querySelectorAll('.world-clock-card').length;
+
+        if (currentClocks >= clockLimit) {
+            alert(`Límite de relojes alcanzado (${clockLimit}).`);
+            return;
+        }
+
         // Obtenemos el objeto de la zona horaria para el desplazamiento UTC
         const ct = window.ct;
         const timezoneObject = ct.getTimezonesForCountry(ct.getCountryForTimezone(timezone)?.id)?.find(tz => tz.name === timezone);
@@ -121,7 +130,7 @@
                         <span class="location-text" title="${title}">${title}</span>
                         <span class="clock-offset">${utcOffsetText}</span>
                     </div>
-                    <button class="card-menu-btn" data-action="toggle-card-menu" 
+                    <button class="card-menu-btn" data-action="toggle-card-menu"
                             data-translate="options"
                             data-translate-category="world_clock_options"
                             data-translate-target="tooltip">
@@ -135,7 +144,7 @@
                     <span class="clock-date">---, -- ----</span>
                     <span class="day-night-indicator material-symbols-rounded"></span>
                 </div>
-                
+
                 <div class="card-dropdown-menu disabled">
                     <div class="menu-link" data-action="edit-clock">
                         <div class="menu-link-icon"><span class="material-symbols-rounded">edit</span></div>
