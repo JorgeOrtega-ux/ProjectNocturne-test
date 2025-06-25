@@ -223,7 +223,7 @@
         if (grid && typeof Sortable !== 'undefined') {
             new Sortable(grid, {
                 animation: 150,
-                filter: '.local-clock-card', // Evita que la tarjeta local sea arrastrable
+                filter: '.local-clock-card, .card-menu-btn, .card-dropdown-menu', // Evita el arrastre en la tarjeta local y su menú
                 draggable: '.world-clock-card',
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'sortable-chosen',
