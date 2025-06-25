@@ -68,11 +68,16 @@
     <div class="section-bottom">
         <div class="world-clocks-grid">
             <div class="world-clock-card local-clock-card">
-                <div class="world-clock-card-top">
-                    <span id="local-timezone" data-translate="world_clock.loading_countries" data-translate-category="world_clock">Loading...</span>
+                <div class="card-header">
+                    <span class="location-text">Tiempo Local</span>
+                    <span class="clock-offset">UTC</span>
                 </div>
-                <div class="world-clock-card-bottom">
-                    <span id="local-time">--:--:--</span>
+                <div class="card-body">
+                    <span class="clock-time">--:--:--</span>
+                </div>
+                <div class="card-footer">
+                    <span class="clock-date">---, -- ----</span>
+                    <span class="day-night-indicator material-symbols-rounded"></span>
                 </div>
             </div>
             </div>
