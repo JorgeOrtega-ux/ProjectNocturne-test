@@ -147,7 +147,7 @@
     padding: 8px;
     overflow-y: auto;
     background-color: #ffffff;
-    border: 1px solid #00000020;
+    border: 1px solid transparent;
     border-radius: 12px;
     filter: drop-shadow(0 4px 12px #00000020);
 }
@@ -259,7 +259,7 @@
     width: 100%;
     padding: 8px;
     background: #ffffff;
-    border: 1px solid #00000020;
+    border: 1px solid transparent;
     border-radius: 8px;
     filter: drop-shadow(0 4px 12px #00000020);
 }
@@ -338,7 +338,6 @@
 .world-clocks-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    padding: 16px;
     gap: 16px;
 }
 
@@ -350,15 +349,11 @@
     gap: 8px;
     background-color: #ffffff;
     border: 1px solid #00000015;
-    border-radius: 16px;
+    border-radius: 12px;
     box-shadow: 0 1px 3px #00000010;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.world-clock-card:hover {
-    box-shadow: 0 4px 8px #00000015;
-    transform: translateY(-2px);
-}
 
 .card-header {
     display: flex;
@@ -450,9 +445,8 @@
     padding: 4px;
     gap: 4px;
     background-color: #ffffff;
-    border: 1px solid #00000015;
     border-radius: 8px;
-    box-shadow: 0 4px 12px #00000020;
+    filter: drop-shadow(0 4px 12px #00000020);
 }
 
 .card-dropdown-menu.disabled {
