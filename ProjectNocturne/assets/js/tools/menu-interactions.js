@@ -92,8 +92,20 @@ const resetWorldClockMenu = (menuElement) => {
     state.worldClock = JSON.parse(JSON.stringify(initialState.worldClock));
     const titleInput = menuElement.querySelector('#worldclock-title');
     if (titleInput) titleInput.value = '';
-    const searchInput = menuElement.querySelector('.search-content-text input');
-    if (searchInput) searchInput.value = '';
+    
+    const countrySearchInput = menuElement.querySelector('#country-search-input');
+    if (countrySearchInput) countrySearchInput.value = '';
+    
+    const countryList = menuElement.querySelector('.menu-worldclock-country .menu-list');
+    if (countryList) {
+        const allCountries = countryList.querySelectorAll('.menu-link');
+        allCountries.forEach(country => country.style.display = 'flex');
+        
+        // MODIFIED: Remove no-results message on reset
+        const noResultsMsg = countryList.querySelector('.no-results-message');
+        if (noResultsMsg) noResultsMsg.remove();
+    }
+
     resetDropdownDisplay(menuElement, '#worldclock-selected-country', 'select_a_country', 'world_clock');
     resetDropdownDisplay(menuElement, '#worldclock-selected-timezone', 'select_a_timezone', 'world_clock');
     const timezoneSelector = menuElement.querySelector('[data-action="toggleTimezoneDropdown"]');
@@ -308,8 +320,8 @@ const populateMinuteSelectionMenu = (hour, timerMenu) => {
 async function populateCountryDropdown(parentMenu) {
     const countryList = parentMenu.querySelector('.menu-worldclock-country .menu-list');
     if (!countryList) return;
-    if (countryList.children.length > 1) return;
-    countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>🌍 Cargando países...</span></div>`;
+    if (countryList.children.length > 1) return; // Already populated
+    countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>Cargando países...</span></div>`;
     try {
         const ct = await loadCountriesAndTimezones();
         const countries = Object.values(ct.getAllCountries()).sort((a, b) => a.name.localeCompare(b.name));
@@ -322,6 +334,7 @@ async function populateCountryDropdown(parentMenu) {
         });
     } catch (error) { countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>❌ Error al cargar países.</span></div>`; }
 }
+
 
 async function populateTimezoneDropdown(parentMenu, countryCode) {
     const timezoneList = parentMenu.querySelector('.menu-worldclock-timezone .menu-list');
@@ -356,6 +369,50 @@ function setupGlobalEventListeners() {
         const isCalendarNavigation = event.target.closest('.calendar-nav, .calendar-header, .calendar-weekdays, .day.other-month');
         if (!isClickInsideDropdown && !isClickOnToggle && !isCalendarNavigation) {
             document.querySelectorAll('.dropdown-menu-container').forEach(d => d.classList.add('disabled'));
+        }
+    });
+
+    // MODIFIED: Country search listener with no-results message
+    document.body.addEventListener('input', (event) => {
+        const searchInput = event.target.closest('#country-search-input');
+        if (searchInput) {
+            const searchTerm = searchInput.value.toLowerCase();
+            const countryDropdown = searchInput.closest('.menu-worldclock-country');
+            const countryList = countryDropdown.querySelector('.menu-list');
+            const countries = countryList.querySelectorAll('.menu-link');
+            let matchesFound = 0;
+
+            countries.forEach(country => {
+                const countryName = country.querySelector('.menu-link-text span').textContent.toLowerCase();
+                if (countryName.includes(searchTerm)) {
+                    country.style.display = 'flex';
+                    matchesFound++;
+                } else {
+                    country.style.display = 'none';
+                }
+            });
+
+            // Handle "No results" message
+            let noResultsMsg = countryList.querySelector('.no-results-message');
+            if (matchesFound === 0 && searchTerm) {
+                if (!noResultsMsg) {
+                    noResultsMsg = document.createElement('div');
+                    noResultsMsg.className = 'menu-link-text no-results-message';
+                    noResultsMsg.style.padding = '8px 12px';
+                    noResultsMsg.style.textAlign = 'center';
+                    noResultsMsg.style.color = '#888';
+                    countryList.appendChild(noResultsMsg);
+                }
+                const noResultsText = (typeof window.getTranslation === 'function')
+                    ? window.getTranslation('no_results', 'search')
+                    : 'No results found for';
+                noResultsMsg.textContent = `${noResultsText} "${searchInput.value}"`;
+                noResultsMsg.style.display = 'block';
+            } else {
+                if (noResultsMsg) {
+                    noResultsMsg.style.display = 'none';
+                }
+            }
         }
     });
 

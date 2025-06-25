@@ -3,16 +3,6 @@
         <div class="drag-handle"></div>
     </div>
     <div class="menu-section">
-        <div class="menu-section-top">
-            <div class="search-content">
-                <div class="search-content-icon">
-                    <span class="material-symbols-rounded">search</span>
-                </div>
-                <div class="search-content-text">
-                    <input type="text" class="body-title" autocomplete="off" data-translate="search_cities_placeholder" data-translate-category="search" data-translate-target="placeholder">
-                </div>
-            </div>
-        </div>
         <div class="menu-content-scrolleable overflow-y">
             <div class="menu-section-center overflow-y">
                 <div class="menu-content-wrapper active">
@@ -38,7 +28,7 @@
                         </div>
                         <div class="menu-content-general">
                             <div class="enter-sound-wrapper">
-                             <div class="enter-sound-content" data-action="toggleCountryDropdown">
+                                <div class="enter-sound-content" data-action="toggleCountryDropdown">
                                     <div class="enter-sound-content-left">
                                         <span id="worldclock-selected-country" data-translate="select_a_country" data-translate-category="world_clock">Seleccionar un país</span>
                                     </div>
@@ -46,8 +36,23 @@
                                         <span class="material-symbols-rounded">expand_more</span>
                                     </div>
                                 </div>
-                                <div class="dropdown-menu-container menu-worldclock-country disabled" data-menu="worldClockCountryMenu">
-                                    <div class="menu-list"></div>
+                                <div class="dropdown-menu-container dropdown-menu--structured menu-worldclock-country disabled" data-menu="worldClockCountryMenu">
+                                    <div class="dropdown-menu-top">
+                                        <div class="search-content">
+                                            <div class="search-content-icon">
+                                                <span class="material-symbols-rounded">search</span>
+                                            </div>
+                                            <div class="search-content-text">
+                                                <input type="text" id="country-search-input" class="body-title" autocomplete="off" 
+                                                       data-translate="search_cities_placeholder" 
+                                                       data-translate-category="search" 
+                                                       data-translate-target="placeholder">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown-menu-bottom overflow-y">
+                                        <div class="menu-list"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

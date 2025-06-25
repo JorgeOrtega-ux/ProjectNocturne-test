@@ -1,15 +1,3 @@
-/* ====================================== */
-/* ========= ESTILOS GENERALES ========== */
-/* (De styles.css y dark-mode.css)      */
-/* ====================================== */
-
-/* ... (Aquí irían todos tus estilos generales de styles.css y dark-mode.css) ... */
-
-/* ====================================== */
-/* ====== ESTILOS DE HERRAMIENTAS ======= */
-/* (De tools.css - Unificado y Refactorizado) */
-/* ====================================== */
-
 .create-tool {
     width: 100%;
     height: 45px;
@@ -145,7 +133,7 @@
     text-align: center; /* Centra el texto dentro de cada celda */
     width: 100%;
 }
-/* Contenedor genérico para menús desplegables */
+/* Contenedor genérico para menús desplegables - PADDING RESTAURADO */
 .dropdown-menu-container {
     width: 100%;
     height: auto;
@@ -160,6 +148,26 @@
     max-height: 250px; /* Altura máxima para permitir scroll */
     overflow-y: auto;
 }
+
+/* NUEVA REGLA: Clase para dropdowns con estructura interna (como el de países) */
+.dropdown-menu-container.dropdown-menu--structured {
+    padding: 0;
+    overflow: hidden; /* El scroll lo maneja el hijo */
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown-menu-top {
+    padding: 8px;
+    border-bottom: 1px solid #00000020;
+}
+
+.dropdown-menu-bottom {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+}
+
 
 .dropdown-menu-container.disabled {
     display: none;
@@ -214,7 +222,13 @@
     background-color: #252627;
     border-color: #ffffff20;
     filter: unset;
-}/* ====================================== */
+}
+
+.dark-mode .dropdown-menu-top {
+    border-bottom-color: #ffffff20;
+}
+
+/* ====================================== */
 /* ========= ESTILOS MENU TIMER ========= */
 /* ====================================== */
 .menu-tabs {
