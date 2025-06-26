@@ -56,7 +56,7 @@
                                     <div class="enter-sound-content-left"><span id="timer-selected-end-action" data-translate="stop_timer" data-translate-category="timer">Parar temporizador</span></div>
                                     <div class="enter-sound-content-right"><span class="material-symbols-rounded">expand_more</span></div>
                                 </div>
-                                <div class="dropdown-menu-container menu-timer-end-action disabled" data-menu="timerEndActionMenu">
+                                <div class="dropdown-menu-container menu-timer-end-action disabled body-title" data-menu="timerEndActionMenu">
                                     <div class="menu-list">
                                         <div class="menu-link" data-action="selectTimerEndAction" data-end-action="stop">
                                             <div class="menu-link-icon"><span class="material-symbols-rounded">stop</span></div>
@@ -85,7 +85,7 @@
                                     <div class="enter-sound-content-left"><span id="timer-selected-sound" data-translate="classic_beep" data-translate-category="sounds">Beep Clásico</span></div>
                                     <div class="enter-sound-content-right"><span class="material-symbols-rounded">expand_more</span></div>
                                 </div>
-                                <div class="dropdown-menu-container menu-timer-sound disabled" data-menu="timerSoundMenu">
+                                <div class="dropdown-menu-container menu-timer-sound disabled body-title" data-menu="timerSoundMenu">
                                     <div class="menu-list">
                                         <div class="menu-link" data-action="selectTimerSound" data-sound="classic-beep">
                                             <div class="menu-link-icon"><span class="material-symbols-rounded">volume_up</span></div>
@@ -135,8 +135,16 @@
                                         <div class="enter-sound-content-left"><span id="selected-date-display">-- / -- / ----</span></div>
                                         <div class="enter-sound-content-right"><span class="material-symbols-rounded">calendar_today</span></div>
                                     </div>
-                                    <div class="dropdown-menu-container calendar-container overflow-y disabled" data-menu="calendar">
-                                        <div class="calendar-header"><button class="calendar-nav" data-action="prev-month">&lt;</button><span id="calendar-month-year"></span><button class="calendar-nav" data-action="next-month">&gt;</button></div>
+                                    <div class="dropdown-menu-container calendar-container overflow-y disabled body-title" data-menu="calendar">
+                                        <div class="calendar-header">
+                                            <button class="calendar-nav" data-action="prev-month">
+                                                <span class="material-symbols-rounded">arrow_left</span>
+                                            </button>
+                                            <span id="calendar-month-year"></span>
+                                            <button class="calendar-nav" data-action="next-month">
+                                                <span class="material-symbols-rounded">arrow_right</span>
+                                            </button>
+                                        </div>
                                         <div class="calendar-weekdays">
                                             <div>D</div>
                                             <div>L</div>
@@ -156,12 +164,12 @@
                                         <div class="enter-sound-content-right"><span class="material-symbols-rounded">schedule</span></div>
                                     </div>
                                     
-                                    <div class="dropdown-menu-container menu-timer-hour-selection overflow-y disabled" data-menu="timerHourMenu">
+                                    <div class="dropdown-menu-container menu-timer-hour-selection overflow-y disabled body-title" data-menu="timerHourMenu">
                                         <div class="menu-list menu-list-grid" data-list-type="hours">
                                             </div>
                                     </div>
 
-                                    <div class="dropdown-menu-container menu-timer-minute-selection overflow-y disabled" data-menu="timerMinuteMenu">
+                                    <div class="dropdown-menu-container menu-timer-minute-selection overflow-y disabled body-title" data-menu="timerMinuteMenu">
                                         <div class="menu-list menu-list-grid" data-list-type="minutes">
                                             </div>
                                     </div>

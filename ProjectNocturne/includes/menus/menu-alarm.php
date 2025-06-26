@@ -76,7 +76,7 @@
                                         <span class="material-symbols-rounded">expand_more</span>
                                     </div>
                                 </div>
-                                <div class="dropdown-menu-container menu-alarm-sound disabled" data-menu="alarmSoundMenu">
+                                <div class="dropdown-menu-container menu-alarm-sound disabled body-title" data-menu="alarmSoundMenu">
                                     <div class="menu-list">
                                         <div class="menu-link" data-action="selectAlarmSound" data-sound="classic-beep">
                                             <div class="menu-link-icon"><span class="material-symbols-rounded">volume_up</span></div>

@@ -105,7 +105,7 @@
     "tints": "Tints (+ White)",
     "tones": "Tones (+ Gray)"
   },
-  "tooltips": {
+"tooltips": {
     "add": "Increase Font Size",
     "add_alarm": "Add Alarm",
     "add_clock": "Add Clock",
@@ -127,8 +127,15 @@
     "settings": "Settings",
     "stop": "Stop",
     "stopwatch": "Stopwatch",
+    "lap": "Lap",
     "timer": "Timer",
-    "world_clock": "World Clock"
+    "world_clock": "World Clock",
+    "pin_clock": "Pin clock"
+  },
+  "stopwatch": {
+    "lap_header": "Lap",
+    "time_header": "Time",
+    "total_time_header": "Total Time"
   },
   "alarms": {
     "alarm_title": "Alarm Title",

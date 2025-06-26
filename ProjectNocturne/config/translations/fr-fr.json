@@ -105,7 +105,7 @@
     "tints": "Teintes (+ Blanc)",
     "tones": "Tons (+ Gris)"
   },
-  "tooltips": {
+ "tooltips": {
     "add": "Augmenter la taille de la police",
     "add_alarm": "Ajouter une Alarme",
     "add_clock": "Ajouter une Horloge",
@@ -127,8 +127,15 @@
     "settings": "Paramètres",
     "stop": "Arrêter",
     "stopwatch": "Chronomètre",
+    "lap": "Tour",
     "timer": "Minuterie",
-    "world_clock": "Horloge Mondiale"
+    "world_clock": "Horloge Mondiale",
+    "pin_clock": "Épingler l'horloge"
+  },
+   "stopwatch": {
+    "lap_header": "Tour",
+    "time_header": "Temps",
+    "total_time_header": "Temps Total"
   },
   "alarms": {
     "alarm_title": "Titre de l'alarme",

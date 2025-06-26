@@ -52,6 +52,7 @@
     <script type="module" src="assets/js/tools/palette-colors.js"></script>
     <script type="module" src="assets/js/tools/color-search-system.js"></script>
     <script type="module" src="assets/js/tools/alarm-controller.js"></script>
+     <script type="module" src="assets/js/tools/stopwatch-controller.js"></script>
      <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
         <script type="module" src="assets/js/tools/worldClock-controller.js"></script>
     <script type="module" src="assets/js/tools/menu-interactions.js"></script> <script type="module" src="assets/js/tools/zoneinfo-controller.js"></script>

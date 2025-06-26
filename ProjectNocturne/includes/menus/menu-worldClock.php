@@ -39,7 +39,7 @@
                                         <span class="material-symbols-rounded">expand_more</span>
                                     </div>
                                 </div>
-                                <div class="dropdown-menu-container dropdown-menu--structured menu-worldclock-country disabled" data-menu="worldClockCountryMenu">
+                                <div class="dropdown-menu-container dropdown-menu--structured menu-worldclock-country disabled body-title" data-menu="worldClockCountryMenu">
                                     <div class="dropdown-menu-top">
                                         <div class="search-content">
                                             <div class="search-content-icon">
@@ -77,7 +77,7 @@
                                         <span class="material-symbols-rounded">expand_more</span>
                                     </div>
                                 </div>
-                                <div class="dropdown-menu-container menu-worldclock-timezone disabled" data-menu="worldClockTimezoneMenu">
+                                <div class="dropdown-menu-container menu-worldclock-timezone disabled body-title" data-menu="worldClockTimezoneMenu">
                                     <div class="menu-list"></div>
                                 </div>
                             </div>

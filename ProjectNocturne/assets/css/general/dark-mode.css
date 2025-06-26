@@ -448,16 +448,16 @@
 
 .dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-text span,
 .dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-icon span {
-    color: #ef9a9a;
+    color: #e57373; /* Slightly less saturated red for dark mode */
 }
 
 .dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover {
-    background-color: #ef9a9a;
+    background-color: rgba(239, 154, 154, 0.1); /* Transparent dark red */
 }
 
 .dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-text span,
 .dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-icon span {
-    color: #252627;
+    color: #ef9a9a; /* Brighter red on hover for dark mode */
 }
 
 /* Badge Dark Mode Styles */

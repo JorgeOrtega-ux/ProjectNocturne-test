@@ -367,10 +367,15 @@
 /* ====================================== */
 /* ========= WORLD CLOCK CARDS ========== */
 /* ====================================== */
+.pinned-clocks-container {
+    margin-bottom: 16px;
+}
+
 .world-clocks-grid {
     display: grid;
+    padding: 8px;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 16px;
+    gap: 8px;
 }
 
 .world-clock-card {
@@ -433,26 +438,59 @@
 }
 
 .card-fullscreen-btn,
+.card-pin-btn,
 .card-menu-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 28px;
     height: 28px;
-    color: #ffffff;
+    color: #000000;
     background-color: transparent;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
     flex-shrink: 0;
     padding: 0;
 }
 
-.card-fullscreen-btn:hover,
-.card-menu-btn:hover {
+.dark-mode .card-pin-btn {
+    color: #ffffff;
+}
+.dark-mode .card-menu-btn {
+      color: #ffffff;
+}
+
+
+.dark-mode .card-menu-container {
+    filter: unset;
+    border-color: #ffffff20;
+    background-color: #252627;
+}
+
+.dark-mode .card-pin-btn:hover {
     background-color: #ffffff20;
 }
+.dark-mode .card-pin-btn.active {
+    background-color: #ffffff20;
+}
+.card-fullscreen-btn:hover,
+.card-pin-btn:hover,
+.card-menu-btn:hover {
+    background-color: #f5f5fa;
+}
+
+.card-pin-btn.active {
+    color: #000000;
+    background-color: #f5f5fa;
+}
+
+.dark-mode .card-pin-btn.active {
+    color: #ffffff;
+    background-color: #ffffff20;
+}
+
 
 .card-menu-container {
     position: absolute;
@@ -461,9 +499,10 @@
     padding: 2px;
     z-index: 5;
     border-radius: 8px;
-    background: #252627;
+    background: #ffffff;
     display: flex;
-    border: 1px solid #ffffff20;
+    border: 1px solid transparent;
+    filter: drop-shadow(0 4px 12px #00000020);
     gap: 4px;
     transition: opacity 0.2s ease-in-out;
 }
@@ -524,17 +563,18 @@
 .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-text span,
 .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-icon span {
     font-weight: 500;
-    color: #c62828;
+    color: #d32f2f; /* Slightly less intense red */
 }
 
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover {
-    background-color: #c62828;
+    background-color: rgba(229, 57, 53, 0.08); /* Light, transparent red */
 }
 
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-text span,
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-icon span {
-    color: #ffffff;
+    color: #b71c1c; /* Darker red on hover */
 }
+
 
 /* Badge Styles */
 .badges-container {
@@ -602,8 +642,10 @@
 }
 
 .zoneInfoTool {
+    /* Estilos del contenedor principal */
     width: auto;
     padding: 0 12px;
+    flex: 0 0 auto;
     max-width: 185px;
     display: flex;
     justify-content: center;
@@ -612,4 +654,40 @@
     height: 40px;
     border: 1px solid #00000020;
     border-radius: 8px;
+    min-width: 120px;
+    /* IMPORTANTE: overflow hidden aquí para contener al span */
+    overflow: hidden;
+}
+
+.zoneInfoTool span {
+    /* Estilos para el texto y la elipsis */
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center; /* Opcional, para centrar el texto si no se desborda */
+}
+.pinned-clock-display {
+    text-align: center;
+}
+
+.pinned-clock-info {
+    margin-bottom: 8px;
+}
+
+.pinned-clock-title {
+    font-size: 1.5rem;
+    font-weight: 500;
+    display: block;
+}
+
+.pinned-clock-date {
+    font-size: 1rem;
+    opacity: 0.7;
+}
+
+.pinned-clock-offset {
+    margin-top: 8px;
+    font-size: 1rem;
+    opacity: 0.7;
 }
