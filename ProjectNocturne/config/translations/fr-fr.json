@@ -147,7 +147,8 @@
     "loading_countries": "Chargement des pays...",
     "error_loading_countries": "Erreur lors du chargement des pays.",
     "no_timezones_found": "Aucun fuseau horaire trouvé.",
-    "error_loading_timezones": "Erreur lors du chargement des fuseaux horaires."
+    "error_loading_timezones": "Erreur lors du chargement des fuseaux horaires.",
+    "clock_limit_reached": "Limite de {limit} horloges atteinte."
   },
   "sounds": {
     "classic_beep": "Bip Classique",
@@ -174,8 +175,11 @@
     "seconds": "Secondes"
   },
   "world_clock_options": {
-  "options": "Options de l'horloge",
-  "edit_clock": "Modifier l'horloge",
-  "delete_clock": "Supprimer l'horloge"
-}
+    "options": "Options de l'horloge",
+    "edit_clock": "Modifier l'horloge",
+    "delete_clock": "Supprimer l'horloge",
+    "local_time": "Heure Locale",
+    "edit_not_implemented": "La fonctionnalité de modification d'horloge est en attente d'implémentation.",
+    "fullscreen_not_implemented": "La fonctionnalité plein écran est en attente d'implémentation."
+  }
 }

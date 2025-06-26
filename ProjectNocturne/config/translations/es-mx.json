@@ -147,7 +147,8 @@
     "loading_countries": "Cargando países...",
     "error_loading_countries": "Error al cargar los países.",
     "no_timezones_found": "No se encontraron zonas horarias.",
-    "error_loading_timezones": "Error al cargar las zonas horarias."
+    "error_loading_timezones": "Error al cargar las zonas horarias.",
+    "clock_limit_reached": "Se alcanzó el límite de {limit} relojes."
   },
   "sounds": {
     "classic_beep": "Beep Clásico",
@@ -174,8 +175,11 @@
     "seconds": "Segundos"
   },
   "world_clock_options": {
-  "options": "Opciones del reloj",
-  "edit_clock": "Editar reloj",
-  "delete_clock": "Borrar reloj"
-}
+    "options": "Opciones del reloj",
+    "edit_clock": "Editar reloj",
+    "delete_clock": "Eliminar reloj",
+    "local_time": "Tiempo Local",
+    "edit_not_implemented": "La funcionalidad de editar reloj está pendiente de implementación.",
+    "fullscreen_not_implemented": "La funcionalidad de pantalla completa está pendiente de implementación."
+  }
 }

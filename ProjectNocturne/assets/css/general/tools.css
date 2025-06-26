@@ -482,7 +482,7 @@
 
 .card-dropdown-menu {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 5px);
     right: 0;
     z-index: 10;
     display: flex;

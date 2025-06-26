@@ -147,7 +147,8 @@
     "loading_countries": "Loading countries...",
     "error_loading_countries": "Error loading countries.",
     "no_timezones_found": "No timezones found.",
-    "error_loading_timezones": "Error loading timezones."
+    "error_loading_timezones": "Error loading timezones.",
+    "clock_limit_reached": "Clock limit of {limit} reached."
   },
   "sounds": {
     "classic_beep": "Classic Beep",
@@ -174,8 +175,11 @@
     "seconds": "Seconds"
   },
   "world_clock_options": {
-  "options": "Clock options",
-  "edit_clock": "Edit clock",
-  "delete_clock": "Delete clock"
-}
+    "options": "Clock options",
+    "edit_clock": "Edit clock",
+    "delete_clock": "Delete clock",
+    "local_time": "Local Time",
+    "edit_not_implemented": "Edit clock functionality is pending implementation.",
+    "fullscreen_not_implemented": "Fullscreen functionality is pending implementation."
+  }
 }
