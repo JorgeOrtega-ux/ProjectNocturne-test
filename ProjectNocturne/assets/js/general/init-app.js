@@ -50,7 +50,7 @@ import {
     initializeCentralizedFontManager,
     initializeFullScreenManager
 } from '../tools/general-tools.js';
-
+import { initializeZoneInfoTool } from '../tools/zoneinfo-controller.js';
 import {
     initColorTextSystem,
     refreshColorSystem
@@ -379,7 +379,7 @@ function initializeMainComponents() {
     initControlCenter();
     initMobileDragController();
     initNewOverlayModules();
-
+    initializeZoneInfoTool(); // <--- Agrega esta línea
     initializeCategorySliderService();
     initializeCentralizedFontManager();
     initializeFullScreenManager();

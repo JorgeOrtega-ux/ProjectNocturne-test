@@ -54,7 +54,7 @@
     <script type="module" src="assets/js/tools/alarm-controller.js"></script>
      <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
         <script type="module" src="assets/js/tools/worldClock-controller.js"></script>
-    <script type="module" src="assets/js/tools/menu-interactions.js"></script>
+    <script type="module" src="assets/js/tools/menu-interactions.js"></script> <script type="module" src="assets/js/tools/zoneinfo-controller.js"></script>
 </body>
 
 </html>
