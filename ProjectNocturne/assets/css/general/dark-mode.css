@@ -454,3 +454,12 @@
 .dark-mode .day-night-indicator {
     color: #ffffff99;
 }
+
+.dark-mode .loading-overlay {
+    background-color: rgba(37, 38, 39, 0.7);
+}
+
+.dark-mode .spinner {
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #ffffff;
+}
