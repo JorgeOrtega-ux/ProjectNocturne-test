@@ -1,13 +1,8 @@
 "use strict";
 import { use24HourFormat } from '../general/main.js';
 
-// --- ESTADO INICIAL (VALORES POR DEFECTO) ---
 const initialState = {
-    alarm: {
-        hour: 0,
-        minute: 0,
-        sound: 'classic-beep'
-    },
+    alarm: { hour: 0, minute: 0, sound: 'classic-beep' },
     timer: {
         currentTab: 'countdown',
         duration: { hours: 0, minutes: 5, seconds: 0 },
@@ -15,17 +10,12 @@ const initialState = {
         endAction: 'stop',
         sound: 'classic-beep'
     },
-    worldClock: {
-        country: '',
-        timezone: ''
-    }
+    worldClock: { country: '', timezone: '', countryCode: '', isEditing: false, editingId: null }
 };
 
-// --- ESTADO CENTRALIZADO Y DINÁMICO ---
 const state = JSON.parse(JSON.stringify(initialState));
 state.timer.countTo.date = new Date();
 
-// --- MAPEO DE ACCIONES A DROPDOWNS ---
 const dropdownMap = {
     'toggleAlarmSoundDropdown': '.menu-alarm-sound',
     'toggleTimerEndActionDropdown': '.menu-timer-end-action',
@@ -36,22 +26,13 @@ const dropdownMap = {
     'toggleTimezoneDropdown': '.menu-worldclock-timezone'
 };
 
-// --- FUNCIÓN DE INICIALIZACIÓN ÚNICA PARA EVENTOS GLOBALES ---
 let areGlobalListenersInitialized = false;
 
 function initMenuInteractions() {
     if (areGlobalListenersInitialized) return;
-    
-    // Configura listeners que solo deben añadirse una vez al body.
     setupGlobalEventListeners();
-    
     areGlobalListenersInitialized = true;
 }
-
-
-// ===============================================
-// FUNCIONES DE RESETEO (LÓGICA INTERNA)
-// ===============================================
 
 const getMenuElement = (menuName) => {
     const menuSelectorMap = {
@@ -101,100 +82,96 @@ const resetWorldClockMenu = (menuElement) => {
     if (countryList) {
         const allCountries = countryList.querySelectorAll('.menu-link');
         allCountries.forEach(country => country.style.display = 'flex');
-        
-        // MODIFIED: Remove no-results message on reset
         const noResultsMsg = countryList.querySelector('.no-results-message');
         if (noResultsMsg) noResultsMsg.remove();
     }
 
     resetDropdownDisplay(menuElement, '#worldclock-selected-country', 'select_a_country', 'world_clock');
     resetDropdownDisplay(menuElement, '#worldclock-selected-timezone', 'select_a_timezone', 'world_clock');
+    
     const timezoneSelector = menuElement.querySelector('[data-action="toggleTimezoneDropdown"]');
     if (timezoneSelector) {
         timezoneSelector.classList.add('disabled-interactive');
     }
+
+    const createButton = menuElement.querySelector('.create-tool');
+    if(createButton) {
+        createButton.dataset.action = 'addWorldClock';
+        const buttonText = createButton.querySelector('span');
+        if (buttonText) buttonText.textContent = window.getTranslation('add_clock', 'tooltips');
+    }
+    
+    menuElement.removeAttribute('data-editing-id');
 };
 
-// ===============================================
-// FUNCIONES DE INICIALIZACIÓN (LÓGICA INTERNA)
-// ===============================================
+export function prepareWorldClockForEdit(clockData) {
+    const menuElement = getMenuElement('menuWorldClock');
+    if (!menuElement) return;
 
-const initializeAlarmMenu = (menuElement) => {
-    setAlarmDefaults();
-    updateAlarmDisplay(menuElement);
-};
+    state.worldClock.isEditing = true;
+    state.worldClock.editingId = clockData.id;
+    state.worldClock.country = clockData.country;
+    state.worldClock.timezone = clockData.timezone;
+    state.worldClock.countryCode = clockData.countryCode;
 
-const initializeTimerMenu = (menuElement) => {
-    updateTimerDurationDisplay(menuElement);
-    renderCalendar(menuElement);
-    populateHourSelectionMenu(menuElement);
-};
+    const titleInput = menuElement.querySelector('#worldclock-title');
+    if (titleInput) titleInput.value = clockData.title;
 
+    updateDisplay('#worldclock-selected-country', clockData.country, menuElement);
+    
+    populateTimezoneDropdown(menuElement, clockData.countryCode).then(() => {
+        const timezoneSelector = menuElement.querySelector('[data-action="toggleTimezoneDropdown"]');
+        if (timezoneSelector) timezoneSelector.classList.remove('disabled-interactive');
+        const ct = window.ct;
+        const tzObject = ct.getTimezone(clockData.timezone);
+        const cityName = tzObject.name.split('/').pop().replace(/_/g, ' ');
+        const displayName = `(UTC ${tzObject.utcOffsetStr}) ${cityName}`;
+        updateDisplay('#worldclock-selected-timezone', displayName, menuElement);
+    });
+
+    const createButton = menuElement.querySelector('.create-tool');
+    if (createButton) {
+        createButton.dataset.action = 'saveWorldClockChanges';
+        const buttonText = createButton.querySelector('span');
+        if (buttonText) buttonText.textContent = "Guardar cambios";
+    }
+
+    menuElement.setAttribute('data-editing-id', clockData.id);
+}
+
+const initializeAlarmMenu = (menuElement) => { setAlarmDefaults(); updateAlarmDisplay(menuElement); };
+const initializeTimerMenu = (menuElement) => { updateTimerDurationDisplay(menuElement); renderCalendar(menuElement); populateHourSelectionMenu(menuElement); };
 const initializeWorldClockMenu = (menuElement) => {
     const timezoneSelector = menuElement.querySelector('[data-action="toggleTimezoneDropdown"]');
-    if (timezoneSelector) {
-        timezoneSelector.classList.add('disabled-interactive');
-    }
+    if (timezoneSelector) timezoneSelector.classList.add('disabled-interactive');
 };
 
-
-// ===============================================
-// FUNCIONES PÚBLICAS EXPORTADAS
-// ===============================================
-
-/**
- * Función central que inicializa un menú específico cuando se abre.
- * @param {string} menuName - El nombre del menú (ej. 'menuAlarm').
- */
 export function initializeMenuForOverlay(menuName) {
     const menuElement = getMenuElement(menuName);
     if (!menuElement) return;
-
     switch (menuName) {
-        case 'menuAlarm':
-            initializeAlarmMenu(menuElement);
-            break;
-        case 'menuTimer':
-            initializeTimerMenu(menuElement);
-            break;
-        case 'menuWorldClock':
-            initializeWorldClockMenu(menuElement);
-            break;
+        case 'menuAlarm': initializeAlarmMenu(menuElement); break;
+        case 'menuTimer': initializeTimerMenu(menuElement); break;
+        case 'menuWorldClock': initializeWorldClockMenu(menuElement); break;
     }
 }
 
-/**
- * Función central que resetea un menú específico cuando se cierra.
- * @param {string} menuName - El nombre del menú (ej. 'menuAlarm').
- */
 export function resetMenuForOverlay(menuName) {
     const menuElement = getMenuElement(menuName);
     if (!menuElement) return;
-
     switch (menuName) {
-        case 'menuAlarm':
-            resetAlarmMenu(menuElement);
-            break;
-        case 'menuTimer':
-            resetTimerMenu(menuElement);
-            break;
-        case 'menuWorldClock':
-            resetWorldClockMenu(menuElement);
-            break;
+        case 'menuAlarm': resetAlarmMenu(menuElement); break;
+        case 'menuTimer': resetTimerMenu(menuElement); break;
+        case 'menuWorldClock': resetWorldClockMenu(menuElement); break;
     }
 }
-
-
-// ===============================================
-// LÓGICA DE UI Y HELPERS (SIN CAMBIOS)
-// ===============================================
 
 const loadCountriesAndTimezones = () => new Promise((resolve, reject) => {
     if (window.ct) return resolve(window.ct);
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/gh/manuelmhtr/countries-and-timezones@latest/dist/index.min.js';
     script.onload = () => window.ct ? resolve(window.ct) : reject(new Error('Library loaded but ct object not found'));
-    script.onerror = (error) => reject(new Error('Failed to load countries-and-timezones script'));
+    script.onerror = () => reject(new Error('Failed to load script'));
     document.head.appendChild(script);
 });
 
@@ -236,22 +213,17 @@ const resetDropdownDisplay = (menuElement, displaySelector, translateKey, transl
 const updateAlarmDisplay = (parent) => {
     let finalHourText;
     if (use24HourFormat) {
-        const hourText = typeof window.getTranslation === 'function' ? window.getTranslation('hours', 'timer') : 'horas';
-        finalHourText = `${state.alarm.hour} ${hourText}`;
+        finalHourText = `${state.alarm.hour} h`;
     } else {
         const hour = state.alarm.hour;
         const ampm = hour >= 12 ? 'PM' : 'AM';
         let hour12 = hour % 12;
-        hour12 = hour12 ? hour12 : 12; // Convert 0 to 12
+        hour12 = hour12 ? hour12 : 12;
         finalHourText = `${hour12} ${ampm}`;
     }
-
-    const minuteText = typeof window.getTranslation === 'function' ? window.getTranslation('minutes', 'timer') : 'minutos';
-    
     updateDisplay('#hour-display', finalHourText, parent);
-    updateDisplay('#minute-display', `${state.alarm.minute} ${minuteText}`, parent);
+    updateDisplay('#minute-display', `${state.alarm.minute} min`, parent);
 };
-
 
 const setAlarmDefaults = () => {
     const now = new Date();
@@ -336,7 +308,7 @@ const populateMinuteSelectionMenu = (hour, timerMenu) => {
 async function populateCountryDropdown(parentMenu) {
     const countryList = parentMenu.querySelector('.menu-worldclock-country .menu-list');
     if (!countryList) return;
-    if (countryList.children.length > 1) return; // Already populated
+    if (countryList.children.length > 1) return;
     const loadingText = (typeof window.getTranslation === 'function') ? window.getTranslation('loading_countries', 'world_clock') : 'Loading countries...';
     countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>${loadingText}</span></div>`;
     try {
@@ -354,7 +326,6 @@ async function populateCountryDropdown(parentMenu) {
         countryList.innerHTML = `<div class="menu-link-text" style="padding: 0 12px;"><span>${errorText}</span></div>`;
     }
 }
-
 
 async function populateTimezoneDropdown(parentMenu, countryCode) {
     const timezoneList = parentMenu.querySelector('.menu-worldclock-timezone .menu-list');
@@ -386,7 +357,6 @@ async function populateTimezoneDropdown(parentMenu, countryCode) {
     }
 }
 
-
 function setupGlobalEventListeners() {
     document.addEventListener('click', (event) => {
         const isClickInsideDropdown = event.target.closest('.dropdown-menu-container');
@@ -397,7 +367,6 @@ function setupGlobalEventListeners() {
         }
     });
 
-    // MODIFIED: Country search listener with no-results message
     document.body.addEventListener('input', (event) => {
         const searchInput = event.target.closest('#country-search-input');
         if (searchInput) {
@@ -417,26 +386,19 @@ function setupGlobalEventListeners() {
                 }
             });
 
-            // Handle "No results" message
             let noResultsMsg = countryList.querySelector('.no-results-message');
             if (matchesFound === 0 && searchTerm) {
                 if (!noResultsMsg) {
                     noResultsMsg = document.createElement('div');
                     noResultsMsg.className = 'menu-link-text no-results-message';
-                    noResultsMsg.style.padding = '8px 12px';
-                    noResultsMsg.style.textAlign = 'center';
-                    noResultsMsg.style.color = '#888';
+                    noResultsMsg.style.padding = '8px 12px'; noResultsMsg.style.textAlign = 'center'; noResultsMsg.style.color = '#888';
                     countryList.appendChild(noResultsMsg);
                 }
-                const noResultsText = (typeof window.getTranslation === 'function')
-                    ? window.getTranslation('no_results', 'search')
-                    : 'No results found for';
+                const noResultsText = (typeof window.getTranslation === 'function') ? window.getTranslation('no_results', 'search') : 'No results found for';
                 noResultsMsg.textContent = `${noResultsText} "${searchInput.value}"`;
                 noResultsMsg.style.display = 'block';
             } else {
-                if (noResultsMsg) {
-                    noResultsMsg.style.display = 'none';
-                }
+                if (noResultsMsg) noResultsMsg.style.display = 'none';
             }
         }
     });
@@ -498,6 +460,7 @@ function setupGlobalEventListeners() {
                 const countryCode = actionTarget.getAttribute('data-country-code');
                 handleSelect(actionTarget, '#worldclock-selected-country');
                 state.worldClock.country = actionTarget.querySelector('.menu-link-text span')?.textContent;
+                state.worldClock.countryCode = countryCode;
                 resetDropdownDisplay(parentMenu, '#worldclock-selected-timezone', 'select_a_timezone', 'world_clock');
                 state.worldClock.timezone = '';
                 await populateTimezoneDropdown(parentMenu, countryCode);
@@ -508,22 +471,12 @@ function setupGlobalEventListeners() {
                 state.worldClock.timezone = actionTarget.getAttribute('data-timezone');
                 break;
 
-            // ===============================================
-            // LÓGICA DE VALIDACIÓN Y CREACIÓN
-            // ===============================================
             case 'createAlarm': {
                 const alarmTitleInput = parentMenu.querySelector('#alarm-title');
                 const alarmTitle = alarmTitleInput ? alarmTitleInput.value.trim() : '';
-
-                if (!alarmTitle) {
-                    console.warn('⚠️ Se bloqueó la creación de la alarma: falta el título.');
-                    return; 
-                }
-
+                if (!alarmTitle) { console.warn('⚠️ Se bloqueó la creación de la alarma: falta el título.'); return; }
                 const alarmData = { title: alarmTitle, ...state.alarm };
-                console.group("⏰ Alarma Creada (Datos)");
-                console.log("Datos:", alarmData);
-                console.groupEnd();
+                console.group("⏰ Alarma Creada (Datos)"); console.log("Datos:", alarmData); console.groupEnd();
                 break;
             }
             case 'createTimer': {
@@ -532,70 +485,55 @@ function setupGlobalEventListeners() {
                     const timerTitleInput = timerMenu.querySelector('#timer-title');
                     const timerTitle = timerTitleInput ? timerTitleInput.value.trim() : '';
                     const { hours, minutes, seconds } = state.timer.duration;
-
-                    if (!timerTitle) {
-                        console.warn('⚠️ Se bloqueó la creación del temporizador: falta el título.');
-                        return;
-                    }
-                    if (hours === 0 && minutes === 0 && seconds === 0) {
-                        console.warn('⚠️ Se bloqueó la creación del temporizador: la duración no puede ser cero.');
-                        return;
-                    }
-
+                    if (!timerTitle) { console.warn('⚠️ Se bloqueó la creación del temporizador: falta el título.'); return; }
+                    if (hours === 0 && minutes === 0 && seconds === 0) { console.warn('⚠️ Se bloqueó la creación del temporizador: la duración no puede ser cero.'); return; }
                     const timerData = { type: 'countdown', title: timerTitle, duration: { ...state.timer.duration }, endAction: state.timer.endAction, sound: state.timer.sound };
-                    console.group("⏱️ Temporizador Creado (Countdown)");
-                    console.log("Datos:", timerData);
-                    console.groupEnd();
-
-                } else { // 'count_to_date'
+                    console.group("⏱️ Temporizador Creado (Countdown)"); console.log("Datos:", timerData); console.groupEnd();
+                } else {
                     const eventTitleInput = timerMenu.querySelector('#countto-title');
                     const eventTitle = eventTitleInput ? eventTitleInput.value.trim() : '';
                     const { selectedDate, selectedHour, selectedMinute } = state.timer.countTo;
-
-                    if (!eventTitle) {
-                        console.warn('⚠️ Se bloqueó la creación del evento: falta el título.');
-                        return;
-                    }
-                    if (selectedDate == null) { 
-                        console.warn('⚠️ Se bloqueó la creación del evento: falta seleccionar la fecha.');
-                        return;
-                    }
-                    if (typeof selectedHour !== 'number' || typeof selectedMinute !== 'number') {
-                        console.warn('⚠️ Se bloqueó la creación del evento: falta seleccionar la hora y los minutos.');
-                        return;
-                    }
-
+                    if (!eventTitle) { console.warn('⚠️ Se bloqueó la creación del evento: falta el título.'); return; }
+                    if (selectedDate == null) {  console.warn('⚠️ Se bloqueó la creación del evento: falta seleccionar la fecha.'); return; }
+                    if (typeof selectedHour !== 'number' || typeof selectedMinute !== 'number') { console.warn('⚠️ Se bloqueó la creación del evento: falta seleccionar la hora y los minutos.'); return; }
                     const eventData = { type: 'count_to_date', title: eventTitle, ...state.timer.countTo };
-                    console.group("📅 Temporizador Creado (Conteo a Fecha)");
-                    console.log("Datos:", eventData);
-                    console.groupEnd();
+                    console.group("📅 Temporizador Creado (Conteo a Fecha)"); console.log("Datos:", eventData); console.groupEnd();
                 }
                 break;
             }
-            // Dentro del event listener 'click' en document.body
             case 'addWorldClock': {
                 const clockTitleInput = parentMenu.querySelector('#worldclock-title');
                 const clockTitle = clockTitleInput ? clockTitleInput.value.trim() : '';
                 const { country, timezone } = state.worldClock;
-            
-                if (!clockTitle || !country || !timezone) {
-                    console.warn('⚠️ Se bloqueó la creación del reloj: faltan datos (título, país o zona horaria).');
-                    return;
-                }
-            
-                // Llamar a la función expuesta para crear la tarjeta.
+                if (!clockTitle || !country || !timezone) { console.warn('⚠️ Faltan datos (título, país o zona horaria).'); return; }
                 if (window.worldClockManager && typeof window.worldClockManager.createAndStartClockCard === 'function') {
                     window.worldClockManager.createAndStartClockCard(clockTitle, country, timezone);
-                } else {
-                    console.error('El worldClockManager no está disponible.');
-                }
-                
-                // Opcional: Cerrar el menú después de agregar el reloj
-                if (window.deactivateModule) {
-                    window.deactivateModule('overlayContainer', { source: 'add-world-clock' });
+                } else { console.error('El worldClockManager no está disponible.'); }
+                if (window.deactivateModule) { window.deactivateModule('overlayContainer', { source: 'add-world-clock' }); }
+                resetWorldClockMenu(parentMenu);
+                break;
+            }
+            case 'saveWorldClockChanges': {
+                const editingId = parentMenu.getAttribute('data-editing-id');
+                const clockTitleInput = parentMenu.querySelector('#worldclock-title');
+                const clockTitle = clockTitleInput ? clockTitleInput.value.trim() : '';
+                const { country, timezone } = state.worldClock;
+
+                if (!editingId || !clockTitle || !country || !timezone) {
+                    console.warn('⚠️ Faltan datos para guardar los cambios.');
+                    return;
                 }
 
-                // Resetea el menú para la próxima vez que se abra
+                if (window.worldClockManager && typeof window.worldClockManager.updateClockCard === 'function') {
+                    window.worldClockManager.updateClockCard(editingId, { title: clockTitle, country, timezone });
+                } else {
+                    console.error('El worldClockManager o la función updateClockCard no están disponibles.');
+                }
+                
+                if (window.deactivateModule) {
+                    window.deactivateModule('overlayContainer', { source: 'save-world-clock' });
+                }
+                
                 resetWorldClockMenu(parentMenu);
                 break;
             }
@@ -603,5 +541,6 @@ function setupGlobalEventListeners() {
     });
 }
 
-// Inicializar los listeners globales una vez.
 initMenuInteractions();
+
+export { initMenuInteractions };
