@@ -97,14 +97,67 @@ async function loadClocksFromStorage() {
         const storedClocks = localStorage.getItem(CLOCKS_STORAGE_KEY);
         if (storedClocks) {
             userClocks = JSON.parse(storedClocks);
-            userClocks.forEach(clock => {
-                createAndStartClockCard(clock.title, clock.country, clock.timezone, clock.id, false);
+            
+            // ================================================================
+            // CORRECCIÓN: Crear las cards una por una con un pequeño delay 
+            // para asegurar que las traducciones se apliquen correctamente
+            // ================================================================
+            userClocks.forEach((clock, index) => {
+                setTimeout(() => {
+                    createAndStartClockCard(clock.title, clock.country, clock.timezone, clock.id, false);
+                }, index * 10); // 10ms de delay entre cada card
             });
         }
     } catch (error) {
         console.error('Error cargando los relojes desde localStorage:', error);
         userClocks = [];
     }
+}
+
+// ================================================================
+// NUEVA FUNCIÓN PARA APLICAR TRADUCCIONES A ELEMENTO ESPECÍFICO
+// ================================================================
+function applyTranslationsToSpecificElement(element) {
+    if (!element) return;
+    
+    // Función auxiliar para obtener traducciones
+    const getTranslationSafe = (key, category) => {
+        if (typeof window.getTranslation === 'function') {
+            const text = window.getTranslation(key, category);
+            return text === key ? key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : text;
+        }
+        return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    };
+
+    // Buscar todos los elementos con data-translate dentro del elemento específico
+    const elementsToTranslate = element.querySelectorAll('[data-translate]');
+    
+    elementsToTranslate.forEach(targetElement => {
+        const translateKey = targetElement.getAttribute('data-translate');
+        const translateCategory = targetElement.getAttribute('data-translate-category') || 'world_clock_options';
+        const translateTarget = targetElement.getAttribute('data-translate-target') || 'text';
+
+        if (!translateKey) return;
+
+        const translatedText = getTranslationSafe(translateKey, translateCategory);
+
+        switch (translateTarget) {
+            case 'text':
+                targetElement.textContent = translatedText;
+                break;
+            case 'tooltip':
+                targetElement.setAttribute('data-tooltip', translatedText);
+                break;
+            case 'title':
+                targetElement.setAttribute('title', translatedText);
+                break;
+            case 'placeholder':
+                targetElement.setAttribute('placeholder', translatedText);
+                break;
+            default:
+                targetElement.textContent = translatedText;
+        }
+    });
 }
 
 function createAndStartClockCard(title, country, timezone, existingId = null, save = true) {
@@ -203,13 +256,19 @@ function createAndStartClockCard(title, country, timezone, existingId = null, sa
             }
         });
         
-        if (typeof window.translateElementsWithDataTranslate === 'function') {
-            window.translateElementsWithDataTranslate();
-        }
-        
-        if (window.attachTooltipsToNewElements) {
-            window.attachTooltipsToNewElements(newCardElement);
-        }
+        // ================================================================
+        // CORRECCIÓN PRINCIPAL: Aplicar traducciones específicamente
+        // al elemento recién creado usando el sistema mejorado
+        // ================================================================
+        setTimeout(() => {
+            // 1. Aplicar traducciones específicamente a este elemento
+            applyTranslationsToSpecificElement(newCardElement);
+            
+            // 2. Aplicar tooltips específicamente a este elemento
+            if (window.attachTooltipsToNewElements) {
+                window.attachTooltipsToNewElements(newCardElement);
+            }
+        }, 0);
     }
     
     if (save) {
@@ -249,8 +308,18 @@ function updateClockCard(id, newData) {
         userClocks[clockIndex] = { ...userClocks[clockIndex], ...newData };
         saveClocksToStorage();
     }
-}
 
+    // ================================================================
+    // CORRECCIÓN: Aplicar traducciones al card actualizado
+    // ================================================================
+    setTimeout(() => {
+        applyTranslationsToSpecificElement(card);
+        
+        if (window.attachTooltipsToNewElements) {
+            window.attachTooltipsToNewElements(card);
+        }
+    }, 0);
+}
 
 function getTranslation(key, category) {
     if (typeof window.getTranslation === 'function') {
@@ -260,34 +329,14 @@ function getTranslation(key, category) {
     return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
+// ================================================================
+// CORRECCIÓN: Función mejorada para actualizar traducciones existentes
+// ================================================================
 function updateExistingCardsTranslations() {
     const cards = document.querySelectorAll('.world-clock-card');
     cards.forEach(card => {
-        const elementsToTranslate = card.querySelectorAll('[data-translate]');
-        elementsToTranslate.forEach(element => {
-            const translateKey = element.getAttribute('data-translate');
-            const translateCategory = element.getAttribute('data-translate-category') || 'world_clock_options';
-            const translateTarget = element.getAttribute('data-translate-target') || 'text';
-
-            if (!translateKey) return;
-
-            const translatedText = getTranslation(translateKey, translateCategory);
-
-            switch (translateTarget) {
-                case 'text':
-                    element.textContent = translatedText;
-                    break;
-                case 'tooltip':
-                    element.setAttribute('data-tooltip', translatedText);
-                    break;
-                case 'title':
-                    element.setAttribute('title', translatedText);
-                    break;
-                case 'placeholder':
-                    element.setAttribute('placeholder', translatedText);
-                    break;
-            }
-        });
+        // Usar la nueva función específica para cada card
+        applyTranslationsToSpecificElement(card);
     });
 }
 
@@ -357,11 +406,14 @@ function initializeSortable() {
     }
 }
 
+// ================================================================
+// CORRECCIÓN: Mejores event listeners para cambios de idioma
+// ================================================================
 document.addEventListener('languageChanged', (e) => {
     console.log('🌐 Language changed detected in WorldClock controller:', e.detail);
     setTimeout(() => {
         updateLocalClockTranslation();
-        updateExistingCardsTranslations();
+        updateExistingCardsTranslations(); // Ahora usa la función mejorada
         
         if (typeof window.forceRefresh === 'function') {
             window.forceRefresh({ source: 'worldClockLanguageChange', preset: 'TOOLTIPS_ONLY' });
@@ -372,7 +424,7 @@ document.addEventListener('languageChanged', (e) => {
 document.addEventListener('translationsApplied', (e) => {
     setTimeout(() => {
         updateLocalClockTranslation();
-        updateExistingCardsTranslations();
+        updateExistingCardsTranslations(); // Ahora usa la función mejorada
     }, 100);
 });
 
