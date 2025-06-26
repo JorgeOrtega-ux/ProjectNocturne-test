@@ -38,7 +38,6 @@ function updateDateTime(element, timezone) {
         if (element.classList.contains('world-clock-card')) {
             const timeElement = element.querySelector('.clock-time');
             const dateElement = element.querySelector('.clock-date');
-            const dayNightIndicator = element.querySelector('.day-night-indicator');
 
             if (timeElement) {
                 timeElement.textContent = timeString;
@@ -51,20 +50,6 @@ function updateDateTime(element, timezone) {
                     day: 'numeric',
                     timeZone: timezone
                 });
-            }
-
-            if (dayNightIndicator) {
-                const currentHour = parseInt(now.toLocaleTimeString('en-US', {
-                    hour: 'numeric',
-                    hour12: false,
-                    timeZone: timezone
-                }), 10);
-                const isDayTime = currentHour >= 6 && currentHour < 18;
-                const newIcon = isDayTime ? 'light_mode' : 'dark_mode';
-
-                if (dayNightIndicator.textContent !== newIcon) {
-                    dayNightIndicator.textContent = newIcon;
-                }
             }
         }
 
@@ -143,12 +128,6 @@ function createAndStartClockCard(title, country, timezone, existingId = null, sa
                 <div class="card-location-details">
                     <span class="location-text" title="${title}">${title}</span>
                 </div>
-                <button class="card-menu-btn" data-action="toggle-card-menu"
-                        data-translate="options"
-                        data-translate-category="world_clock_options"
-                        data-translate-target="tooltip">
-                    <span class="material-symbols-rounded">more_vert</span>
-                </button>
             </div>
             <div class="card-body">
                 <span class="clock-time">--:--:--</span>
@@ -158,17 +137,32 @@ function createAndStartClockCard(title, country, timezone, existingId = null, sa
                     <span class="badge clock-date">---, -- ----</span>
                     <span class="badge clock-offset">${utcOffsetText}</span>
                 </div>
-                <span class="day-night-indicator material-symbols-rounded"></span>
             </div>
 
-            <div class="card-dropdown-menu disabled">
-                <div class="menu-link" data-action="edit-clock">
-                    <div class="menu-link-icon"><span class="material-symbols-rounded">edit</span></div>
-                    <div class="menu-link-text"><span>${editClockText}</span></div>
-                </div>
-                <div class="menu-link" data-action="delete-clock">
-                    <div class="menu-link-icon"><span class="material-symbols-rounded">delete</span></div>
-                    <div class="menu-link-text"><span>${deleteClockText}</span></div>
+            <div class="card-menu-container disabled">
+                <button class="card-fullscreen-btn" data-action="fullscreen-clock"
+                        data-translate="fullscreen"
+                        data-translate-category="tooltips"
+                        data-translate-target="tooltip">
+                    <span class="material-symbols-rounded">fullscreen</span>
+                </button>
+                <div class="card-menu-btn-wrapper">
+                    <button class="card-menu-btn" data-action="toggle-card-menu"
+                            data-translate="options"
+                            data-translate-category="world_clock_options"
+                            data-translate-target="tooltip">
+                        <span class="material-symbols-rounded">more_horiz</span>
+                    </button>
+                    <div class="card-dropdown-menu disabled">
+                        <div class="menu-link" data-action="edit-clock">
+                            <div class="menu-link-icon"><span class="material-symbols-rounded">edit</span></div>
+                            <div class="menu-link-text"><span>${editClockText}</span></div>
+                        </div>
+                        <div class="menu-link" data-action="delete-clock">
+                            <div class="menu-link-icon"><span class="material-symbols-rounded">delete</span></div>
+                            <div class="menu-link-text"><span>${deleteClockText}</span></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -179,6 +173,22 @@ function createAndStartClockCard(title, country, timezone, existingId = null, sa
     const newCardElement = document.getElementById(cardId);
     if (newCardElement) {
         startClockForElement(newCardElement, timezone);
+
+        const menuContainer = newCardElement.querySelector('.card-menu-container');
+
+        newCardElement.addEventListener('mouseenter', () => {
+            menuContainer?.classList.add('active');
+            menuContainer?.classList.remove('disabled');
+        });
+
+        newCardElement.addEventListener('mouseleave', () => {
+            const dropdown = menuContainer?.querySelector('.card-dropdown-menu');
+            if (dropdown?.classList.contains('disabled')) {
+                menuContainer?.classList.remove('active');
+                menuContainer?.classList.add('disabled');
+            }
+        });
+        
         if (window.attachTooltipsToNewElements) {
             window.attachTooltipsToNewElements(newCardElement);
         }
@@ -236,7 +246,7 @@ function initializeSortable() {
     if (grid && typeof Sortable !== 'undefined') {
         new Sortable(grid, {
             animation: 150,
-            filter: '.local-clock-card, .card-menu-btn, .card-dropdown-menu',
+            filter: '.local-clock-card, .card-menu-btn, .card-dropdown-menu, .card-fullscreen-btn',
             draggable: '.world-clock-card',
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
@@ -264,42 +274,58 @@ if (grid) {
         const card = actionTarget.closest('.world-clock-card');
         if (!card) return;
 
-        document.querySelectorAll('.card-dropdown-menu:not(.disabled)').forEach(menu => {
-            if (!card.contains(menu)) {
-                menu.classList.add('disabled');
-            }
-        });
-
         if (action === 'toggle-card-menu') {
             e.stopPropagation();
-            const dropdown = card.querySelector('.card-dropdown-menu');
-            if (dropdown) dropdown.classList.toggle('disabled');
-        } else if (action === 'delete-clock') {
-            if (clockIntervals.has(card)) {
-                clearInterval(clockIntervals.get(card));
-                clockIntervals.delete(card);
-            }
-            
-            const cardId = card.id;
-            userClocks = userClocks.filter(clock => clock.id !== cardId);
-            saveClocksToStorage();
+            const currentDropdown = card.querySelector('.card-dropdown-menu');
 
-            card.remove();
-        } else if (action === 'edit-clock') {
-            console.log('Funcionalidad "Editar reloj" pendiente de implementación.');
-            const dropdown = card.querySelector('.card-dropdown-menu');
-            if (dropdown) dropdown.classList.add('disabled');
+            // Cerrar todos los demás menús antes de abrir el nuevo
+            document.querySelectorAll('.card-dropdown-menu').forEach(menu => {
+                if (menu !== currentDropdown) {
+                    menu.classList.add('disabled');
+                    const otherCard = menu.closest('.world-clock-card');
+                    if (otherCard && !otherCard.matches(':hover')) {
+                        otherCard.querySelector('.card-menu-container')?.classList.add('disabled');
+                        otherCard.querySelector('.card-menu-container')?.classList.remove('active');
+                    }
+                }
+            });
+
+            currentDropdown?.classList.toggle('disabled');
+        } else if (action === 'delete-clock' || action === 'edit-clock') {
+            if (action === 'delete-clock') {
+                if (clockIntervals.has(card)) {
+                    clearInterval(clockIntervals.get(card));
+                    clockIntervals.delete(card);
+                }
+                const cardId = card.id;
+                userClocks = userClocks.filter(clock => clock.id !== cardId);
+                saveClocksToStorage();
+                card.remove();
+            }
+            if (action === 'edit-clock') {
+                console.log('Funcionalidad "Editar reloj" pendiente de implementación.');
+                card.querySelector('.card-dropdown-menu')?.classList.add('disabled');
+            }
+        } else if (action === 'fullscreen-clock') {
+            console.log('Funcionalidad "Pantalla completa" pendiente de implementación.');
         }
     });
 }
 
 document.addEventListener('click', function(e) {
-    if (!e.target.closest('.card-dropdown-menu') && !e.target.closest('[data-action="toggle-card-menu"]')) {
-        document.querySelectorAll('.card-dropdown-menu:not(.disabled)').forEach(menu => {
+    if (!e.target.closest('.card-menu-btn-wrapper')) {
+        document.querySelectorAll('.card-dropdown-menu').forEach(menu => {
             menu.classList.add('disabled');
+            const card = menu.closest('.world-clock-card');
+            if (card && !card.matches(':hover')) {
+                const menuContainer = card.querySelector('.card-menu-container');
+                menuContainer?.classList.remove('active');
+                menuContainer?.classList.add('disabled');
+            }
         });
     }
 });
+
 
 window.worldClockManager = {
     createAndStartClockCard
