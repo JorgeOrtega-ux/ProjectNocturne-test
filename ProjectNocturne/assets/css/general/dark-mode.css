@@ -395,11 +395,6 @@
     color: #ffffff;
 }
 
-.dark-mode .world-clock-card .clock-offset {
-    color: #ffffff99;
-    background-color: #ffffff15;
-}
-
 .dark-mode .world-clock-card .card-footer {
     color: #ffffff99;
 }
@@ -448,4 +443,14 @@
 .dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-text span,
 .dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-icon span {
     color: #252627;
+}
+
+/* Badge Dark Mode Styles */
+.dark-mode .badge {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.dark-mode .day-night-indicator {
+    color: #ffffff99;
 }

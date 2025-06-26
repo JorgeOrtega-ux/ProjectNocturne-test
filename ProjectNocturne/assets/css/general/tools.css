@@ -367,9 +367,9 @@
 .card-location-details {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 8px;
-    overflow: hidden; /* This is key to making text-overflow work */
+    overflow: hidden;
     flex: 1 1 auto;
 }
 
@@ -380,39 +380,30 @@
     text-overflow: ellipsis;
 }
 
-.clock-offset {
-    font-size: 0.8rem;
-    color: #00000099;
-    background-color: #00000010;
-    padding: 2px 6px;
-    border-radius: 6px;
-    flex-shrink: 0;
-}
-
 .card-body {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    padding: 4px 0; /* Añade un poco de padding vertical para que no se sienta apretado */
+    padding: 4px 0;
 }
 
 .clock-time {
-    font-size: 2.2rem; /* Reducimos ligeramente el tamaño de la fuente */
+    font-size: 2.2rem;
     font-weight: 500;
     color: #000000;
-    line-height: 1; /* Ajustamos la altura de línea para un mejor ajuste */
+    line-height: 1;
 }
 
 .card-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 0.875rem;
-    color: #00000099;
+    margin-top: 4px; /* Added margin for spacing */
 }
 
 .day-night-indicator {
     font-size: 1rem;
+    color: #00000099;
 }
 
 .card-menu-btn {
@@ -427,8 +418,8 @@
     border-radius: 50%;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    flex-shrink: 0; /* Prevent button from shrinking */
-    padding: 0; /* remove default button padding */
+    flex-shrink: 0;
+    padding: 0;
 }
 
 .card-menu-btn:hover {
@@ -437,7 +428,7 @@
 
 .card-dropdown-menu {
     position: absolute;
-    top: 52px; /* Adjusted slightly to account for new header layout */
+    top: 52px;
     right: 16px;
     z-index: 10;
     display: flex;
@@ -487,4 +478,31 @@
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-text span,
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-icon span {
     color: #ffffff;
+}
+
+/* Badge Styles */
+.badges-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap; /* Allow badges to wrap on smaller cards */
+}
+
+.badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.clock-date {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.clock-offset {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.7);
 }

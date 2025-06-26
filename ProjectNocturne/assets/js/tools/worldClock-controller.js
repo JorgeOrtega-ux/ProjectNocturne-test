@@ -142,7 +142,6 @@ function createAndStartClockCard(title, country, timezone, existingId = null, sa
             <div class="card-header">
                 <div class="card-location-details">
                     <span class="location-text" title="${title}">${title}</span>
-                    <span class="clock-offset">${utcOffsetText}</span>
                 </div>
                 <button class="card-menu-btn" data-action="toggle-card-menu"
                         data-translate="options"
@@ -155,7 +154,10 @@ function createAndStartClockCard(title, country, timezone, existingId = null, sa
                 <span class="clock-time">--:--:--</span>
             </div>
             <div class="card-footer">
-                <span class="clock-date">---, -- ----</span>
+                <div class="badges-container">
+                    <span class="badge clock-date">---, -- ----</span>
+                    <span class="badge clock-offset">${utcOffsetText}</span>
+                </div>
                 <span class="day-night-indicator material-symbols-rounded"></span>
             </div>
 

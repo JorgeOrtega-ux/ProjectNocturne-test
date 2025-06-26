@@ -69,17 +69,21 @@
         <div class="world-clocks-grid">
             <div class="world-clock-card local-clock-card">
                 <div class="card-header">
-                    <span class="location-text">Tiempo Local</span>
-                    <span class="clock-offset">UTC</span>
+                    <div class="card-location-details">
+                        <span class="location-text">Tiempo Local</span>
+                    </div>
                 </div>
                 <div class="card-body">
                     <span class="clock-time">--:--:--</span>
                 </div>
                 <div class="card-footer">
-                    <span class="clock-date">---, -- ----</span>
+                    <div class="badges-container">
+                        <span class="badge clock-date">---, -- ----</span>
+                        <span class="badge clock-offset">UTC</span>
+                    </div>
                     <span class="day-night-indicator material-symbols-rounded"></span>
                 </div>
             </div>
-            </div>
+        </div>
     </div>
 </div>
