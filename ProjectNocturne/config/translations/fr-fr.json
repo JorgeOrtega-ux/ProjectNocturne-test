@@ -180,6 +180,7 @@
     "delete_clock": "Supprimer l'horloge",
     "local_time": "Heure Locale",
     "edit_not_implemented": "La fonctionnalité de modification d'horloge est en attente d'implémentation.",
-    "fullscreen_not_implemented": "La fonctionnalité plein écran est en attente d'implémentation."
+    "fullscreen_not_implemented": "La fonctionnalité plein écran est en attente d'implémentation.",
+    "save_changes": "Enregistrer les modifications"
   }
 }

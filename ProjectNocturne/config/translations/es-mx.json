@@ -180,6 +180,7 @@
     "delete_clock": "Eliminar reloj",
     "local_time": "Tiempo Local",
     "edit_not_implemented": "La funcionalidad de editar reloj está pendiente de implementación.",
-    "fullscreen_not_implemented": "La funcionalidad de pantalla completa está pendiente de implementación."
+    "fullscreen_not_implemented": "La funcionalidad de pantalla completa está pendiente de implementación.",
+    "save_changes": "Guardar Cambios"
   }
 }
