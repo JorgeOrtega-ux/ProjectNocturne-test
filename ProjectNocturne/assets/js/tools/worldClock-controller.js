@@ -1,7 +1,13 @@
 // /assets/js/tools/worldClock-controller.js
-import { PREMIUM_FEATURES, use24HourFormat } from '../general/main.js';
-import { activateModule } from '../general/module-manager.js';
+// ================================================================
+// INICIO DE LA CORRECCIÓN
+// Se importan las funciones necesarias, incluyendo la que comprueba el overlay activo.
+// ================================================================
+import { PREMIUM_FEATURES, use24HourFormat, activateModule, getCurrentActiveOverlay } from '../general/main.js';
 import { prepareWorldClockForEdit } from './menu-interactions.js';
+// ================================================================
+// FIN DE LA CORRECCIÓN
+// ================================================================
 
 const clockIntervals = new Map();
 const CLOCKS_STORAGE_KEY = 'world-clocks';
@@ -406,6 +412,10 @@ if (grid) {
             saveClocksToStorage();
             card.remove();
         } else if (action === 'edit-clock') {
+            // ================================================================
+            // INICIO DE LA CORRECCIÓN
+            // Lógica modificada para manejar el caso de menú ya abierto.
+            // ================================================================
             e.stopPropagation();
             const clockData = {
                 id: card.dataset.id,
@@ -414,9 +424,18 @@ if (grid) {
                 timezone: card.dataset.timezone,
                 countryCode: card.dataset.countryCode
             };
-            // CORRECTED SEQUENCE: Prepare the menu first, then show it.
+            
+            // Primero, siempre preparamos el formulario con los datos correctos.
             prepareWorldClockForEdit(clockData);
-            activateModule('toggleMenuWorldClock');
+            
+            // Luego, solo activamos el módulo si el menú de WorldClock no es ya el activo.
+            // Esto previene que se reinicie el formulario innecesariamente.
+            if (getCurrentActiveOverlay() !== 'menuWorldClock') {
+                activateModule('toggleMenuWorldClock');
+            }
+            // ================================================================
+            // FIN DE LA CORRECCIÓN
+            // ================================================================
         } else if (action === 'fullscreen-clock') {
             const fullscreenNotImplementedMessage = getTranslation('fullscreen_not_implemented', 'world_clock_options');
             console.log(fullscreenNotImplementedMessage);

@@ -333,6 +333,21 @@ body {
     padding: 8px;
 }
 
+/* ================================================================ */
+/* INICIO DE LA CORRECCIÓN: Estilo para el fondo en pantalla completa */
+/* ================================================================ */
+.section-center:fullscreen {
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: none;
+}
+/* ================================================================ */
+/* FIN DE LA CORRECCIÓN */
+/* ================================================================ */
+
+
 /* ====================================== */
 /* ========= MODULES & OVERLAYS ========= */
 /* ====================================== */
@@ -615,7 +630,6 @@ body {
     font-weight: 700;
     color: #ffffff;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    transform: translate(-50%, -50%);
     transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
@@ -923,9 +937,17 @@ body {
 /* ====================================== */
 /* ============ ANIMATIONS ============== */
 /* ====================================== */
+.spinning {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
 .menu-link-icon .material-symbols-rounded.spinning {
     color: #000000;
-    animation: spin 1s linear infinite;
+}
+
+.create-tool .spinning {
+    color: #ffffff;
 }
 
 @keyframes spin {

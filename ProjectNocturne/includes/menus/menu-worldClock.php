@@ -1,4 +1,7 @@
 <div class="menu-worldClock disabled body-title" data-menu="WorldClock">
+    <div class="loading-overlay disabled">
+        <div class="spinner"></div>
+    </div>
     <div class="pill-container">
         <div class="drag-handle"></div>
     </div>
