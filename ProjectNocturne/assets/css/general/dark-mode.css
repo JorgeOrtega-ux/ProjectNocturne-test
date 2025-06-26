@@ -477,4 +477,6 @@
 .dark-mode .spinner {
     border: 4px solid rgba(255, 255, 255, 0.2);
     border-top-color: #ffffff;
+}.dark-mode .zoneInfoTool {
+    border-color: #ffffff20;
 }

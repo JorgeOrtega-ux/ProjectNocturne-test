@@ -457,7 +457,8 @@
 .card-menu-container {
     position: absolute;
     top: 5px;
-    right: 5px;padding: 2px;
+    right: 5px;
+    padding: 2px;
     z-index: 5;
     border-radius: 8px;
     background: #252627;
@@ -591,6 +592,24 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.zoneInfoTool {
+    width: auto;
+    padding: 0 12px;
+    max-width: 185px;
+    display: flex;
+    justify-content: center;
+    opacity: 0.8;
+    align-items: center;
+    height: 40px;
+    border: 1px solid #00000020;
+    border-radius: 8px;
 }

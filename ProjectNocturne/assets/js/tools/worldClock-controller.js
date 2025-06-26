@@ -35,7 +35,10 @@ function updateDateTime(element, timezone) {
             timeZone: timezone
         };
 
-        const timeString = now.toLocaleTimeString(navigator.language, timeOptions);
+        // Usa el idioma de la aplicación, no del navegador
+        const currentAppLanguage = typeof window.getCurrentLanguage === 'function' ? window.getCurrentLanguage() : 'en-US';
+
+        const timeString = now.toLocaleTimeString(currentAppLanguage, timeOptions); // <--- LÍNEA CORREGIDA
 
         if (element.tagName === 'SPAN') {
             element.textContent = timeString;
@@ -51,7 +54,7 @@ function updateDateTime(element, timezone) {
             }
 
             if (dateElement) {
-                dateElement.textContent = now.toLocaleDateString(navigator.language || 'en-US', {
+                dateElement.textContent = now.toLocaleDateString(currentAppLanguage, { // <--- LÍNEA CORREGIDA
                     weekday: 'short',
                     month: 'short',
                     day: 'numeric',
