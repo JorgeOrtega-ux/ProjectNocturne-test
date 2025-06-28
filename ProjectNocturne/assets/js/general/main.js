@@ -26,6 +26,9 @@ export let use24HourFormat = true; // true for 24-hour, false for 12-hour
 // ========== PREMIUM FEATURES CONSTANT ==========
 export const PREMIUM_FEATURES = false;
 
+// ========== CARD MOVEMENT SETTING ==========
+export let allowCardMovement = true;
+
 
 // ========== MOBILE SIDEBAR MODULE ==========
 

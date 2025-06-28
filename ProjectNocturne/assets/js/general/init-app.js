@@ -12,7 +12,7 @@ import {
     getAppliedColor,
     getAppliedFontScale
 } from './main.js';
-
+import { initializeTimer } from '../tools/timer-controller.js';
 import {
     initModuleManager,
     updateMenuLabels,
@@ -384,7 +384,7 @@ function initializeMainComponents() {
     initializeCategorySliderService();
     initializeCentralizedFontManager();
     initializeFullScreenManager();
-    initColorTextSystem();
+    initColorTextSystem();initializeTimer();
     initColorSearchSystem(); 
     initializeAlarmClock();
     initWorldClock();

@@ -3,12 +3,21 @@
         <div class="tool-options-wrapper">
             <div class="tool-options-content body-title">
                 <div class="header-button"
+                    data-action="start-pinned-timer"
                     data-translate="play"
                     data-translate-category="tooltips"
                     data-translate-target="tooltip">
                     <span class="material-symbols-rounded">play_arrow</span>
                 </div>
                 <div class="header-button"
+                    data-action="pause-pinned-timer"
+                    data-translate="pause"
+                    data-translate-category="tooltips"
+                    data-translate-target="tooltip">
+                    <span class="material-symbols-rounded">pause</span>
+                </div>
+                <div class="header-button"
+                    data-action="reset-pinned-timer"
                     data-translate="reset"
                     data-translate-category="tooltips"
                     data-translate-target="tooltip">
@@ -16,10 +25,10 @@
                 </div>
                 <div class="header-button"
                     data-module="toggleMenuTimer"
-                    data-translate="edit"
+                    data-translate="add_timer"
                     data-translate-category="tooltips"
                     data-translate-target="tooltip">
-                    <span class="material-symbols-rounded">edit</span>
+                    <span class="material-symbols-rounded">add</span>
                 </div>
             </div>
             <div class="tool-options-content body-title">
@@ -73,9 +82,30 @@
     <div class="section-center">
         <div class="tool-content">
             <div class="tool-timer">
-                <span>00:00:00</span>
+                <span>05:00</span>
             </div>
         </div>
     </div>
-    <div class="section-bottom"></div>
+    <div class="section-bottom">
+        <div class="timers-list-wrapper">
+            <div class="timers-container" data-container="user">
+                <div class="timers-header" onclick="window.timerManager.toggleTimersSection('user')">
+                    <div class="timers-header-left">
+                        <div class="timers-header-icon">
+                            <span class="material-symbols-rounded">timer</span>
+                        </div>
+                        <h3 data-translate="my_timers" data-translate-category="timer">My Timers</h3>
+                    </div>
+                    <div class="timers-header-right">
+                        <span class="timer-count-badge" data-count-for="user">0</span>
+                        <button class="collapse-timers-btn">
+                            <span class="material-symbols-rounded expand-icon">expand_more</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="timers-grid" data-timer-grid="user"></div>
+            </div>
+            <div class="timers-grid"></div>
+        </div>
+    </div>
 </div>

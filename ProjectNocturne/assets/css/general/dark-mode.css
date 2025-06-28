@@ -165,15 +165,9 @@
     border-color: #ffffff20;
 }
 
-/* ================================================================ */
-/* INICIO DE LA CORRECCIÓN: Estilo para el fondo en pantalla completa */
-/* ================================================================ */
 .dark-mode .section-center:fullscreen {
     background-color: #252627;
 }
-/* ================================================================ */
-/* FIN DE LA CORRECCIÓN */
-/* ================================================================ */
 
 
 /* ====================================== */
@@ -433,19 +427,6 @@
     box-shadow: 0 4px 12px #00000040;
 }
 
-.dark-mode .world-clock-card.dragging,
-.dark-mode .world-clock-card.sortable-chosen {
-    opacity: 0.8;
-    background-color: #3a3b3d;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-}
-
-.dark-mode .world-clock-card.drag-over {
-    background-color: #2c3e50;
-    border-style: dashed;
-    border-color: #64b5f6;
-}
-
 .dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-text span,
 .dark-mode .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-icon span {
     color: #e57373; /* Slightly less saturated red for dark mode */
@@ -480,3 +461,24 @@
 }.dark-mode .zoneInfoTool {
     border-color: #ffffff20;
 }
+
+.dark-mode .alarms-header {
+    background-color: transparent;
+    border-color: #ffffff20;
+}
+
+/* --- ESTILOS UNIFICADOS PARA DRAG & DROP (MODO OSCURO) --- */
+.dark-mode .alarm-card.sortable-chosen,
+.dark-mode .world-clock-card.sortable-chosen {
+    background-color: #3a3b3d;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+}
+
+/* ================== CORRECCIÓN APLICADA AQUÍ ================== */
+.dark-mode .alarm-card.sortable-ghost,
+.dark-mode .world-clock-card.sortable-ghost {
+    opacity: 0.5;
+    background-color: #252627; /* Fondo sutil para modo oscuro */
+    border: 1px solid #444;       /* Borde sólido y sutil para modo oscuro */
+}
+/* ============================================================= */

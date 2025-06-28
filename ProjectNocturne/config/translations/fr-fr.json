@@ -142,7 +142,17 @@
     "my_new_alarm_placeholder": "Ma nouvelle alarme",
     "alarm_settings": "Paramètres de l'alarme",
     "alarm_sound": "Son de l'alarme",
-    "create_alarm": "Créer une alarme"
+    "create_alarm": "Créer une alarme",
+    "my_alarms": "Mes Alarmes",
+    "edit_alarm": "Modifier l'Alarme",
+    "delete_alarm": "Supprimer l'Alarme",
+    "test_alarm": "Tester l'Alarme",
+    "save_changes": "Enregistrer les modifications",
+    "confirm_delete_alarm": "Êtes-vous sûr de vouloir supprimer cette alarme?",
+    "alarm_limit_reached": "Limite de {limit} alarmes atteinte.",
+    "default_alarms": "Alarmes par Défaut",
+    "activate_alarm": "Activer l'Alarme",
+    "deactivate_alarm": "Désactiver l'Alarme"
   },
   "world_clock": {
     "clock_title": "Titre de l'horloge",

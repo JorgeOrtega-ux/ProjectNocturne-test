@@ -1,5 +1,5 @@
 // /assets/js/tools/worldClock-controller.js
-import { PREMIUM_FEATURES, use24HourFormat, activateModule, getCurrentActiveOverlay } from '../general/main.js';
+import { PREMIUM_FEATURES, use24HourFormat, activateModule, getCurrentActiveOverlay, allowCardMovement } from '../general/main.js';
 import { prepareWorldClockForEdit } from './menu-interactions.js';
 import { updateZoneInfo } from './zoneinfo-controller.js';
 
@@ -365,6 +365,7 @@ function updateLocalClockTranslation() {
 }
 
 function initializeSortable() {
+    if (!allowCardMovement) return;
     const grid = document.querySelector('.world-clocks-grid');
     if (grid && typeof Sortable !== 'undefined') {
         new Sortable(grid, {
@@ -373,6 +374,7 @@ function initializeSortable() {
             draggable: '.world-clock-card',
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
+            dragClass: 'sortable-drag', // =====> MODIFICACIÓN: Clase añadida
             onMove: function(evt) {
                 return !evt.related.classList.contains('local-clock-card');
             },

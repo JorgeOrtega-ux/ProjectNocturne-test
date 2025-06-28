@@ -387,7 +387,8 @@
     background-color: #ffffff;
     border: 1px solid #00000020;
     border-radius: 12px;
-    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    cursor: grab;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 
@@ -458,8 +459,9 @@
 .dark-mode .card-pin-btn {
     color: #ffffff;
 }
+
 .dark-mode .card-menu-btn {
-      color: #ffffff;
+    color: #ffffff;
 }
 
 
@@ -472,9 +474,11 @@
 .dark-mode .card-pin-btn:hover {
     background-color: #ffffff20;
 }
+
 .dark-mode .card-pin-btn.active {
     background-color: #ffffff20;
 }
+
 .card-fullscreen-btn:hover,
 .card-pin-btn:hover,
 .card-menu-btn:hover {
@@ -544,35 +548,22 @@
     font-size: 0.875rem;
 }
 
-.world-clock-card.dragging,
-.world-clock-card.sortable-chosen {
-    opacity: 0.8;
-    background-color: #fff;
-    filter: drop-shadow(0 4px 12px #00000020);
-    transform: scale(1.02);
-    border: none;
-    cursor: grabbing;
-}
-
-.world-clock-card.drag-over {
-    background-color: #f5f8ff;
-    border-style: dashed;
-    border-color: #005fcc;
-}
-
 .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-text span,
 .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-icon span {
     font-weight: 500;
-    color: #d32f2f; /* Slightly less intense red */
+    color: #d32f2f;
+    /* Slightly less intense red */
 }
 
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover {
-    background-color: rgba(229, 57, 53, 0.08); /* Light, transparent red */
+    background-color: rgba(229, 57, 53, 0.08);
+    /* Light, transparent red */
 }
 
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-text span,
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-icon span {
-    color: #b71c1c; /* Darker red on hover */
+    color: #b71c1c;
+    /* Darker red on hover */
 }
 
 
@@ -665,8 +656,10 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    text-align: center; /* Opcional, para centrar el texto si no se desborda */
+    text-align: center;
+    /* Opcional, para centrar el texto si no se desborda */
 }
+
 .pinned-clock-display {
     text-align: center;
 }
@@ -690,4 +683,920 @@
     margin-top: 8px;
     font-size: 1rem;
     opacity: 0.7;
+}
+
+/* ====================================== */
+/* ========== ALARMAS SECTION =========== */
+/* ====================================== */
+
+.alarms-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.alarms-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid #00000020;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.dark-mode .alarms-header {
+    border-bottom-color: #ffffff20;
+}
+
+.alarms-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #000000;
+}
+
+.dark-mode .alarms-header h3 {
+    color: #ffffff;
+}
+
+.collapse-alarms-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #000000;
+    transition: background-color 0.2s ease;
+}
+
+.collapse-alarms-btn .expand-icon {
+    transition: transform 0.3s ease;
+}
+
+.collapse-alarms-btn.expanded .expand-icon {
+    transform: rotate(180deg);
+}
+
+.dark-mode .collapse-alarms-btn {
+    color: #ffffff;
+}
+
+.collapse-alarms-btn:hover {
+    background-color: #f5f5fa;
+}
+
+.dark-mode .collapse-alarms-btn:hover {
+    background-color: #ffffff20;
+}
+
+.alarms-grid {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.alarms-grid.active {
+    display: grid;
+}
+
+
+/* ========== ALARM CARDS ========== */
+.alarm-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+    background-color: #ffffff;
+    border: 1px solid #00000020;
+    border-radius: 12px;
+    transition: opacity 0.3s, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+.dark-mode .alarm-card {
+    background-color: #2e2f31;
+    border-color: #ffffff18;
+}
+
+/* ========== ALARM CARD OPTIONS ========== */
+.card-options-container {
+    display: none;
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    z-index: 6;
+}
+
+.card-options-container.active {
+    display: block;
+}
+
+.dismiss-alarm-btn {
+    padding: 8px 16px;
+    background-color: #ff5555;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.dismiss-alarm-btn:hover {
+    background-color: #ff2f2f;
+}
+
+.dark-mode .dismiss-alarm-btn {
+    background-color: #e57373;
+}
+
+.dark-mode .dismiss-alarm-btn:hover {
+    background-color: #ef9a9a;
+}
+
+.alarm-card:hover {
+    /* No hay estilos de sombra ni transformación aquí */
+}
+
+.dark-mode .alarm-card:hover {
+    /* No hay estilos de sombra ni transformación aquí */
+}
+
+
+
+.alarm-card.alarm-disabled {
+    opacity: 0.6;
+}
+
+.alarm-card .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.alarm-card .card-alarm-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.alarm-card .alarm-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #000000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dark-mode .alarm-card .alarm-title {
+    color: #ffffff;
+}
+
+.alarm-card .alarm-time {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #000000;
+    line-height: 1;
+}
+
+.dark-mode .alarm-card .alarm-time {
+    color: #ffffff;
+}
+
+/* ========== ALARM CARD FOOTER ========== */
+.alarm-card .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.alarm-card .alarm-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.alarm-card .alarm-sound-name {
+    font-size: 0.85rem;
+    color: rgba(0, 0, 0, 0.7);
+    background-color: #f5f5fa;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.dark-mode .alarm-card .alarm-sound-name {
+    color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ========== ALARM MENU CONTAINER ========== */
+.alarm-card .card-menu-container {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    padding: 2px;
+    z-index: 5;
+    border-radius: 8px;
+    background: #ffffff;
+    display: flex;
+    border: 1px solid transparent;
+    filter: drop-shadow(0 4px 12px #00000020);
+    gap: 4px;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.dark-mode .alarm-card .card-menu-container {
+    background-color: #252627;
+    border-color: #ffffff20;
+    filter: unset;
+}
+
+.alarm-card .card-menu-container.disabled {
+    display: none;
+}
+
+.alarm-card .card-menu-container.active {
+    display: flex;
+}
+
+.alarm-card .card-menu-btn-wrapper {
+    position: relative;
+}
+
+.alarm-card .card-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: #000000;
+    background-color: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.dark-mode .alarm-card .card-menu-btn {
+    color: #ffffff;
+}
+
+.alarm-card .card-menu-btn:hover {
+    background-color: #f5f5fa;
+}
+
+.dark-mode .alarm-card .card-menu-btn:hover {
+    background-color: #ffffff18;
+}
+
+.alarm-card .card-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    width: 180px;
+    padding: 8px;
+    margin-top: 4px;
+    gap: 4px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    filter: drop-shadow(0 4px 12px #00000020);
+}
+
+.dark-mode .alarm-card .card-dropdown-menu {
+    background-color: #3a3b3d;
+    border-color: #ffffff18;
+    box-shadow: 0 4px 12px #00000040;
+}
+
+.alarm-card .card-dropdown-menu.disabled {
+    display: none;
+}
+
+.alarm-card .card-dropdown-menu .menu-link {
+    height: 36px;
+    font-size: 0.875rem;
+}
+
+.alarm-card .card-dropdown-menu .menu-link[data-action="delete-alarm"] .menu-link-text span,
+.alarm-card .card-dropdown-menu .menu-link[data-action="delete-alarm"] .menu-link-icon span {
+    color: #d32f2f;
+}
+
+.alarm-card .card-dropdown-menu .menu-link[data-action="delete-alarm"]:hover {
+    background-color: rgba(229, 57, 53, 0.08);
+}
+
+.alarm-card .card-dropdown-menu .menu-link[data-action="delete-alarm"]:hover .menu-link-text span,
+.alarm-card .card-dropdown-menu .menu-link[data-action="delete-alarm"]:hover .menu-link-icon span {
+    color: #b71c1c;
+}
+
+.dark-mode .alarm-card .card-dropdown-menu .menu-link[data-action="delete-alarm"] .menu-link-text span,
+.dark-mode .alarm-card .card-dropdown-menu .menu-link[data-action="delete-alarm"] .menu-link-icon span {
+    color: #e57373;
+}
+
+.dark-mode .alarm-card .card-dropdown-menu .menu-link[data-action="delete-alarm"]:hover {
+    background-color: rgba(239, 154, 154, 0.1);
+}
+
+.dark-mode .alarm-card .card-dropdown-menu .menu-link[data-action="delete-alarm"]:hover .menu-link-text span,
+.dark-mode .alarm-card .card-dropdown-menu .menu-link[data-action="delete-alarm"]:hover .menu-link-icon span {
+    color: #ef9a9a;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 768px) {
+    .alarms-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .alarm-card {
+        padding: 14px;
+    }
+
+    .alarm-card .alarm-time {
+        font-size: 1.2rem;
+    }
+}
+
+.alarms-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
+}/* ====================================== */
+/* ESTILOS AÑADIDOS PARA ALARMS HEADER  */
+/* ====================================== */
+
+/* Contenedor principal del header */
+.alarms-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid #00000020;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 0 8px; /* Ajuste de padding */
+    height: 55px; /* Altura fija para consistencia */
+}
+
+/* Parte izquierda del header (ícono y título) */
+.alarms-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espacio entre ícono y texto */
+}
+
+/* Contenedor del ícono */
+.alarms-header-icon {
+    display: flex
+;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    border-radius: 8px;
+    border: 1px solid #00000020;
+    height: 40px;
+}
+.alarms-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+/* Parte derecha del header (badge y botón) */
+.alarms-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espacio entre badge y botón */
+}
+
+/* Estilos para el badge de número de alarmas */
+.alarm-count-badge {
+    display: flex
+;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #000000;
+    background-color: #f5f5fa;
+    border-radius: 12px;
+}
+
+/* --- Dark Mode --- */
+.dark-mode .alarms-header {
+    background: #252627;
+    border-color: #ffffff20;
+}
+
+.dark-mode .alarms-header h3 {
+    color: #ffffff;
+}
+
+.dark-mode .alarm-count-badge {
+    color: #ffffff;
+    background-color: #ffffff20;
+}
+
+.dark-mode .alarms-header-icon {
+    color: #ffffff;
+    border-color: #ffffff20;
+}
+
+.alarms-header:hover {
+    background-color: #f5f5fa;
+}
+
+.dark-mode .alarms-header:hover {
+    background-color: #ffffff20;
+}
+
+/* --- ESTILOS UNIFICADOS PARA DRAG & DROP --- */
+.alarm-card,
+.world-clock-card {
+    cursor: grab;
+}
+
+.alarm-card.sortable-drag,
+.world-clock-card.sortable-drag {
+    cursor: grabbing;
+}
+
+.alarm-card.sortable-chosen,
+.world-clock-card.sortable-chosen {
+    opacity: 0.9;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    transform: scale(1.03);
+    cursor: grabbing;
+}
+
+/* ================== CORRECCIÓN APLICADA AQUÍ ================== */
+.alarm-card.sortable-ghost,
+.world-clock-card.sortable-ghost {
+    opacity: 0.4;
+    background-color: #f5f5fa; /* Color de fondo neutro */
+    border: 1px solid #d0d0d0;   /* Borde sólido y sutil */
+}
+/* ============================================================= */
+/* ====================================== */
+/* ========== TIMER SECTION ============= */
+/* ====================================== */
+
+.timers-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+.timers-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid #00000020;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 0 8px;
+    height: 55px;
+}
+
+.timers-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.timers-header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    border-radius: 8px;
+    border: 1px solid #00000020;
+    height: 40px;
+}
+
+.timers-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #000000;
+}
+
+.timers-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.timer-count-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #000000;
+    background-color: #f5f5fa;
+    border-radius: 12px;
+}
+
+.collapse-timers-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #000000;
+    transition: background-color 0.2s ease;
+}
+
+.collapse-timers-btn .expand-icon {
+    transition: transform 0.3s ease;
+}
+
+.collapse-timers-btn.expanded .expand-icon {
+    transform: rotate(180deg);
+}
+
+.collapse-timers-btn:hover {
+    background-color: #f5f5fa;
+}
+
+.timers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.timers-grid.active {
+    display: grid;
+}
+
+/* ========== TIMER CARDS ========== */
+.timer-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+    background-color: #ffffff;
+    border: 1px solid #00000020;
+    border-radius: 12px;
+    transition: opacity 0.3s, background-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: grab;
+}
+
+.timer-card.timer-paused {
+    opacity: 0.8;
+}
+
+.timer-card.timer-running {
+    border-left: 4px solid #4caf50;
+}
+
+.timer-card.timer-finished {
+    border-left: 4px solid #ff5722;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.7; }
+    100% { opacity: 1; }
+}
+
+.timer-card .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.timer-card .card-timer-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.timer-card .timer-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #000000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.timer-card .timer-type-badge {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #666;
+    background-color: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.timer-card .timer-time {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #000000;
+    line-height: 1;
+}
+
+.timer-card .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.timer-card .timer-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.timer-card .timer-date,
+.timer-card .timer-sound-name {
+    font-size: 0.85rem;
+    color: rgba(0, 0, 0, 0.7);
+    background-color: #f5f5fa;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+/* ========== TIMER MENU CONTAINER ========== */
+.timer-card .card-menu-container {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    padding: 2px;
+    z-index: 5;
+    border-radius: 8px;
+    background: #ffffff;
+    display: flex;
+    border: 1px solid transparent;
+    filter: drop-shadow(0 4px 12px #00000020);
+    gap: 4px;
+    transition: opacity 0.2s ease-in-out;
+}
+
+.timer-card .card-menu-container.disabled {
+    display: none;
+}
+
+.timer-card .card-menu-container.active {
+    display: flex;
+}
+
+.timer-card .card-menu-btn-wrapper {
+    position: relative;
+}
+
+.timer-card .card-pin-btn,
+.timer-card .card-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: #000000;
+    background-color: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.timer-card .card-pin-btn:hover,
+.timer-card .card-menu-btn:hover {
+    background-color: #f5f5fa;
+}
+
+.timer-card .card-pin-btn.active {
+    color: #000000;
+    background-color: #f5f5fa;
+}
+
+.timer-card .card-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    width: 180px;
+    padding: 8px;
+    margin-top: 4px;
+    gap: 4px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    filter: drop-shadow(0 4px 12px #00000020);
+}
+
+.timer-card .card-dropdown-menu.disabled {
+    display: none;
+}
+
+.timer-card .card-dropdown-menu .menu-link {
+    height: 36px;
+    font-size: 0.875rem;
+}
+
+.timer-card .card-dropdown-menu .menu-link[data-action="delete-timer"] .menu-link-text span,
+.timer-card .card-dropdown-menu .menu-link[data-action="delete-timer"] .menu-link-icon span {
+    color: #d32f2f;
+}
+
+.timer-card .card-dropdown-menu .menu-link[data-action="delete-timer"]:hover {
+    background-color: rgba(229, 57, 53, 0.08);
+}
+
+.timer-card .card-dropdown-menu .menu-link[data-action="delete-timer"]:hover .menu-link-text span,
+.timer-card .card-dropdown-menu .menu-link[data-action="delete-timer"]:hover .menu-link-icon span {
+    color: #b71c1c;
+}
+
+/* ========== RESPONSIVE DESIGN ========== */
+@media (max-width: 768px) {
+    .timers-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .timer-card {
+        padding: 14px;
+    }
+
+    .timer-card .timer-time {
+        font-size: 1.6rem;
+    }
+}
+
+.timers-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
+}
+
+/* ========== DARK MODE STYLES ========== */
+.dark-mode .timers-header {
+    background: #252627;
+    border-color: #ffffff20;
+}
+
+.dark-mode .timers-header h3 {
+    color: #ffffff;
+}
+
+.dark-mode .timer-count-badge {
+    color: #ffffff;
+    background-color: #ffffff20;
+}
+
+.dark-mode .timers-header-icon {
+    color: #ffffff;
+    border-color: #ffffff20;
+}
+
+.dark-mode .timers-header:hover {
+    background-color: #ffffff20;
+}
+
+.dark-mode .collapse-timers-btn {
+    color: #ffffff;
+}
+
+.dark-mode .collapse-timers-btn:hover {
+    background-color: #ffffff20;
+}
+
+.dark-mode .timer-card {
+    background-color: #2e2f31;
+    border-color: #ffffff18;
+}
+
+.dark-mode .timer-card .timer-title {
+    color: #ffffff;
+}
+
+.dark-mode .timer-card .timer-time {
+    color: #ffffff;
+}
+
+.dark-mode .timer-card .timer-type-badge {
+    color: #ffffff;
+    background-color: #ffffff20;
+}
+
+.dark-mode .timer-card .timer-date,
+.dark-mode .timer-card .timer-sound-name {
+    color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .timer-card .card-menu-container {
+    background-color: #252627;
+    border-color: #ffffff20;
+    filter: unset;
+}
+
+.dark-mode .timer-card .card-pin-btn,
+.dark-mode .timer-card .card-menu-btn {
+    color: #ffffff;
+}
+
+.dark-mode .timer-card .card-pin-btn:hover,
+.dark-mode .timer-card .card-menu-btn:hover {
+    background-color: #ffffff18;
+}
+
+.dark-mode .timer-card .card-pin-btn.active {
+    color: #ffffff;
+    background-color: #ffffff20;
+}
+
+.dark-mode .timer-card .card-dropdown-menu {
+    background-color: #3a3b3d;
+    border-color: #ffffff18;
+    box-shadow: 0 4px 12px #00000040;
+}
+
+.dark-mode .timer-card .card-dropdown-menu .menu-link[data-action="delete-timer"] .menu-link-text span,
+.dark-mode .timer-card .card-dropdown-menu .menu-link[data-action="delete-timer"] .menu-link-icon span {
+    color: #e57373;
+}
+
+.dark-mode .timer-card .card-dropdown-menu .menu-link[data-action="delete-timer"]:hover {
+    background-color: rgba(239, 154, 154, 0.1);
+}
+
+.dark-mode .timer-card .card-dropdown-menu .menu-link[data-action="delete-timer"]:hover .menu-link-text span,
+.dark-mode .timer-card .card-dropdown-menu .menu-link[data-action="delete-timer"]:hover .menu-link-icon span {
+    color: #ef9a9a;
+}
+
+/* ========== SORTABLE STYLES FOR TIMERS ========== */
+.timer-card.sortable-chosen {
+    opacity: 0.9;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    transform: scale(1.03);
+    cursor: grabbing;
+}
+
+.timer-card.sortable-ghost {
+    opacity: 0.4;
+    background-color: #f5f5fa;
+    border: 1px solid #d0d0d0;
+}
+
+.dark-mode .timer-card.sortable-chosen {
+    background-color: #3a3b3d;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+}
+
+.dark-mode .timer-card.sortable-ghost {
+    opacity: 0.5;
+    background-color: #252627;
+    border: 1px solid #444;
 }
