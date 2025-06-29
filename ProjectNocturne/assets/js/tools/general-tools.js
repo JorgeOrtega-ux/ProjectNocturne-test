@@ -1,3 +1,198 @@
+// jorgeortega-ux/projectnocturne-untested/ProjectNocturne-Untested-40cb09d19e05067b15f05652c8beaac6f8a29ff7/ProjectNocturne/assets/js/tools/general-tools.js
+// ========== SOUND LOGIC ==========
+const SOUND_PATTERNS = {
+    'classic-beep': { frequencies: [800], beepDuration: 150, pauseDuration: 150, type: 'square' },
+    'gentle-chime': { frequencies: [523.25, 659.25, 783.99], beepDuration: 300, pauseDuration: 500, type: 'sine' },
+    'digital-alarm': { frequencies: [1200, 800], beepDuration: 100, pauseDuration: 100, type: 'square' },
+    'peaceful-tone': { frequencies: [440, 554.37, 659.25], beepDuration: 400, pauseDuration: 600, type: 'sine' },
+    'urgent-beep': { frequencies: [1600, 1600], beepDuration: 80, pauseDuration: 80, type: 'sawtooth' }
+};
+
+export const AVAILABLE_SOUNDS = [
+    { id: 'classic-beep', nameKey: 'classic_beep', icon: 'volume_up' },
+    { id: 'gentle-chime', nameKey: 'gentle_chime', icon: 'notifications' },
+    { id: 'digital-alarm', nameKey: 'digital_alarm', icon: 'alarm' },
+    { id: 'peaceful-tone', nameKey: 'peaceful_tone', icon: 'self_care' },
+    { id: 'urgent-beep', nameKey: 'urgent_beep', icon: 'priority_high' }
+];
+
+let audioContext = null;
+let activeSoundSource = null;
+let isPlayingSound = false;
+
+// ========== IndexedDB for Custom Sounds ==========
+const DB_NAME = 'ProjectNocturneDB';
+const DB_VERSION = 1;
+const SOUNDS_STORE_NAME = 'customSounds';
+
+function openDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onerror = () => reject("Error opening DB");
+        request.onsuccess = () => resolve(request.result);
+        request.onupgradeneeded = event => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(SOUNDS_STORE_NAME)) {
+                db.createObjectStore(SOUNDS_STORE_NAME, { keyPath: 'id' });
+            }
+        };
+    });
+}
+
+async function saveCustomSound(id, name, data) {
+    const db = await openDB();
+    const transaction = db.transaction(SOUNDS_STORE_NAME, 'readwrite');
+    const store = transaction.objectStore(SOUNDS_STORE_NAME);
+    store.put({ id, name, data });
+    return transaction.complete;
+}
+
+async function getCustomSound(id) {
+    const db = await openDB();
+    const transaction = db.transaction(SOUNDS_STORE_NAME, 'readonly');
+    const store = transaction.objectStore(SOUNDS_STORE_NAME);
+    const request = store.get(id);
+    return new Promise(resolve => {
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => resolve(null);
+    });
+}
+
+async function getAllCustomSounds() {
+    const db = await openDB();
+    const transaction = db.transaction(SOUNDS_STORE_NAME, 'readonly');
+    const store = transaction.objectStore(SOUNDS_STORE_NAME);
+    const request = store.getAll();
+    return new Promise(resolve => {
+        request.onsuccess = () => resolve(request.result || []);
+        request.onerror = () => resolve([]);
+    });
+}
+
+
+function initializeAudioContext() {
+    if (!audioContext) {
+        try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        } catch (e) {
+            console.warn('Web Audio API is not available:', e);
+            return false;
+        }
+    }
+    return true;
+}
+
+export async function playSound(soundType = 'classic-beep') {
+    if (isPlayingSound || !initializeAudioContext()) return;
+    stopSound();
+    isPlayingSound = true;
+
+    if (soundType.startsWith('custom-')) {
+        const soundData = await getCustomSound(soundType);
+        if (soundData) {
+            const source = audioContext.createBufferSource();
+            const audioBuffer = await audioContext.decodeAudioData(soundData.data.slice(0)); // Create a copy
+            source.buffer = audioBuffer;
+            source.connect(audioContext.destination);
+            source.start(0);
+            activeSoundSource = { sourceNode: source, type: 'custom' };
+            source.onended = () => {
+                if (activeSoundSource && activeSoundSource.sourceNode === source) {
+                    isPlayingSound = false;
+                    activeSoundSource = null;
+                }
+            };
+        }
+    } else {
+        const pattern = SOUND_PATTERNS[soundType] || SOUND_PATTERNS['classic-beep'];
+        let freqIndex = 0;
+        const playBeep = () => {
+            if (!isPlayingSound) return;
+            if (audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+            const freq = pattern.frequencies[freqIndex % pattern.frequencies.length];
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.type = pattern.type;
+            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + (pattern.beepDuration / 1000));
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + (pattern.beepDuration / 1000));
+            freqIndex++;
+        };
+        playBeep();
+        const intervalId = setInterval(playBeep, pattern.beepDuration + pattern.pauseDuration);
+        activeSoundSource = { intervalId: intervalId, type: 'pattern' };
+    }
+}
+
+
+export function stopSound() {
+    if (activeSoundSource) {
+        if (activeSoundSource.type === 'custom' && activeSoundSource.sourceNode) {
+            activeSoundSource.sourceNode.stop();
+        } else if (activeSoundSource.type === 'pattern' && activeSoundSource.intervalId) {
+            clearInterval(activeSoundSource.intervalId);
+        }
+    }
+    activeSoundSource = null;
+    isPlayingSound = false;
+}
+
+export async function generateSoundList(listElement, onSelectCallback) {
+    if (!listElement) return;
+    listElement.innerHTML = ''; // Clear existing list
+    const getTranslation = window.getTranslation || ((key, category) => key);
+
+    // Add default sounds
+    AVAILABLE_SOUNDS.forEach(sound => {
+        const menuLink = document.createElement('div');
+        menuLink.className = 'menu-link';
+        menuLink.dataset.action = 'selectSound';
+        menuLink.dataset.sound = sound.id;
+        menuLink.innerHTML = `
+            <div class="menu-link-icon"><span class="material-symbols-rounded">${sound.icon}</span></div>
+            <div class="menu-link-text"><span data-translate="${sound.nameKey}" data-translate-category="sounds">${getTranslation(sound.nameKey, 'sounds')}</span></div>
+        `;
+        menuLink.addEventListener('click', () => {
+            if (typeof onSelectCallback === 'function') {
+                onSelectCallback(sound.id, getTranslation(sound.nameKey, 'sounds'));
+            }
+        });
+        listElement.appendChild(menuLink);
+    });
+
+    // Add custom sounds from DB
+    const customSounds = await getAllCustomSounds();
+    if (customSounds.length > 0) {
+        const separator = document.createElement('hr');
+        separator.style.margin = '8px 0';
+        listElement.appendChild(separator);
+    }
+    customSounds.forEach(sound => {
+        const menuLink = document.createElement('div');
+        menuLink.className = 'menu-link';
+        menuLink.dataset.action = 'selectSound';
+        menuLink.dataset.sound = sound.id;
+        menuLink.innerHTML = `
+            <div class="menu-link-icon"><span class="material-symbols-rounded">music_note</span></div>
+            <div class="menu-link-text"><span>${sound.name}</span></div>
+        `;
+        menuLink.addEventListener('click', () => {
+            if (typeof onSelectCallback === 'function') {
+                onSelectCallback(sound.id, sound.name);
+            }
+        });
+        listElement.appendChild(menuLink);
+    });
+}
+
+
 // ========== SERVICE: CATEGORY SLIDER DRAG & SCROLL ==========
 
 function initializeCategorySliderService() {
@@ -903,11 +1098,22 @@ function initializeFullScreenManager() {
     });
 }
 
+// ========== UNIFIED SORTABLE INITIALIZER ==========
+export function initializeSortable(gridSelector, options) {
+    const grid = document.querySelector(gridSelector);
+    if (grid && typeof Sortable !== 'undefined') {
+        new Sortable(grid, options);
+    } else if (typeof Sortable === 'undefined') {
+        console.warn('SortableJS not available. Drag-and-drop functionality will be disabled.');
+    }
+}
+
 
 // ========== EXPORTS ==========
 export {
     initializeCategorySliderService,
     initializeCentralizedFontManager,
     initializeTextStyleManager,
-    initializeFullScreenManager
+    initializeFullScreenManager,
+    saveCustomSound,
 };

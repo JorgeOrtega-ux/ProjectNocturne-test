@@ -1,7 +1,7 @@
-// /assets/js/tools/worldClock-controller.js
 import { PREMIUM_FEATURES, use24HourFormat, activateModule, getCurrentActiveOverlay, allowCardMovement } from '../general/main.js';
 import { prepareWorldClockForEdit } from './menu-interactions.js';
 import { updateZoneInfo } from './zoneinfo-controller.js';
+import { initializeSortable } from './general-tools.js';
 
 const clockIntervals = new Map();
 const CLOCKS_STORAGE_KEY = 'world-clocks';
@@ -364,29 +364,26 @@ function updateLocalClockTranslation() {
     }
 }
 
-function initializeSortable() {
+function initializeSortableGrid() {
     if (!allowCardMovement) return;
-    const grid = document.querySelector('.world-clocks-grid');
-    if (grid && typeof Sortable !== 'undefined') {
-        new Sortable(grid, {
-            animation: 150,
-            filter: '.local-clock-card, .card-menu-btn, .card-dropdown-menu, .card-pin-btn',
-            draggable: '.world-clock-card',
-            ghostClass: 'sortable-ghost',
-            chosenClass: 'sortable-chosen',
-            dragClass: 'sortable-drag', // =====> MODIFICACIÓN: Clase añadida
-            onMove: function(evt) {
-                return !evt.related.classList.contains('local-clock-card');
-            },
-            onEnd: function() {
-                const newOrder = Array.from(grid.querySelectorAll('.world-clock-card:not(.local-clock-card)')).map(card => card.id);
-                userClocks.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
-                saveClocksToStorage();
-            }
-        });
-    } else if (typeof Sortable === 'undefined') {
-        console.error('La librería SortableJS no está cargada. La función de arrastrar y soltar no funcionará.');
-    }
+
+    initializeSortable('.world-clocks-grid', {
+        animation: 150,
+        filter: '.local-clock-card, .card-menu-btn, .card-dropdown-menu, .card-pin-btn',
+        draggable: '.world-clock-card',
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        onMove: function(evt) {
+            return !evt.related.classList.contains('local-clock-card');
+        },
+        onEnd: function() {
+            const grid = document.querySelector('.world-clocks-grid');
+            const newOrder = Array.from(grid.querySelectorAll('.world-clock-card:not(.local-clock-card)')).map(card => card.id);
+            userClocks.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
+            saveClocksToStorage();
+        }
+    });
 }
 
 function pinClock(button) {
@@ -540,5 +537,5 @@ window.worldClockManager = {
 export function initWorldClock() {
     initializeLocalClock();
     loadClocksFromStorage();
-    initializeSortable();
+    initializeSortableGrid();
 }

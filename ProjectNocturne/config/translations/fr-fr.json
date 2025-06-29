@@ -109,6 +109,7 @@
     "add": "Augmenter la taille de la police",
     "add_alarm": "Ajouter une Alarme",
     "add_clock": "Ajouter une Horloge",
+    "add_timer": "Ajouter une Minuterie",
     "alarms": "Alarme",
     "auto": "Couleur Automatique",
     "bold": "Gras",
@@ -130,7 +131,8 @@
     "lap": "Tour",
     "timer": "Minuterie",
     "world_clock": "Horloge Mondiale",
-    "pin_clock": "Épingler l'horloge"
+    "pin_clock": "Épingler l'horloge",
+    "pin_timer": "Épingler le minuteur"
   },
    "stopwatch": {
     "lap_header": "Tour",
@@ -152,7 +154,8 @@
     "alarm_limit_reached": "Limite de {limit} alarmes atteinte.",
     "default_alarms": "Alarmes par Défaut",
     "activate_alarm": "Activer l'Alarme",
-    "deactivate_alarm": "Désactiver l'Alarme"
+    "deactivate_alarm": "Désactiver l'Alarme",
+    "dismiss": "Rejeter"
   },
   "world_clock": {
     "clock_title": "Titre de l'horloge",
@@ -187,9 +190,18 @@
     "start_as_stopwatch": "Démarrer en chronomètre",
     "select_date_time": "Sélectionner Date et Heure",
     "create_timer": "Créer un minuteur",
+    "save_changes": "Enregistrer les modifications",
     "hours": "Heures",
     "minutes": "Minutes",
-    "seconds": "Secondes"
+    "seconds": "Secondes",
+    "edit_timer": "Modifier le minuteur",
+    "delete_timer": "Supprimer le minuteur",
+    "edit_not_implemented_timer": "La modification pour ce type de minuteur n'est pas implémentée.",
+    "delete_timer_confirm": "Êtes-vous sûr de vouloir supprimer ce minuteur ?",
+    "event_finished": "Événement terminé !",
+    "timer_limit_reached": "Limite de {limit} minuteries atteinte.",
+    "my_timers": "Mes Minuteries",
+    "default_timers": "Minuteries par Défaut"
   },
   "world_clock_options": {
     "options": "Options de l'horloge",

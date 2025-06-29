@@ -109,6 +109,7 @@
     "add": "Increase Font Size",
     "add_alarm": "Add Alarm",
     "add_clock": "Add Clock",
+    "add_timer": "Add Timer",
     "alarms": "Alarm",
     "auto": "Automatic Color",
     "bold": "Bold",
@@ -130,7 +131,8 @@
     "lap": "Lap",
     "timer": "Timer",
     "world_clock": "World Clock",
-    "pin_clock": "Pin clock"
+    "pin_clock": "Pin clock",
+    "pin_timer": "Pin timer"
   },
   "stopwatch": {
     "lap_header": "Lap",
@@ -152,7 +154,8 @@
     "alarm_limit_reached": "Alarm limit of {limit} reached.",
     "default_alarms": "Default Alarms",
     "activate_alarm": "Activate Alarm",
-    "deactivate_alarm": "Deactivate Alarm"
+    "deactivate_alarm": "Deactivate Alarm",
+    "dismiss": "Dismiss"
   },
   "world_clock": {
     "clock_title": "Clock Title",
@@ -187,9 +190,18 @@
     "start_as_stopwatch": "Start as stopwatch",
     "select_date_time": "Select Date & Time",
     "create_timer": "Create timer",
+    "save_changes": "Save Changes",
     "hours": "Hours",
     "minutes": "Minutes",
-    "seconds": "Seconds"
+    "seconds": "Seconds",
+    "edit_timer": "Edit timer",
+    "delete_timer": "Delete timer",
+    "edit_not_implemented_timer": "Editing for this type of timer is not implemented.",
+    "delete_timer_confirm": "Are you sure you want to delete this timer?",
+    "event_finished": "Event finished!",
+    "timer_limit_reached": "Timer limit of {limit} reached.",
+    "my_timers": "My Timers",
+    "default_timers": "Default Timers"
   },
   "world_clock_options": {
     "options": "Clock options",

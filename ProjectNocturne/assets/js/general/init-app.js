@@ -56,6 +56,7 @@ import {
     refreshColorSystem
 } from '../tools/palette-colors.js';
 import { initializeStopwatch } from '../tools/stopwatch-controller.js'; // <-- AÑADIDO
+import { initializeTimerController } from '../tools/timer-controller.js';
 
 import { initializeAlarmClock } from '../tools/alarm-controller.js';
 import { initWorldClock } from '../tools/worldClock-controller.js';
@@ -389,6 +390,7 @@ function initializeMainComponents() {
     initializeAlarmClock();
     initWorldClock();
 initializeStopwatch(); // <-- AÑADIDO
+initializeTimerController();
     setupEventListeners();
     batchMigrateTooltips();
     initializeMobileSidebarTooltips();

@@ -1,16 +1,10 @@
-// /assets/js/tools/alarm-controller.js
+// jorgeortega-ux/projectnocturne-untested/ProjectNocturne-Untested-40cb09d19e05067b15f05652c8beaac6f8a29ff7/ProjectNocturne/assets/js/tools/alarm-controller.js
 import { use24HourFormat, PREMIUM_FEATURES, activateModule, getCurrentActiveOverlay, allowCardMovement } from '../general/main.js';
 import { prepareAlarmForEdit } from './menu-interactions.js';
+import { playSound as playAlarmSound, stopSound as stopAlarmSound, generateSoundList, initializeSortable } from './general-tools.js';
 
 const ALARMS_STORAGE_KEY = 'user-alarms';
-const DEFAULT_ALARMS_STORAGE_KEY = 'default-alarms-order'; // Nueva clave para el orden de alarmas predeterminadas
-const ALARM_SOUND_PATTERNS = {
-    'classic-beep': { frequencies: [800], beepDuration: 150, pauseDuration: 150, type: 'square' },
-    'gentle-chime': { frequencies: [523.25, 659.25, 783.99], beepDuration: 300, pauseDuration: 500, type: 'sine' },
-    'digital-alarm': { frequencies: [1200, 800], beepDuration: 100, pauseDuration: 100, type: 'square' },
-    'peaceful-tone': { frequencies: [440, 554.37, 659.25], beepDuration: 400, pauseDuration: 600, type: 'sine' },
-    'urgent-beep': { frequencies: [1600, 1600], beepDuration: 80, pauseDuration: 80, type: 'sawtooth' }
-};
+const DEFAULT_ALARMS_STORAGE_KEY = 'default-alarms-order';
 
 const DEFAULT_ALARMS = [
     { id: 'default-1', title: 'Limpiar cuarto', hour: 10, minute: 0, sound: 'gentle-chime', enabled: false, type: 'default' },
@@ -22,56 +16,6 @@ let clockInterval = null;
 let userAlarms = [];
 let defaultAlarmsState = [];
 let activeAlarmTimers = new Map();
-let isPlayingSound = false;
-let audioContext = null;
-let activeSoundSource = null;
-
-function initializeAudioContext() {
-    if (!audioContext) {
-        try {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        } catch (e) {
-            console.warn('Web Audio API no está disponible:', e);
-            return false;
-        }
-    }
-    return true;
-}
-
-function playAlarmSound(soundType = 'classic-beep') {
-    if (isPlayingSound || !initializeAudioContext()) return;
-    stopAlarmSound();
-    isPlayingSound = true;
-    const pattern = ALARM_SOUND_PATTERNS[soundType] || ALARM_SOUND_PATTERNS['classic-beep'];
-    let freqIndex = 0;
-    const playBeep = () => {
-        if (!isPlayingSound) return;
-        const freq = pattern.frequencies[freqIndex % pattern.frequencies.length];
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-        oscillator.type = pattern.type;
-        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
-        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.01);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + (pattern.beepDuration / 1000));
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + (pattern.beepDuration / 1000));
-        freqIndex++;
-    };
-    playBeep();
-    const intervalId = setInterval(playBeep, pattern.beepDuration + pattern.pauseDuration);
-    activeSoundSource = { intervalId: intervalId };
-}
-
-function stopAlarmSound() {
-    if (activeSoundSource && activeSoundSource.intervalId) {
-        clearInterval(activeSoundSource.intervalId);
-    }
-    activeSoundSource = null;
-    isPlayingSound = false;
-}
 
 function updateAlarmCounts() {
     const userAlarmsCount = userAlarms.length;
@@ -253,7 +197,6 @@ function toggleAlarm(alarmId) {
     if (alarm.type === 'user') {
         saveAlarmsToStorage();
     } else if (alarm.type === 'default') {
-        // Guardar el orden de las alarmas predeterminadas cuando se modifica una
         saveDefaultAlarmsOrder();
     }
     if (alarm.enabled) {
@@ -343,22 +286,18 @@ function saveAlarmsToStorage() {
     localStorage.setItem(ALARMS_STORAGE_KEY, JSON.stringify(userAlarms));
 }
 
-// Nueva función para guardar el orden de las alarmas predeterminadas
 function saveDefaultAlarmsOrder() {
     localStorage.setItem(DEFAULT_ALARMS_STORAGE_KEY, JSON.stringify(defaultAlarmsState));
 }
 
-// Nueva función para cargar el orden de las alarmas predeterminadas
 function loadDefaultAlarmsOrder() {
     const stored = localStorage.getItem(DEFAULT_ALARMS_STORAGE_KEY);
     if (stored) {
         try {
             defaultAlarmsState = JSON.parse(stored);
-            // Verificar que todas las alarmas por defecto estén presentes
             const defaultIds = new Set(defaultAlarmsState.map(alarm => alarm.id));
             const originalIds = new Set(DEFAULT_ALARMS.map(alarm => alarm.id));
             
-            // Si faltan alarmas por defecto, agregar las que faltan
             DEFAULT_ALARMS.forEach(defaultAlarm => {
                 if (!defaultIds.has(defaultAlarm.id)) {
                     defaultAlarmsState.push({...defaultAlarm});
@@ -366,11 +305,9 @@ function loadDefaultAlarmsOrder() {
             });
         } catch (error) {
             console.warn('Error loading default alarms order:', error);
-            // Si hay error, usar el orden por defecto
             defaultAlarmsState = JSON.parse(JSON.stringify(DEFAULT_ALARMS));
         }
     } else {
-        // Si no hay orden guardado, usar el orden por defecto
         defaultAlarmsState = JSON.parse(JSON.stringify(DEFAULT_ALARMS));
     }
 }
@@ -388,7 +325,6 @@ function loadAlarmsFromStorage() {
 }
 
 function loadDefaultAlarms() {
-    // Cargar el orden guardado de las alarmas predeterminadas
     loadDefaultAlarmsOrder();
     
     defaultAlarmsState.forEach(alarm => {
@@ -440,53 +376,32 @@ function startClock() {
     clockInterval = setInterval(updateLocalTime, 1000);
 }
 
-// Función mejorada para inicializar el sortable en ambas grillas
-function initializeSortableAlarms() {
+function initializeSortableGrids() {
     if (!allowCardMovement) return;
 
-    const userGrid = document.querySelector('.alarms-grid[data-alarm-grid="user"]');
-    const defaultGrid = document.querySelector('.alarms-grid[data-alarm-grid="default"]');
-    
-    if (typeof Sortable === 'undefined') {
-        console.warn('SortableJS no está disponible. La funcionalidad de arrastrar y soltar no funcionará.');
-        return;
-    }
+    initializeSortable('.alarms-grid[data-alarm-grid="user"]', {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        onEnd: function (evt) {
+            const newOrderIds = Array.from(evt.to.children).map(card => card.id);
+            userAlarms.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
+            saveAlarmsToStorage();
+        }
+    });
 
-    // Configuración para la grilla de alarmas de usuario
-    if (userGrid) {
-        new Sortable(userGrid, {
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            chosenClass: 'sortable-chosen',
-            dragClass: 'sortable-drag',
-            onEnd: function (evt) {
-                const newOrderIds = Array.from(evt.to.children).map(card => card.id);
-                userAlarms.sort((a, b) => {
-                    return newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id);
-                });
-                saveAlarmsToStorage();
-                console.log('📝 Nuevo orden de alarmas de usuario guardado');
-            }
-        });
-    }
-
-    // Configuración para la grilla de alarmas predeterminadas
-    if (defaultGrid) {
-        new Sortable(defaultGrid, {
-            animation: 150,
-            ghostClass: 'sortable-ghost',
-            chosenClass: 'sortable-chosen',
-            dragClass: 'sortable-drag',
-            onEnd: function (evt) {
-                const newOrderIds = Array.from(evt.to.children).map(card => card.id);
-                defaultAlarmsState.sort((a, b) => {
-                    return newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id);
-                });
-                saveDefaultAlarmsOrder();
-                console.log('📝 Nuevo orden de alarmas predeterminadas guardado');
-            }
-        });
-    }
+    initializeSortable('.alarms-grid[data-alarm-grid="default"]', {
+        animation: 150,
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        onEnd: function (evt) {
+            const newOrderIds = Array.from(evt.to.children).map(card => card.id);
+            defaultAlarmsState.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
+            saveDefaultAlarmsOrder();
+        }
+    });
 }
 
 function setupEventListeners() {
@@ -544,10 +459,30 @@ export function initializeAlarmClock() {
     loadDefaultAlarms();
     setupEventListeners();
     updateAlarmCounts();
-    initializeSortableAlarms(); 
+    initializeSortableGrids(); 
     if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
     }
+
+    const soundListContainer = document.querySelector('.menu-alarm .menu-list');
+    generateSoundList(soundListContainer, (soundId) => {
+        const selectedSoundSpan = document.querySelector('#alarm-selected-sound');
+        if (selectedSoundSpan) {
+            const soundName = getTranslation(soundId, 'sounds');
+            selectedSoundSpan.textContent = soundName;
+        }
+    });
+
+    document.addEventListener('customSoundUploaded', () => {
+        const soundListContainer = document.querySelector('.menu-alarm .menu-list');
+        generateSoundList(soundListContainer, (soundId, soundName) => {
+            const selectedSoundSpan = document.querySelector('#alarm-selected-sound');
+            if (selectedSoundSpan) {
+                selectedSoundSpan.textContent = soundName;
+            }
+        });
+    });
+
     window.alarmManager = { 
         createAlarm, 
         toggleAlarm, 

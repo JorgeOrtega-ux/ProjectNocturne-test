@@ -191,9 +191,6 @@
     background-color: #f5f5fa;
 }
 
-/* ====================================== */
-/* ========= ESTILOS MENU TIMER ========= */
-/* ====================================== */
 .menu-tabs {
     display: flex;
     width: 100%;
@@ -239,7 +236,6 @@
     font-size: 1.2rem;
 }
 
-/* Calendario */
 .date-time-selector {
     position: relative;
     width: 100%;
@@ -324,7 +320,6 @@
     border: 1px solid #00000080;
 }
 
-/* Selector de Hora */
 .time-selector-container {
     height: 250px;
 }
@@ -364,9 +359,145 @@
     margin-top: 0;
 }
 
-/* ====================================== */
-/* ========= WORLD CLOCK CARDS ========== */
-/* ====================================== */
+.timers-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px;
+}
+
+.timer-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 8px;
+    background-color: #ffffff;
+    border: 1px solid #00000020;
+    border-radius: 12px;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.timer-card.timer-finished {
+    opacity: 0.6;
+}
+
+.timer-card .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    font-weight: 500;
+    color: #000000;
+}
+
+.timer-card .card-location-details {
+    overflow: hidden;
+    flex: 1 1 auto;
+}
+
+.timer-card .location-text {
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.timer-card .card-body {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 4px 0;
+}
+
+.timer-card .clock-time {
+    font-size: 2.2rem;
+    font-weight: 500;
+    color: #000000;
+    line-height: 1;
+}
+
+.timer-card .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.timer-card .card-buttons-container {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: none;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    padding: 2px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    filter: drop-shadow(0 2px 8px #00000020);
+}
+
+.timer-card:hover .card-buttons-container {
+    display: flex;
+}
+
+.timer-card .card-pin-btn,
+.timer-card .card-options-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: #000000;
+    background-color: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.timer-card .card-pin-btn:hover,
+.timer-card .card-options-btn:hover {
+    background-color: #f5f5fa;
+}
+
+.timer-card .card-pin-btn.active {
+    background-color: #e0e0e0;
+}
+
+.timer-card .card-options-menu {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    z-index: 10;
+    display: none;
+    flex-direction: column;
+    width: 180px;
+    padding: 8px;
+    gap: 4px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    filter: drop-shadow(0 4px 12px #00000020);
+}
+
+.timer-card .card-options-btn-wrapper.active .card-options-menu {
+    display: flex; 
+}
+
+.timer-card .card-options-menu .menu-link {
+    height: 36px;
+    font-size: 0.875rem;
+}
+
+.timer-card .card-options-menu .menu-link[data-action="delete-timer"] .menu-link-text span,
+.timer-card .card-options-menu .menu-link[data-action="delete-timer"] .menu-link-icon span {
+    color: #d32f2f;
+}
+
+.timer-card .card-options-menu .menu-link[data-action="delete-timer"]:hover {
+    background-color: rgba(229, 57, 53, 0.08);
+}
+
 .pinned-clocks-container {
     margin-bottom: 16px;
 }
@@ -390,7 +521,6 @@
     cursor: grab;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
-
 
 .card-header {
     display: flex;
@@ -463,7 +593,6 @@
 .dark-mode .card-menu-btn {
     color: #ffffff;
 }
-
 
 .dark-mode .card-menu-container {
     filter: unset;
@@ -552,22 +681,17 @@
 .card-dropdown-menu .menu-link[data-action="delete-clock"] .menu-link-icon span {
     font-weight: 500;
     color: #d32f2f;
-    /* Slightly less intense red */
 }
 
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover {
     background-color: rgba(229, 57, 53, 0.08);
-    /* Light, transparent red */
 }
 
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-text span,
 .card-dropdown-menu .menu-link[data-action="delete-clock"]:hover .menu-link-icon span {
     color: #b71c1c;
-    /* Darker red on hover */
 }
 
-
-/* Badge Styles */
 .badges-container {
     display: flex;
     gap: 8px;
@@ -633,7 +757,6 @@
 }
 
 .zoneInfoTool {
-    /* Estilos del contenedor principal */
     width: auto;
     padding: 0 12px;
     flex: 0 0 auto;
@@ -646,18 +769,15 @@
     border: 1px solid #00000020;
     border-radius: 8px;
     min-width: 120px;
-    /* IMPORTANTE: overflow hidden aquí para contener al span */
     overflow: hidden;
 }
 
 .zoneInfoTool span {
-    /* Estilos para el texto y la elipsis */
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
-    /* Opcional, para centrar el texto si no se desborda */
 }
 
 .pinned-clock-display {
@@ -685,10 +805,6 @@
     opacity: 0.7;
 }
 
-/* ====================================== */
-/* ========== ALARMAS SECTION =========== */
-/* ====================================== */
-
 .alarms-container {
     width: 100%;
     display: flex;
@@ -701,8 +817,10 @@
     justify-content: space-between;
     background: #fff;
     border: 1px solid #00000020;
+    cursor: pointer;
     border-radius: 8px;
-    padding: 8px;
+    padding: 0 8px; 
+    height: 55px;
 }
 
 .dark-mode .alarms-header {
@@ -765,8 +883,6 @@
     display: grid;
 }
 
-
-/* ========== ALARM CARDS ========== */
 .alarm-card {
     position: relative;
     display: flex;
@@ -779,13 +895,11 @@
     transition: opacity 0.3s, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-
 .dark-mode .alarm-card {
     background-color: #2e2f31;
     border-color: #ffffff18;
 }
 
-/* ========== ALARM CARD OPTIONS ========== */
 .card-options-container {
     display: none;
     position: absolute;
@@ -821,15 +935,28 @@
     background-color: #ef9a9a;
 }
 
-.alarm-card:hover {
-    /* No hay estilos de sombra ni transformación aquí */
+.dismiss-timer-btn {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
 }
 
-.dark-mode .alarm-card:hover {
-    /* No hay estilos de sombra ni transformación aquí */
+.dismiss-timer-btn:hover {
+    background-color: #45a049;
 }
 
+.dark-mode .dismiss-timer-btn {
+    background-color: #66bb6a;
+}
 
+.dark-mode .dismiss-timer-btn:hover {
+    background-color: #81c784;
+}
 
 .alarm-card.alarm-disabled {
     opacity: 0.6;
@@ -874,7 +1001,6 @@
     color: #ffffff;
 }
 
-/* ========== ALARM CARD FOOTER ========== */
 .alarm-card .card-footer {
     display: flex;
     justify-content: space-between;
@@ -902,7 +1028,6 @@
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* ========== ALARM MENU CONTAINER ========== */
 .alarm-card .card-menu-container {
     position: absolute;
     top: 5px;
@@ -1023,7 +1148,11 @@
     color: #ef9a9a;
 }
 
-/* ========== RESPONSIVE DESIGN ========== */
+.dark-mode .timer-card .card-options-menu .menu-link[data-action="delete-timer"]:hover .menu-link-text span,
+.dark-mode .timer-card .card-options-menu .menu-link[data-action="delete-timer"]:hover .menu-link-icon span {
+    color: #ef9a9a;
+}
+
 @media (max-width: 768px) {
     .alarms-grid {
         grid-template-columns: 1fr;
@@ -1043,11 +1172,7 @@
     flex-direction: column;
     padding: 8px;
     gap: 8px;
-}/* ====================================== */
-/* ESTILOS AÑADIDOS PARA ALARMS HEADER  */
-/* ====================================== */
-
-/* Contenedor principal del header */
+}
 .alarms-header {
     display: flex;
     align-items: center;
@@ -1056,21 +1181,18 @@
     border: 1px solid #00000020;
     cursor: pointer;
     border-radius: 8px;
-    padding: 0 8px; /* Ajuste de padding */
-    height: 55px; /* Altura fija para consistencia */
+    padding: 0 8px; 
+    height: 55px;
 }
 
-/* Parte izquierda del header (ícono y título) */
 .alarms-header-left {
     display: flex;
     align-items: center;
-    gap: 8px; /* Espacio entre ícono y texto */
+    gap: 8px;
 }
 
-/* Contenedor del ícono */
 .alarms-header-icon {
-    display: flex
-;
+    display: flex;
     align-items: center;
     justify-content: center;
     width: 40px;
@@ -1084,17 +1206,14 @@
     font-weight: 500;
 }
 
-/* Parte derecha del header (badge y botón) */
 .alarms-header-right {
     display: flex;
     align-items: center;
-    gap: 8px; /* Espacio entre badge y botón */
+    gap: 8px;
 }
 
-/* Estilos para el badge de número de alarmas */
 .alarm-count-badge {
-    display: flex
-;
+    display: flex;
     align-items: center;
     justify-content: center;
     min-width: 24px;
@@ -1107,7 +1226,6 @@
     border-radius: 12px;
 }
 
-/* --- Dark Mode --- */
 .dark-mode .alarms-header {
     background: #252627;
     border-color: #ffffff20;
@@ -1135,30 +1253,179 @@
     background-color: #ffffff20;
 }
 
+.timers-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
+}
+.timers-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.timers-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid #00000020;
+    cursor: pointer;
+    border-radius: 8px;
+    padding: 0 8px; 
+    height: 55px;
+}
+
+.dark-mode .timers-header {
+    border-bottom-color: #ffffff20;
+    background: #252627;
+    border-color: #ffffff20;
+}
+
+.timers-header:hover {
+    background-color: #f5f5fa;
+}
+
+.dark-mode .timers-header:hover {
+    background-color: #ffffff20;
+}
+
+
+.timers-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.alarm-card:has(.card-dropdown-menu:not(.disabled)),
+.world-clock-card:has(.card-dropdown-menu:not(.disabled)),
+.timer-card:has(.card-options-btn-wrapper:focus-within) {
+    z-index: 20;
+    position: relative;
+}.alarm-card.sortable-chosen,
+.world-clock-card.sortable-chosen,
+.timer-card.sortable-chosen {
+    z-index: 30 !important;
+    position: relative;
+}
+.timers-header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    border-radius: 8px;
+    border: 1px solid #00000020;
+    height: 40px;
+}
+
+.dark-mode .timers-header-icon {
+    color: #ffffff;
+    border-color: #ffffff20;
+}
+
+.timers-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #000000;
+}
+
+.dark-mode .timers-header h3 {
+    color: #ffffff;
+}
+
+.timers-header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.timer-count-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #000000;
+    background-color: #f5f5fa;
+    border-radius: 12px;
+}
+
+.dark-mode .timer-count-badge {
+    color: #ffffff;
+    background-color: #ffffff20;
+}
+
+.collapse-timers-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #000000;
+    transition: background-color 0.2s ease, transform 0.3s ease;
+}
+
+.dark-mode .collapse-timers-btn {
+    color: #ffffff;
+}
+
+.collapse-timers-btn:hover {
+    background-color: #f5f5fa;
+}
+
+.dark-mode .collapse-timers-btn:hover {
+    background-color: #ffffff20;
+}
+
+.collapse-timers-btn.expanded .expand-icon {
+    transform: rotate(180deg);
+}
+
+.timers-grid-container {
+    display: none;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.timers-grid-container.active {
+    display: grid;
+}
+
+
 /* --- ESTILOS UNIFICADOS PARA DRAG & DROP --- */
 .alarm-card,
-.world-clock-card {
+.world-clock-card,
+.timer-card { 
     cursor: grab;
 }
 
 .alarm-card.sortable-drag,
-.world-clock-card.sortable-drag {
+.world-clock-card.sortable-drag,
+.timer-card.sortable-drag { 
     cursor: grabbing;
 }
 
 .alarm-card.sortable-chosen,
-.world-clock-card.sortable-chosen {
+.world-clock-card.sortable-chosen,
+.timer-card.sortable-chosen {
     opacity: 0.9;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     transform: scale(1.03);
     cursor: grabbing;
 }
 
-/* ================== CORRECCIÓN APLICADA AQUÍ ================== */
 .alarm-card.sortable-ghost,
-.world-clock-card.sortable-ghost {
+.world-clock-card.sortable-ghost,
+.timer-card.sortable-ghost {
     opacity: 0.4;
-    background-color: #f5f5fa; /* Color de fondo neutro */
-    border: 1px solid #d0d0d0;   /* Borde sólido y sutil */
+    background-color: #f5f5fa;
+    border: 1px dashed #d0d0d0;
 }
-/* ============================================================= */
