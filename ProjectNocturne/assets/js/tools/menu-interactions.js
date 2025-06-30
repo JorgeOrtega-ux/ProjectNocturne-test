@@ -2,6 +2,7 @@
 import { use24HourFormat, deactivateModule, PREMIUM_FEATURES } from '../general/main.js';
 import { getTranslation } from '../general/translations-controller.js';
 import { addTimerAndRender, updateTimer, getTimersCount } from './timer-controller.js';
+import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js'; // This line is new.
 import { playSound, stopSound, generateSoundList } from './general-tools.js';
 
 const initialState = {
@@ -885,13 +886,6 @@ function setupGlobalEventListeners() {
                 break;
             }
             case 'createTimer': {
-                const timerLimit = PREMIUM_FEATURES ? 10 : 3;
-                if (getTimersCount() >= timerLimit) {
-                    const message = getTranslation('timer_limit_reached', 'timer').replace('{limit}', timerLimit);
-                    alert(message);
-                    return;
-                }
-
                 const createButton = actionTarget;
                 addSpinnerToCreateButton(createButton);
                 const menuId = parentMenu.dataset.menu;
@@ -927,7 +921,7 @@ function setupGlobalEventListeners() {
                     if (success) {
                         deactivateModule('overlayContainer', { source: 'create-timer' });
                     } else {
-                        removeSpinnerFromCreateButton(createButton); 
+                        removeSpinnerFromCreateButton(createButton);
                     }
 
                     resetTimerMenu(parentMenu);
