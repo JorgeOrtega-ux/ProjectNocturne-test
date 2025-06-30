@@ -1,3 +1,4 @@
+// jorgeortega-ux/projectnocturne-alpha/ProjectNocturne-Alpha-32dae5d9be5dbd76db6b6638608d9bf9b2fb28e3/ProjectNocturne/assets/js/tools/timer-controller.js
 // /assets/js/tools/timer-controller.js
 
 import { getTranslation } from '../general/translations-controller.js';
@@ -22,6 +23,10 @@ const DEFAULT_TIMERS = [
 
 export function getTimersCount() {
     return userTimers.length;
+}
+
+export function getTimerLimit() {
+    return PREMIUM_FEATURES ? 10 : 3;
 }
 
 function createExpandableTimerContainer(type, titleKey, icon) {
@@ -97,7 +102,6 @@ if (resetBtn) {
     updateMainDisplay();
     initializeSortableGrids();
     updateMainControlsState();
-    updatePinnedStatesInUI();
     updateTimerCounts();
 
     console.log('✅ Inicialización de timer completada.');
@@ -111,7 +115,9 @@ if (resetBtn) {
         dismissTimer,
         handlePinTimer,
         toggleTimersSection,
-        findTimerById
+        findTimerById,
+        getTimersCount,
+        getTimerLimit
     };
 }
 

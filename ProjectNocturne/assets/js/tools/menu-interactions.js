@@ -1,8 +1,9 @@
+// jorgeortega-ux/projectnocturne-alpha/ProjectNocturne-Alpha-32dae5d9be5dbd76db6b6638608d9bf9b2fb28e3/ProjectNocturne/assets/js/tools/menu-interactions.js
 "use strict";
 import { use24HourFormat, deactivateModule, PREMIUM_FEATURES } from '../general/main.js';
 import { getTranslation } from '../general/translations-controller.js';
-import { addTimerAndRender, updateTimer, getTimersCount } from './timer-controller.js';
-import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js'; // This line is new.
+import { addTimerAndRender, updateTimer, getTimersCount, getTimerLimit } from './timer-controller.js'; // Added getTimerLimit
+import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js';
 import { playSound, stopSound, generateSoundList } from './general-tools.js';
 
 const initialState = {
@@ -817,6 +818,23 @@ function setupGlobalEventListeners() {
                     return;
                 }
 
+                // --- PRE-CHECK FOR ALARM LIMIT ---
+                if (window.alarmManager && typeof window.alarmManager.getAlarmCount === 'function' && typeof window.alarmManager.getAlarmLimit === 'function') {
+                    const currentAlarmCount = window.alarmManager.getAlarmCount();
+                    const alarmLimit = window.alarmManager.getAlarmLimit();
+                    if (currentAlarmCount >= alarmLimit) {
+                        showDynamicIslandNotification('system', 'premium_required', 'limit_reached_generic', 'notifications', {
+                            type: getTranslation('alarms', 'tooltips'),
+                            limit: alarmLimit
+                        });
+                        console.warn('⚠️ Alarm creation blocked: limit reached.');
+                        return; // Stop execution
+                    }
+                } else {
+                    console.error('AlarmManager or its limit functions are not available, cannot perform pre-check.');
+                }
+                // --- END PRE-CHECK ---
+
                 const createButton = actionTarget;
                 const menuId = parentMenu.dataset.menu;
                 addSpinnerToCreateButton(createButton);
@@ -836,9 +854,12 @@ function setupGlobalEventListeners() {
 
                         if (success && deactivateModule) {
                             deactivateModule('overlayContainer', { source: 'create-alarm' });
+                        } else if (!success) { // If createAlarm returns false (due to limit or other internal reasons)
+                            removeSpinnerFromCreateButton(createButton);
                         }
                     } else {
                         console.error('El alarmManager no está disponible.');
+                        removeSpinnerFromCreateButton(createButton);
                     }
 
                     resetAlarmMenu(parentMenu);
@@ -887,8 +908,26 @@ function setupGlobalEventListeners() {
             }
             case 'createTimer': {
                 const createButton = actionTarget;
-                addSpinnerToCreateButton(createButton);
                 const menuId = parentMenu.dataset.menu;
+
+                // --- PRE-CHECK FOR TIMER LIMIT ---
+                if (window.timerManager && typeof getTimersCount === 'function' && typeof getTimerLimit === 'function') {
+                    const currentTimerCount = getTimersCount();
+                    const timerLimit = getTimerLimit();
+                    if (currentTimerCount >= timerLimit) {
+                        showDynamicIslandNotification('system', 'premium_required', 'limit_reached_generic', 'notifications', {
+                            type: getTranslation('timer', 'tooltips'),
+                            limit: timerLimit
+                        });
+                        console.warn('⚠️ Timer creation blocked: limit reached.');
+                        return; // Stop execution
+                    }
+                } else {
+                    console.error('TimerManager or its limit functions are not available, cannot perform pre-check.');
+                }
+                // --- END PRE-CHECK ---
+
+                addSpinnerToCreateButton(createButton);
 
                 if (menuTimeouts[menuId]) clearTimeout(menuTimeouts[menuId]);
 
@@ -1001,6 +1040,23 @@ function setupGlobalEventListeners() {
                     console.warn('⚠️ Faltan datos (título, país o zona horaria), no se inicia la animación.');
                     return;
                 }
+
+                // --- PRE-CHECK FOR WORLD CLOCK LIMIT ---
+                if (window.worldClockManager && typeof window.worldClockManager.getClockCount === 'function' && typeof window.worldClockManager.getClockLimit === 'function') {
+                    const currentClockCount = window.worldClockManager.getClockCount();
+                    const clockLimit = window.worldClockManager.getClockLimit();
+                    if (currentClockCount >= clockLimit) {
+                        showDynamicIslandNotification('system', 'premium_required', 'limit_reached_generic', 'notifications', {
+                            type: getTranslation('world_clock', 'tooltips'),
+                            limit: clockLimit
+                        });
+                        console.warn('⚠️ World Clock creation blocked: limit reached.');
+                        return; // Stop execution
+                    }
+                } else {
+                    console.error('WorldClockManager or its limit functions are not available, cannot perform pre-check.');
+                }
+                // --- END PRE-CHECK ---
 
                 const createButton = actionTarget;
                 const menuId = parentMenu.dataset.menu;

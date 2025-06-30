@@ -1,3 +1,4 @@
+// jorgeortega-ux/projectnocturne-alpha/ProjectNocturne-Alpha-32dae5d9be5dbd76db6b6638608d9bf9b2fb28e3/ProjectNocturne/assets/js/tools/alarm-controller.js
 import { use24HourFormat, PREMIUM_FEATURES, activateModule, getCurrentActiveOverlay, allowCardMovement } from '../general/main.js';
 import { prepareAlarmForEdit } from './menu-interactions.js';
 import { playSound as playAlarmSound, stopSound as stopAlarmSound, generateSoundList, initializeSortable } from './general-tools.js';
@@ -62,6 +63,14 @@ function updateAlarmCounts() {
 
     if (userContainer) userContainer.style.display = userAlarmsCount > 0 ? 'flex' : 'none';
     if (defaultContainer) defaultContainer.style.display = defaultAlarmsCount > 0 ? 'flex' : 'none';
+}
+
+export function getAlarmCount() {
+    return userAlarms.length;
+}
+
+export function getAlarmLimit() {
+    return PREMIUM_FEATURES ? 100 : 10;
 }
 
 function createAlarm(title, hour, minute, sound) {
@@ -240,7 +249,6 @@ function dismissAlarm(alarmId) {
     if (alarm && alarm.enabled) {
         // If alarm is ringing and dismissed, typically it should be toggled off or snoozed.
         // For simplicity here, we'll just ensure it's not ringing visually/audibly.
-        // If it's a regular toggle, then it will simply toggle.
         // If you want dismissing to turn off the alarm, you'd call toggleAlarm(alarmId) here.
         console.log(`Alarm ${alarmId} dismissed.`);
     }
@@ -524,7 +532,9 @@ export function initializeAlarmClock() {
         toggleAlarmsSection, 
         playAlarmSound, 
         dismissAlarm,
-        findAlarmById 
+        findAlarmById,
+        getAlarmCount,
+        getAlarmLimit
     };
     document.addEventListener('translationsApplied', () => {
         const allAlarms = [...userAlarms, ...defaultAlarmsState];
