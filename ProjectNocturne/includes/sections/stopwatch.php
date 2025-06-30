@@ -87,42 +87,18 @@
         </div>
     </div>
     <div class="section-bottom" style="display: none;">
-        <table class="laps-table body-title">
-            <thead>
-                <tr>
-                    <th data-translate="lap_header" data-translate-category="stopwatch">Vuelta</th>
-                    <th data-translate="time_header" data-translate-category="stopwatch">Tiempo</th>
-                    <th data-translate="total_time_header" data-translate-category="stopwatch">Tiempo Total</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="laps-table-container">
+            <table class="laps-table body-title">
+                <thead>
+                    <tr>
+                        <th data-translate="lap_header" data-translate-category="stopwatch">Vuelta</th>
+                        <th data-translate="time_header" data-translate-category="stopwatch">Tiempo</th>
+                        <th data-translate="total_time_header" data-translate-category="stopwatch">Tiempo Total</th>
+                    </tr>
+                </thead>
+                <tbody>
                 </tbody>
-        </table>
+            </table>
+        </div>
     </div>
 </div>
-
-<style>
-    .laps-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    .laps-table th, .laps-table td {
-        padding: 8px 12px;
-        text-align: left;
-        border-bottom: 1px solid #00000020;
-    }
-    .dark-mode .laps-table th, .dark-mode .laps-table td {
-        border-bottom: 1px solid #ffffff20;
-    }
-
-
-      .laps-table tbody tr:hover {
-        background-color: #f5f5fa;
-    }
-    .dark-mode   .laps-table tbody tr:hover {
-        background-color: #ffffff20;
-    }
-    .laps-table tbody tr:last-child td {
-        border-bottom: none;
-    }
-</style>

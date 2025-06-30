@@ -332,9 +332,6 @@ body {
     flex: 1;
 }
 
-/* ================================================================ */
-/* INICIO DE LA CORRECCIÓN: Estilo para el fondo en pantalla completa */
-/* ================================================================ */
 .section-center:fullscreen {
     background-color: #ffffff;
     display: flex;
@@ -342,10 +339,6 @@ body {
     justify-content: center;
     border-bottom: none;
 }
-/* ================================================================ */
-/* FIN DE LA CORRECCIÓN */
-/* ================================================================ */
-
 
 /* ====================================== */
 /* ========= MODULES & OVERLAYS ========= */

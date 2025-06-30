@@ -2,16 +2,16 @@
 import { use24HourFormat, deactivateModule, PREMIUM_FEATURES } from '../general/main.js';
 import { getTranslation } from '../general/translations-controller.js';
 import { addTimerAndRender, updateTimer, getTimersCount } from './timer-controller.js';
-import { saveCustomSound, generateSoundList } from './general-tools.js';
+import { playSound, stopSound, generateSoundList } from './general-tools.js';
 
 const initialState = {
-    alarm: { hour: 0, minute: 0, sound: 'classic-beep' },
+    alarm: { hour: 0, minute: 0, sound: 'classic_beep' },
     timer: {
         currentTab: 'countdown',
         duration: { hours: 0, minutes: 5, seconds: 0 },
-        countTo: { date: new Date(), selectedDate: null, selectedHour: null, selectedMinute: null, timeSelectionStep: 'hour' },
+        countTo: { date: new Date(), selectedDate: null, selectedHour: null, selectedMinute: null, timeSelectionStep: 'hour', sound: 'classic_beep' },
         endAction: 'stop',
-        sound: 'classic-beep'
+        sound: 'classic_beep'
     },
     worldClock: { country: '', timezone: '', countryCode: '', isEditing: false, editingId: null }
 };
@@ -22,7 +22,8 @@ state.timer.countTo.date = new Date();
 const dropdownMap = {
     'toggleAlarmSoundDropdown': '.menu-alarm-sound',
     'toggleTimerEndActionDropdown': '.menu-timer-end-action',
-    'toggleTimerSoundDropdown': '.menu-timer-sound',
+    'toggleCountdownSoundDropdown': '.menu-countdown-sound',
+    'toggleCountToDateSoundDropdown': '.menu-count-to-date-sound',
     'toggleCalendarDropdown': '.calendar-container',
     'toggleTimerHourDropdown': '.menu-timer-hour-selection',
     'toggleCountryDropdown': '.menu-worldclock-country',
@@ -88,16 +89,24 @@ const setAlarmDefaults = () => {
 
 const resetAlarmMenu = (menuElement) => {
     setAlarmDefaults();
-    state.alarm.sound = 'classic-beep';
+    state.alarm.sound = 'classic_beep';
 
     const titleInput = menuElement.querySelector('#alarm-title');
-    if (titleInput) titleInput.value = '';
+    if (titleInput) {
+        titleInput.value = '';
+        titleInput.removeAttribute('disabled');
+        titleInput.parentElement.classList.remove('disabled-interactive');
+    }
 
     const searchInput = menuElement.querySelector('.search-content-text input');
     if (searchInput) searchInput.value = '';
 
     updateAlarmDisplay(menuElement);
     resetDropdownDisplay(menuElement, '#alarm-selected-sound', 'classic_beep', 'sounds');
+
+    // Regenerate sound list with default active sound
+    const soundListContainer = menuElement.querySelector('.menu-alarm-sound .menu-list');
+    generateSoundList(soundListContainer, 'selectAlarmSound', state.alarm.sound);
 
     const createButton = menuElement.querySelector('.create-tool');
     if (createButton) {
@@ -126,9 +135,17 @@ const resetTimerMenu = (menuElement) => {
     state.timer = JSON.parse(JSON.stringify(initialState.timer));
     state.timer.countTo.date = new Date();
     const countdownTitle = menuElement.querySelector('#timer-title');
-    if (countdownTitle) countdownTitle.value = '';
+    if (countdownTitle) {
+        countdownTitle.value = '';
+        countdownTitle.removeAttribute('disabled');
+        countdownTitle.parentElement.classList.remove('disabled-interactive');
+    }
     const countToTitle = menuElement.querySelector('#countto-title');
-    if (countToTitle) countToTitle.value = '';
+    if (countToTitle) {
+        countToTitle.value = '';
+        countToTitle.removeAttribute('disabled');
+        countToTitle.parentElement.classList.remove('disabled-interactive');
+    }
     updateTimerTabView(menuElement);
     updateTimerDurationDisplay(menuElement);
     renderCalendar(menuElement);
@@ -136,7 +153,15 @@ const resetTimerMenu = (menuElement) => {
     updateDisplay('#selected-hour-display', '--', menuElement);
     updateDisplay('#selected-minute-display', '--', menuElement);
     resetDropdownDisplay(menuElement, '#timer-selected-end-action', 'stop_timer', 'timer');
-    resetDropdownDisplay(menuElement, '#timer-selected-sound', 'classic_beep', 'sounds');
+    resetDropdownDisplay(menuElement, '#countdown-selected-sound', 'classic_beep', 'sounds');
+    resetDropdownDisplay(menuElement, '#count-to-date-selected-sound', 'classic_beep', 'sounds');
+
+    const countdownSoundList = menuElement.querySelector('.menu-countdown-sound .menu-list');
+    generateSoundList(countdownSoundList, 'selectCountdownSound', state.timer.sound);
+
+    const countToDateSoundList = menuElement.querySelector('.menu-count-to-date-sound .menu-list');
+    generateSoundList(countToDateSoundList, 'selectCountToDateSound', state.timer.countTo.sound);
+
 
     const createButton = menuElement.querySelector('.create-tool');
     if (createButton) {
@@ -207,11 +232,23 @@ export function prepareAlarmForEdit(alarmData) {
     state.alarm.sound = alarmData.sound;
 
     const titleInput = menuElement.querySelector('#alarm-title');
-    if (titleInput) titleInput.value = alarmData.title;
+    if (titleInput) {
+        if (alarmData.type === 'default') {
+            titleInput.value = getTranslation(alarmData.title, 'alarms');
+            titleInput.setAttribute('disabled', 'true');
+            titleInput.parentElement.classList.add('disabled-interactive');
+        } else {
+            titleInput.value = alarmData.title;
+            titleInput.removeAttribute('disabled');
+            titleInput.parentElement.classList.remove('disabled-interactive');
+        }
+    }
 
     updateAlarmDisplay(menuElement);
+    updateDisplay('#alarm-selected-sound', getTranslation(alarmData.sound.replace(/-/g, '_'), 'sounds'), menuElement);
 
-    updateDisplay('#alarm-selected-sound', getTranslation(alarmData.sound, 'sounds'), menuElement);
+    const soundListContainer = menuElement.querySelector('.menu-alarm-sound .menu-list');
+    generateSoundList(soundListContainer, 'selectAlarmSound', alarmData.sound);
 
     const createButton = menuElement.querySelector('.create-tool');
     if (createButton) {
@@ -238,17 +275,30 @@ export function prepareTimerForEdit(timerData) {
     state.timer.duration.hours = Math.floor(totalSeconds / 3600);
     state.timer.duration.minutes = Math.floor((totalSeconds % 3600) / 60);
     state.timer.duration.seconds = totalSeconds % 60;
-    
+
     state.timer.endAction = timerData.endAction;
     state.timer.sound = timerData.sound;
 
     const titleInput = menuElement.querySelector('#timer-title');
-    if (titleInput) titleInput.value = timerData.title;
+    if (titleInput) {
+        if (timerData.id.startsWith('default-timer-')) {
+            titleInput.value = getTranslation(timerData.title, 'timer');
+            titleInput.setAttribute('disabled', 'true');
+            titleInput.parentElement.classList.add('disabled-interactive');
+        } else {
+            titleInput.value = timerData.title;
+            titleInput.removeAttribute('disabled');
+            titleInput.parentElement.classList.remove('disabled-interactive');
+        }
+    }
 
     updateTimerDurationDisplay(menuElement);
     updateDisplay('#timer-selected-end-action', getTranslation(`${timerData.endAction}_timer`, 'timer'), menuElement);
-    updateDisplay('#timer-selected-sound', getTranslation(timerData.sound, 'sounds'), menuElement);
-    
+    updateDisplay('#countdown-selected-sound', getTranslation(timerData.sound.replace(/-/g, '_'), 'sounds'), menuElement);
+
+    const soundListContainer = menuElement.querySelector('.menu-countdown-sound .menu-list');
+    generateSoundList(soundListContainer, 'selectCountdownSound', timerData.sound);
+
     const createButton = menuElement.querySelector('.create-tool');
     if (createButton) {
         createButton.dataset.action = 'saveTimerChanges';
@@ -266,13 +316,23 @@ export function prepareCountToDateForEdit(timerData) {
     const menuElement = getMenuElement('menuTimer');
     if (!menuElement) return;
 
-    // Switch to the 'count_to_date' tab
     state.timer.currentTab = 'count_to_date';
     updateTimerTabView(menuElement);
 
-    // Populate the form fields
     const titleInput = menuElement.querySelector('#countto-title');
-    if (titleInput) titleInput.value = timerData.title;
+    if (titleInput) {
+        if (timerData.id.startsWith('default-timer-')) {
+            titleInput.value = getTranslation(timerData.title, 'timer');
+            titleInput.setAttribute('disabled', 'true');
+            titleInput.parentElement.classList.add('disabled-interactive');
+        } else {
+            titleInput.value = timerData.title;
+            titleInput.removeAttribute('disabled');
+            titleInput.parentElement.classList.remove('disabled-interactive');
+        }
+    }
+    
+    state.timer.countTo.sound = timerData.sound;
 
     const targetDate = new Date(timerData.targetDate);
     state.timer.countTo.date = targetDate;
@@ -283,9 +343,12 @@ export function prepareCountToDateForEdit(timerData) {
     updateDisplay('#selected-date-display', targetDate.toLocaleDateString(), menuElement);
     updateDisplay('#selected-hour-display', String(targetDate.getHours()).padStart(2, '0'), menuElement);
     updateDisplay('#selected-minute-display', String(targetDate.getMinutes()).padStart(2, '0'), menuElement);
+    updateDisplay('#count-to-date-selected-sound', getTranslation(timerData.sound.replace(/-/g, '_'), 'sounds'), menuElement);
+    
+    const soundListContainer = menuElement.querySelector('.menu-count-to-date-sound .menu-list');
+    generateSoundList(soundListContainer, 'selectCountToDateSound', timerData.sound);
     renderCalendar(menuElement);
 
-    // Change the button to "Save Changes"
     const createButton = menuElement.querySelector('.create-tool');
     if (createButton) {
         createButton.dataset.action = 'saveCountToDateChanges';
@@ -342,10 +405,25 @@ export function prepareWorldClockForEdit(clockData) {
 const initializeAlarmMenu = (menuElement) => {
     if (!menuElement.hasAttribute('data-editing-id')) {
         setAlarmDefaults();
+        const soundListContainer = menuElement.querySelector('.menu-alarm-sound .menu-list');
+        generateSoundList(soundListContainer, 'selectAlarmSound', state.alarm.sound);
     }
     updateAlarmDisplay(menuElement);
 };
-const initializeTimerMenu = (menuElement) => { updateTimerDurationDisplay(menuElement); renderCalendar(menuElement); populateHourSelectionMenu(menuElement); };
+
+const initializeTimerMenu = (menuElement) => {
+    if (!menuElement.hasAttribute('data-editing-id')) {
+        const countdownSoundList = menuElement.querySelector('.menu-countdown-sound .menu-list');
+        generateSoundList(countdownSoundList, 'selectCountdownSound', state.timer.sound);
+
+        const countToDateSoundList = menuElement.querySelector('.menu-count-to-date-sound .menu-list');
+        generateSoundList(countToDateSoundList, 'selectCountToDateSound', state.timer.countTo.sound);
+    }
+    updateTimerDurationDisplay(menuElement); 
+    renderCalendar(menuElement); 
+    populateHourSelectionMenu(menuElement);
+};
+
 const initializeWorldClockMenu = (menuElement) => {
     const timezoneSelector = menuElement.querySelector('[data-action="toggleTimezoneDropdown"]');
     if (timezoneSelector) timezoneSelector.classList.add('disabled-interactive');
@@ -572,33 +650,6 @@ async function populateTimezoneDropdown(parentMenu, countryCode) {
     }
 }
 
-async function handleAudioUpload(file, currentParentMenu) {
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-        const audioData = event.target.result;
-        const soundId = `custom-${Date.now()}`;
-        const soundName = file.name.replace(/\.[^/.]+$/, "");
-
-        await saveCustomSound(soundId, soundName, audioData);
-        
-        document.dispatchEvent(new CustomEvent('customSoundUploaded'));
-
-        // Update the display of the menu where the upload was initiated
-        const displaySelector = currentParentMenu.classList.contains('menu-alarm') ? '#alarm-selected-sound' : '#timer-selected-sound';
-        const displayEl = currentParentMenu.querySelector(displaySelector);
-        if(displayEl) displayEl.textContent = soundName;
-        
-        if (currentParentMenu.classList.contains('menu-alarm')) {
-            state.alarm.sound = soundId;
-        } else {
-            state.timer.sound = soundId;
-        }
-    };
-    reader.readAsArrayBuffer(file);
-}
-
 function setupGlobalEventListeners() {
     document.addEventListener('click', (event) => {
         const isClickInsideDropdown = event.target.closest('.dropdown-menu-container');
@@ -662,22 +713,20 @@ function setupGlobalEventListeners() {
         if (dropdownMap[action]) { toggleDropdown(action, parentMenu); return; }
 
         switch (action) {
-            case 'upload-sound':
-                const inputId = actionTarget.dataset.targetInput;
-                const fileInput = document.getElementById(inputId);
-                if (fileInput) {
-                    fileInput.click();
-                    fileInput.onchange = (e) => {
-                        const file = e.target.files[0];
-                        handleAudioUpload(file, parentMenu);
-                    };
-                }
-                break;
             case 'increaseHour': state.alarm.hour = (state.alarm.hour + 1) % 24; updateAlarmDisplay(parentMenu); break;
             case 'decreaseHour': state.alarm.hour = (state.alarm.hour - 1 + 24) % 24; updateAlarmDisplay(parentMenu); break;
             case 'increaseMinute': state.alarm.minute = (state.alarm.minute + 1) % 60; updateAlarmDisplay(parentMenu); break;
             case 'decreaseMinute': state.alarm.minute = (state.alarm.minute - 1 + 60) % 60; updateAlarmDisplay(parentMenu); break;
-            case 'selectAlarmSound': event.stopPropagation(); handleSelect(actionTarget, '#alarm-selected-sound'); state.alarm.sound = actionTarget.dataset.sound; break;
+            case 'selectAlarmSound':
+                event.stopPropagation();
+                handleSelect(actionTarget, '#alarm-selected-sound');
+                state.alarm.sound = actionTarget.dataset.sound;
+                const alarmSoundList = actionTarget.closest('.menu-list');
+                if (alarmSoundList) {
+                    alarmSoundList.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
+                }
+                actionTarget.classList.add('active');
+                break;
             case 'increaseTimerHour': state.timer.duration.hours = (state.timer.duration.hours + 1) % 100; updateTimerDurationDisplay(parentMenu); break;
             case 'decreaseTimerHour': state.timer.duration.hours = (state.timer.duration.hours - 1 + 100) % 100; updateTimerDurationDisplay(parentMenu); break;
             case 'increaseTimerMinute': state.timer.duration.minutes = (state.timer.duration.minutes + 1) % 60; updateTimerDurationDisplay(parentMenu); break;
@@ -685,7 +734,26 @@ function setupGlobalEventListeners() {
             case 'increaseTimerSecond': state.timer.duration.seconds = (state.timer.duration.seconds + 1) % 60; updateTimerDurationDisplay(parentMenu); break;
             case 'decreaseTimerSecond': state.timer.duration.seconds = (state.timer.duration.seconds - 1 + 60) % 60; updateTimerDurationDisplay(parentMenu); break;
             case 'selectTimerEndAction': event.stopPropagation(); handleSelect(actionTarget, '#timer-selected-end-action'); state.timer.endAction = actionTarget.dataset.endAction; break;
-            case 'selectTimerSound': event.stopPropagation(); handleSelect(actionTarget, '#timer-selected-sound'); state.timer.sound = actionTarget.dataset.sound; break;
+            case 'selectCountdownSound':
+                event.stopPropagation();
+                handleSelect(actionTarget, '#countdown-selected-sound');
+                state.timer.sound = actionTarget.dataset.sound;
+                const countdownSoundList = actionTarget.closest('.menu-list');
+                if (countdownSoundList) {
+                    countdownSoundList.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
+                }
+                actionTarget.classList.add('active');
+                break;
+            case 'selectCountToDateSound':
+                event.stopPropagation();
+                handleSelect(actionTarget, '#count-to-date-selected-sound');
+                state.timer.countTo.sound = actionTarget.dataset.sound;
+                const countToDateSoundList = actionTarget.closest('.menu-list');
+                if (countToDateSoundList) {
+                    countToDateSoundList.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
+                }
+                actionTarget.classList.add('active');
+                break;
             case 'prev-month': state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() - 1); renderCalendar(parentMenu); break;
             case 'next-month': state.timer.countTo.date.setMonth(state.timer.countTo.date.getMonth() + 1); renderCalendar(parentMenu); break;
             case 'selectTimerHour':
@@ -718,51 +786,66 @@ function setupGlobalEventListeners() {
                 state.worldClock.timezone = '';
                 await populateTimezoneDropdown(parentMenu, countryCode);
                 break;
+            case 'previewAlarmSound':
+                stopSound();
+                playSound(state.alarm.sound);
+                setTimeout(stopSound, 1000);
+                break;
+            case 'previewCountdownSound':
+                stopSound();
+                playSound(state.timer.sound);
+                setTimeout(stopSound, 1000);
+                break;
+            case 'previewCountToDateSound':
+                stopSound();
+                playSound(state.timer.countTo.sound);
+                setTimeout(stopSound, 1000);
+                break;
             case 'selectTimezone':
                 event.stopPropagation();
                 handleSelect(actionTarget, '#worldclock-selected-timezone');
                 state.worldClock.timezone = actionTarget.getAttribute('data-timezone');
                 break;
 
-        case 'createAlarm': {
-    const alarmTitleInput = parentMenu.querySelector('#alarm-title');
-    const alarmTitle = alarmTitleInput ? alarmTitleInput.value.trim() : '';
-    
-    if (!alarmTitle) { 
-        console.warn('⚠️ Se bloqueó la creación de la alarma: falta el título.'); 
-        return; 
-    }
+            case 'createAlarm': {
+                const alarmTitleInput = parentMenu.querySelector('#alarm-title');
+                const alarmTitle = alarmTitleInput ? alarmTitleInput.value.trim() : '';
 
-    const createButton = actionTarget;
-    const menuId = parentMenu.dataset.menu;
-    addSpinnerToCreateButton(createButton);
+                if (!alarmTitle) {
+                    console.warn('⚠️ Se bloqueó la creación de la alarma: falta el título.');
+                    return;
+                }
 
-    if (menuTimeouts[menuId]) {
-        clearTimeout(menuTimeouts[menuId]);
-    }
+                const createButton = actionTarget;
+                const menuId = parentMenu.dataset.menu;
+                addSpinnerToCreateButton(createButton);
 
-    menuTimeouts[menuId] = setTimeout(() => {
-        if (window.alarmManager && typeof window.alarmManager.createAlarm === 'function') {
-            const success = window.alarmManager.createAlarm(
-                alarmTitle,
-                state.alarm.hour,
-                state.alarm.minute,
-                state.alarm.sound
-            );
+                if (menuTimeouts[menuId]) {
+                    clearTimeout(menuTimeouts[menuId]);
+                }
 
-            if (success && deactivateModule) {
-                deactivateModule('overlayContainer', { source: 'create-alarm' });
-            }
-        } else {
-            console.error('El alarmManager no está disponible.');
-        }
+                menuTimeouts[menuId] = setTimeout(() => {
+                    if (window.alarmManager && typeof window.alarmManager.createAlarm === 'function') {
+                        const success = window.alarmManager.createAlarm(
+                            alarmTitle,
+                            state.alarm.hour,
+                            state.alarm.minute,
+                            state.alarm.sound
+                        );
 
-        resetAlarmMenu(parentMenu);
-        delete menuTimeouts[menuId];
-    }, 500);
-    break;
+                        if (success && deactivateModule) {
+                            deactivateModule('overlayContainer', { source: 'create-alarm' });
+                        }
+                    } else {
+                        console.error('El alarmManager no está disponible.');
+                    }
 
-        } case 'saveAlarmChanges': {
+                    resetAlarmMenu(parentMenu);
+                    delete menuTimeouts[menuId];
+                }, 500);
+                break;
+
+            } case 'saveAlarmChanges': {
                 const editingId = parentMenu.getAttribute('data-editing-id');
                 const alarmTitleInput = parentMenu.querySelector('#alarm-title');
                 const alarmTitle = alarmTitleInput ? alarmTitleInput.value.trim() : '';
@@ -801,122 +884,120 @@ function setupGlobalEventListeners() {
                 }, 500);
                 break;
             }
-// =================== INICIO DE LA MODIFICACIÓN ===================
-case 'createTimer': {
-    const timerLimit = PREMIUM_FEATURES ? 10 : 3;
-    if (getTimersCount() >= timerLimit) {
-        const message = getTranslation('timer_limit_reached', 'timer').replace('{limit}', timerLimit);
-        alert(message);
-        return;
-    }
+            case 'createTimer': {
+                const timerLimit = PREMIUM_FEATURES ? 10 : 3;
+                if (getTimersCount() >= timerLimit) {
+                    const message = getTranslation('timer_limit_reached', 'timer').replace('{limit}', timerLimit);
+                    alert(message);
+                    return;
+                }
 
-    const createButton = actionTarget;
-    addSpinnerToCreateButton(createButton);
-    const menuId = parentMenu.dataset.menu;
+                const createButton = actionTarget;
+                addSpinnerToCreateButton(createButton);
+                const menuId = parentMenu.dataset.menu;
 
-    if (menuTimeouts[menuId]) clearTimeout(menuTimeouts[menuId]);
+                if (menuTimeouts[menuId]) clearTimeout(menuTimeouts[menuId]);
 
-    menuTimeouts[menuId] = setTimeout(() => {
-        let success = false;
-        const timerMenu = parentMenu;
-        if (state.timer.currentTab === 'countdown') {
-            const timerTitleInput = timerMenu.querySelector('#timer-title');
-            const timerTitle = timerTitleInput.value.trim() || getTranslation('my_new_timer_placeholder', 'timer');
-            const { hours, minutes, seconds } = state.timer.duration;
+                menuTimeouts[menuId] = setTimeout(() => {
+                    let success = false;
+                    const timerMenu = parentMenu;
+                    if (state.timer.currentTab === 'countdown') {
+                        const timerTitleInput = timerMenu.querySelector('#timer-title');
+                        const timerTitle = timerTitleInput.value.trim() || getTranslation('my_new_timer_placeholder', 'timer');
+                        const { hours, minutes, seconds } = state.timer.duration;
 
-            if (timerTitle && (hours > 0 || minutes > 0 || seconds > 0)) {
-                const durationInMs = (hours * 3600 + minutes * 60 + seconds) * 1000;
-                addTimerAndRender({ type: 'countdown', title: timerTitle, duration: durationInMs, endAction: state.timer.endAction, sound: state.timer.sound });
-                success = true;
+                        if (timerTitle && (hours > 0 || minutes > 0 || seconds > 0)) {
+                            const durationInMs = (hours * 3600 + minutes * 60 + seconds) * 1000;
+                            addTimerAndRender({ type: 'countdown', title: timerTitle, duration: durationInMs, endAction: state.timer.endAction, sound: state.timer.sound });
+                            success = true;
+                        }
+                    } else {
+                        const eventTitleInput = timerMenu.querySelector('#countto-title');
+                        const eventTitle = eventTitleInput ? eventTitleInput.value.trim() : '';
+                        const { selectedDate, selectedHour, selectedMinute } = state.timer.countTo;
+
+                        if (eventTitle && selectedDate != null && typeof selectedHour === 'number' && typeof selectedMinute === 'number') {
+                            const targetDate = new Date(selectedDate);
+                            targetDate.setHours(selectedHour, selectedMinute, 0, 0);
+                            addTimerAndRender({ type: 'count_to_date', title: eventTitle, targetDate: targetDate.toISOString(), sound: state.timer.countTo.sound });
+                            success = true;
+                        }
+                    }
+
+                    if (success) {
+                        deactivateModule('overlayContainer', { source: 'create-timer' });
+                    } else {
+                        removeSpinnerFromCreateButton(createButton); 
+                    }
+
+                    resetTimerMenu(parentMenu);
+                    delete menuTimeouts[menuId];
+                }, 500);
+                break;
             }
-        } else {
-            const eventTitleInput = timerMenu.querySelector('#countto-title');
-            const eventTitle = eventTitleInput ? eventTitleInput.value.trim() : '';
-            const { selectedDate, selectedHour, selectedMinute } = state.timer.countTo;
+            case 'saveTimerChanges': {
+                const editingId = parentMenu.getAttribute('data-editing-id');
+                if (!editingId) return;
 
-            if (eventTitle && selectedDate != null && typeof selectedHour === 'number' && typeof selectedMinute === 'number') {
-                const targetDate = new Date(selectedDate);
-                targetDate.setHours(selectedHour, selectedMinute, 0, 0);
-                addTimerAndRender({ type: 'count_to_date', title: eventTitle, targetDate: targetDate.toISOString() });
-                success = true;
+                const saveButton = actionTarget;
+                addSpinnerToCreateButton(saveButton);
+                const menuId = parentMenu.dataset.menu;
+
+                if (menuTimeouts[menuId]) clearTimeout(menuTimeouts[menuId]);
+
+                menuTimeouts[menuId] = setTimeout(() => {
+                    const timerTitleInput = parentMenu.querySelector('#timer-title');
+                    const timerTitle = timerTitleInput.value.trim() || getTranslation('my_new_timer_placeholder', 'timer');
+                    const { hours, minutes, seconds } = state.timer.duration;
+
+                    if (hours > 0 || minutes > 0 || seconds > 0) {
+                        const durationInMs = (hours * 3600 + minutes * 60 + seconds) * 1000;
+                        updateTimer(editingId, { title: timerTitle, duration: durationInMs, endAction: state.timer.endAction, sound: state.timer.sound });
+                        deactivateModule('overlayContainer', { source: 'save-timer' });
+                    } else {
+                        removeSpinnerFromCreateButton(saveButton); 
+                    }
+
+                    resetTimerMenu(parentMenu);
+                    delete menuTimeouts[menuId];
+                }, 500);
+                break;
             }
-        }
+            case 'saveCountToDateChanges': {
+                const editingId = parentMenu.getAttribute('data-editing-id');
+                if (!editingId) return;
 
-        if (success) {
-            deactivateModule('overlayContainer', { source: 'create-timer' });
-        } else {
-            removeSpinnerFromCreateButton(createButton); // Remover spinner si la validación falla
-        }
-        
-        resetTimerMenu(parentMenu);
-        delete menuTimeouts[menuId];
-    }, 500);
-    break;
-}
-// =================== FIN DE LA MODIFICACIÓN ===================
+                const saveButton = actionTarget;
+                addSpinnerToCreateButton(saveButton);
+                const menuId = parentMenu.dataset.menu;
 
-case 'saveTimerChanges': {
-    const editingId = parentMenu.getAttribute('data-editing-id');
-    if (!editingId) return;
+                if (menuTimeouts[menuId]) clearTimeout(menuTimeouts[menuId]);
 
-    const saveButton = actionTarget;
-    addSpinnerToCreateButton(saveButton);
-    const menuId = parentMenu.dataset.menu;
+                menuTimeouts[menuId] = setTimeout(() => {
+                    const eventTitleInput = parentMenu.querySelector('#countto-title');
+                    const eventTitle = eventTitleInput ? eventTitleInput.value.trim() : '';
+                    const { selectedDate, selectedHour, selectedMinute } = state.timer.countTo;
 
-    if (menuTimeouts[menuId]) clearTimeout(menuTimeouts[menuId]);
+                    if (eventTitle && selectedDate != null && typeof selectedHour === 'number' && typeof selectedMinute === 'number') {
+                        const targetDate = new Date(selectedDate);
+                        targetDate.setHours(selectedHour, selectedMinute, 0, 0);
 
-    menuTimeouts[menuId] = setTimeout(() => {
-        const timerTitleInput = parentMenu.querySelector('#timer-title');
-        const timerTitle = timerTitleInput.value.trim() || getTranslation('my_new_timer_placeholder', 'timer');
-        const { hours, minutes, seconds } = state.timer.duration;
+                        updateTimer(editingId, {
+                            type: 'count_to_date',
+                            title: eventTitle,
+                            targetDate: targetDate.toISOString(),
+                            sound: state.timer.countTo.sound
+                        });
+                        deactivateModule('overlayContainer', { source: 'save-timer' });
+                    } else {
+                        removeSpinnerFromCreateButton(saveButton);
+                    }
 
-        if (hours > 0 || minutes > 0 || seconds > 0) {
-            const durationInMs = (hours * 3600 + minutes * 60 + seconds) * 1000;
-            updateTimer(editingId, { title: timerTitle, duration: durationInMs, endAction: state.timer.endAction, sound: state.timer.sound });
-            deactivateModule('overlayContainer', { source: 'save-timer' });
-        } else {
-            removeSpinnerFromCreateButton(saveButton); // Remover spinner si la validación falla
-        }
-        
-        resetTimerMenu(parentMenu);
-        delete menuTimeouts[menuId];
-    }, 500);
-    break;
-}
-case 'saveCountToDateChanges': {
-    const editingId = parentMenu.getAttribute('data-editing-id');
-    if (!editingId) return;
-
-    const saveButton = actionTarget;
-    addSpinnerToCreateButton(saveButton);
-    const menuId = parentMenu.dataset.menu;
-
-    if (menuTimeouts[menuId]) clearTimeout(menuTimeouts[menuId]);
-
-    menuTimeouts[menuId] = setTimeout(() => {
-        const eventTitleInput = parentMenu.querySelector('#countto-title');
-        const eventTitle = eventTitleInput ? eventTitleInput.value.trim() : '';
-        const { selectedDate, selectedHour, selectedMinute } = state.timer.countTo;
-
-        if (eventTitle && selectedDate != null && typeof selectedHour === 'number' && typeof selectedMinute === 'number') {
-            const targetDate = new Date(selectedDate);
-            targetDate.setHours(selectedHour, selectedMinute, 0, 0);
-
-            updateTimer(editingId, {
-                type: 'count_to_date',
-                title: eventTitle,
-                targetDate: targetDate.toISOString()
-            });
-            deactivateModule('overlayContainer', { source: 'save-timer' });
-        } else {
-            removeSpinnerFromCreateButton(saveButton);
-        }
-
-        resetTimerMenu(parentMenu);
-        delete menuTimeouts[menuId];
-    }, 500);
-    break;
-}
+                    resetTimerMenu(parentMenu);
+                    delete menuTimeouts[menuId];
+                }, 500);
+                break;
+            }
             case 'addWorldClock': {
                 const clockTitleInput = parentMenu.querySelector('#worldclock-title');
                 const clockTitle = clockTitleInput ? clockTitleInput.value.trim() : '';
@@ -988,7 +1069,6 @@ case 'saveCountToDateChanges': {
             }
         }
     });
-
 }
 
 initMenuInteractions();

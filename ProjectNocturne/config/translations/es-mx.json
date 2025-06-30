@@ -130,6 +130,7 @@
     "stopwatch": "Cronómetro",
     "lap": "Vuelta",
     "timer": "Temporizador",
+    "timezone": "Zona horaria",
     "world_clock": "Reloj Mundial",
     "pin_clock": "Fijar reloj",
     "pin_timer": "Fijar temporizador"
@@ -155,7 +156,10 @@
     "default_alarms": "Alarmas Predeterminadas",
     "activate_alarm": "Activar Alarma",
     "deactivate_alarm": "Desactivar Alarma",
-    "dismiss": "Descartar"
+    "dismiss": "Descartar",
+    "clean_room": "Limpiar cuarto",
+    "exercise": "Hacer ejercicio",
+    "read_book": "Leer un libro"
   },
   "world_clock": {
     "clock_title": "Título del Reloj",
@@ -201,7 +205,11 @@
     "event_finished": "¡Evento finalizado!",
     "timer_limit_reached": "Se alcanzó el límite de {limit} temporizadores.",
     "my_timers": "Mis Temporizadores",
-    "default_timers": "Temporizadores Predeterminados"
+    "default_timers": "Temporizadores Predeterminados",
+    "timer_options": "Opciones del temporizador",
+    "pomodoro_25": "Pomodoro (25 min)",
+    "short_break_5": "Descanso Corto (5 min)",
+    "exercise_1": "Ejercicio (1 min)"
   },
   "world_clock_options": {
     "options": "Opciones del reloj",

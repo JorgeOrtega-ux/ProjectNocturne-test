@@ -1,21 +1,51 @@
-// jorgeortega-ux/projectnocturne-untested/ProjectNocturne-Untested-40cb09d19e05067b15f05652c8beaac6f8a29ff7/ProjectNocturne/assets/js/tools/alarm-controller.js
 import { use24HourFormat, PREMIUM_FEATURES, activateModule, getCurrentActiveOverlay, allowCardMovement } from '../general/main.js';
 import { prepareAlarmForEdit } from './menu-interactions.js';
 import { playSound as playAlarmSound, stopSound as stopAlarmSound, generateSoundList, initializeSortable } from './general-tools.js';
+import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js'; // NEW LINE
 
 const ALARMS_STORAGE_KEY = 'user-alarms';
 const DEFAULT_ALARMS_STORAGE_KEY = 'default-alarms-order';
 
 const DEFAULT_ALARMS = [
-    { id: 'default-1', title: 'Limpiar cuarto', hour: 10, minute: 0, sound: 'gentle-chime', enabled: false, type: 'default' },
-    { id: 'default-2', title: 'Hacer ejercicio', hour: 18, minute: 0, sound: 'digital-alarm', enabled: false, type: 'default' },
-    { id: 'default-3', title: 'Leer un libro', hour: 21, minute: 0, sound: 'peaceful-tone', enabled: false, type: 'default' }
+    { id: 'default-1', title: 'clean_room', hour: 10, minute: 0, sound: 'gentle_chime', enabled: false, type: 'default' },
+    { id: 'default-2', title: 'exercise', hour: 18, minute: 0, sound: 'digital_alarm', enabled: false, type: 'default' },
+    { id: 'default-3', title: 'read_book', hour: 21, minute: 0, sound: 'peaceful_tone', enabled: false, type: 'default' }
 ];
 
 let clockInterval = null;
 let userAlarms = [];
 let defaultAlarmsState = [];
 let activeAlarmTimers = new Map();
+
+function createExpandableContainer(type, titleKey, icon) {
+    const container = document.createElement('div');
+    container.className = 'alarms-container';
+    container.dataset.container = type;
+
+    container.innerHTML = `
+        <div class="expandable-card-header">
+            <div class="expandable-card-header-left">
+                <div class="expandable-card-header-icon">
+                    <span class="material-symbols-rounded">${icon}</span>
+                </div>
+                <h3 data-translate="${titleKey}" data-translate-category="alarms">${getTranslation(titleKey, 'alarms')}</h3>
+            </div>
+            <div class="expandable-card-header-right">
+                <span class="alarm-count-badge" data-count-for="${type}">0</span>
+                <button class="expandable-card-toggle-btn">
+                    <span class="material-symbols-rounded expand-icon">expand_more</span>
+                </button>
+            </div>
+        </div>
+        <div class="tool-grid" data-alarm-grid="${type}"></div>
+    `;
+    
+    const header = container.querySelector('.expandable-card-header');
+    header.addEventListener('click', () => toggleAlarmsSection(type));
+
+    return container;
+}
+
 
 function updateAlarmCounts() {
     const userAlarmsCount = userAlarms.length;
@@ -56,28 +86,37 @@ function createAlarm(title, hour, minute, sound) {
     createAlarmCard(alarm);
     scheduleAlarm(alarm);
     updateAlarmCounts();
+
+    // Show dynamic island notification
+    showDynamicIslandNotification('alarm', 'created', {
+        title: alarm.title,
+        time: formatTime(alarm.hour, alarm.minute)
+    });
+
     return true;
 }
 
 function createAlarmCard(alarm) {
-    const grid = document.querySelector(`.alarms-grid[data-alarm-grid="${alarm.type}"]`);
+    const grid = document.querySelector(`.tool-grid[data-alarm-grid="${alarm.type}"]`);
     if (!grid) return;
 
+    const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
+
     const cardHTML = `
-        <div class="alarm-card ${!alarm.enabled ? 'alarm-disabled' : ''}" id="${alarm.id}" data-id="${alarm.id}" data-type="${alarm.type}">
+        <div class="tool-card alarm-card ${!alarm.enabled ? 'alarm-disabled' : ''}" id="${alarm.id}" data-id="${alarm.id}" data-type="${alarm.type}">
             <div class="card-header">
-                <div class="card-alarm-details">
-                    <span class="alarm-title" title="${alarm.title}">${alarm.title}</span>
-                    <span class="alarm-time">${formatTime(alarm.hour, alarm.minute)}</span>
+                <div class="card-details">
+                    <span class="card-title" title="${translatedTitle}">${translatedTitle}</span>
+                    <span class="card-value">${formatTime(alarm.hour, alarm.minute)}</span>
                 </div>
             </div>
             <div class="card-footer">
-                <div class="alarm-info">
-                    <span class="alarm-sound-name">${getTranslation(alarm.sound, 'sounds')}</span>
+                <div class="card-tags">
+                    <span class="card-tag" data-translate="${alarm.sound.replace(/-/g, '_')}" data-translate-category="sounds">${getTranslation(alarm.sound.replace(/-/g, '_'), 'sounds')}</span>
                 </div>
             </div>
             <div class="card-options-container">
-                <button class="dismiss-alarm-btn" data-action="dismiss-alarm">
+                <button class="card-dismiss-btn" data-type="alarm" data-action="dismiss-alarm">
                     <span data-translate="dismiss" data-translate-category="alarms">Dismiss</span>
                 </button>
             </div>
@@ -92,19 +131,19 @@ function createAlarmCard(alarm) {
                     <div class="card-dropdown-menu disabled body-title">
                         <div class="menu-link" data-action="toggle-alarm">
                             <div class="menu-link-icon"><span class="material-symbols-rounded">${alarm.enabled ? 'toggle_on' : 'toggle_off'}</span></div>
-                            <div class="menu-link-text"><span data-translate="${alarm.enabled ? 'deactivate_alarm' : 'activate_alarm'}" data-translate-category="alarms">${alarm.enabled ? 'Deactivate Alarm' : 'Activate Alarm'}</span></div>
+                            <div class="menu-link-text"><span data-translate="${alarm.enabled ? 'deactivate_alarm' : 'activate_alarm'}" data-translate-category="alarms">${getTranslation(alarm.enabled ? 'deactivate_alarm' : 'activate_alarm', 'alarms')}</span></div>
                         </div>
                         <div class="menu-link" data-action="test-alarm">
                             <div class="menu-link-icon"><span class="material-symbols-rounded">volume_up</span></div>
-                            <div class="menu-link-text"><span data-translate="test_alarm" data-translate-category="alarms">Test Alarm</span></div>
+                            <div class="menu-link-text"><span data-translate="test_alarm" data-translate-category="alarms">${getTranslation('test_alarm', 'alarms')}</span></div>
                         </div>
                         <div class="menu-link" data-action="edit-alarm">
                             <div class="menu-link-icon"><span class="material-symbols-rounded">edit</span></div>
-                            <div class="menu-link-text"><span data-translate="edit_alarm" data-translate-category="alarms">Edit Alarm</span></div>
+                            <div class="menu-link-text"><span data-translate="edit_alarm" data-translate-category="alarms">${getTranslation('edit_alarm', 'alarms')}</span></div>
                         </div>
                         <div class="menu-link" data-action="delete-alarm">
                             <div class="menu-link-icon"><span class="material-symbols-rounded">delete</span></div>
-                            <div class="menu-link-text"><span data-translate="delete_alarm" data-translate-category="alarms">Delete Alarm</span></div>
+                            <div class="menu-link-text"><span data-translate="delete_alarm" data-translate-category="alarms">${getTranslation('delete_alarm', 'alarms')}</span></div>
                         </div>
                     </div>
                 </div>
@@ -121,13 +160,11 @@ function createAlarmCard(alarm) {
 function addCardEventListeners(card) {
     const menuContainer = card.querySelector('.card-menu-container');
     card.addEventListener('mouseenter', () => {
-        menuContainer?.classList.add('active');
         menuContainer?.classList.remove('disabled');
     });
     card.addEventListener('mouseleave', () => {
         const dropdown = menuContainer?.querySelector('.card-dropdown-menu');
         if (dropdown?.classList.contains('disabled')) {
-            menuContainer?.classList.remove('active');
             menuContainer?.classList.add('disabled');
         }
     });
@@ -166,7 +203,8 @@ function triggerAlarm(alarm) {
         }
     }
     if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification(`Alarma: ${alarm.title}`, { body: `${formatTime(alarm.hour, alarm.minute)}`, icon: '/favicon.ico' });
+        const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
+        new Notification(`Alarma: ${translatedTitle}`, { body: `${formatTime(alarm.hour, alarm.minute)}`, icon: '/favicon.ico' });
     }
     scheduleAlarm(alarm);
 }
@@ -256,21 +294,37 @@ function updateAlarm(alarmId, newData) {
     }
 
     updateAlarmCardVisuals(alarm);
+
+    // Show dynamic island notification
+    const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
+    showDynamicIslandNotification('alarm', 'updated', {
+        title: translatedTitle,
+        time: formatTime(alarm.hour, alarm.minute)
+    });
 }
 
 function updateAlarmCardVisuals(alarm) {
     const card = document.getElementById(alarm.id);
     if (!card) return;
-    const title = card.querySelector('.alarm-title');
-    const time = card.querySelector('.alarm-time');
-    const sound = card.querySelector('.alarm-sound-name');
+    const title = card.querySelector('.card-title');
+    const time = card.querySelector('.card-value');
+    const sound = card.querySelector('.card-tag');
     const toggleLink = card.querySelector('[data-action="toggle-alarm"]');
     const toggleIcon = toggleLink?.querySelector('.material-symbols-rounded');
     const toggleText = toggleLink?.querySelector('.menu-link-text span');
+    
+    const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
+    if (title) {
+        title.textContent = translatedTitle;
+        title.title = translatedTitle;
+    }
 
-    if (title) title.textContent = alarm.title;
     if (time) time.textContent = formatTime(alarm.hour, alarm.minute);
-    if (sound) sound.textContent = getTranslation(alarm.sound, 'sounds');
+    if (sound) {
+        const soundKey = alarm.sound.replace(/-/g, '_');
+        sound.textContent = getTranslation(soundKey, 'sounds');
+        sound.dataset.translate = soundKey;
+    }
 
     if (toggleIcon) toggleIcon.textContent = alarm.enabled ? 'toggle_on' : 'toggle_off';
     if (toggleText) {
@@ -283,10 +337,14 @@ function updateAlarmCardVisuals(alarm) {
 }
 
 function saveAlarmsToStorage() {
+    // MODIFICACIÓN: Añadido console.log para depuración
+    console.log(`[LocalStorage Save] Guardando datos de alarmas en la clave: '${ALARMS_STORAGE_KEY}'`, userAlarms);
     localStorage.setItem(ALARMS_STORAGE_KEY, JSON.stringify(userAlarms));
 }
 
 function saveDefaultAlarmsOrder() {
+    // MODIFICACIÓN: Añadido console.log para depuración
+    console.log(`[LocalStorage Save] Guardando orden de alarmas por defecto en la clave: '${DEFAULT_ALARMS_STORAGE_KEY}'`, defaultAlarmsState);
     localStorage.setItem(DEFAULT_ALARMS_STORAGE_KEY, JSON.stringify(defaultAlarmsState));
 }
 
@@ -296,11 +354,11 @@ function loadDefaultAlarmsOrder() {
         try {
             defaultAlarmsState = JSON.parse(stored);
             const defaultIds = new Set(defaultAlarmsState.map(alarm => alarm.id));
-            const originalIds = new Set(DEFAULT_ALARMS.map(alarm => alarm.id));
             
             DEFAULT_ALARMS.forEach(defaultAlarm => {
                 if (!defaultIds.has(defaultAlarm.id)) {
                     defaultAlarmsState.push({...defaultAlarm});
+                    // A diferencia del script de timers, este no guarda automáticamente aquí.
                 }
             });
         } catch (error) {
@@ -343,20 +401,14 @@ function formatTime(hour, minute) {
     return `${h12}:${String(minute).padStart(2, '0')} ${ampm}`;
 }
 
-function getTranslation(key, category) {
-    if (typeof window.getTranslation === 'function') {
-        const text = window.getTranslation(key, category);
-        return text === key ? key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : text;
-    }
-    return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-}
+// Se ha eliminado la función getTranslation duplicada para usar la versión global importada.
 
 function toggleAlarmsSection(type) {
-    const grid = document.querySelector(`.alarms-grid[data-alarm-grid="${type}"]`);
+    const grid = document.querySelector(`.tool-grid[data-alarm-grid="${type}"]`);
     if (!grid) return;
     const container = grid.closest('.alarms-container');
     if (!container) return;
-    const btn = container.querySelector('.collapse-alarms-btn');
+    const btn = container.querySelector('.expandable-card-toggle-btn');
     const isActive = grid.classList.toggle('active');
     btn.classList.toggle('expanded', isActive);
 }
@@ -379,11 +431,16 @@ function startClock() {
 function initializeSortableGrids() {
     if (!allowCardMovement) return;
 
-    initializeSortable('.alarms-grid[data-alarm-grid="user"]', {
+    const sortableOptions = {
         animation: 150,
+        filter: '.card-menu-container', 
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         dragClass: 'sortable-drag',
+    };
+
+    initializeSortable('.tool-grid[data-alarm-grid="user"]', {
+        ...sortableOptions,
         onEnd: function (evt) {
             const newOrderIds = Array.from(evt.to.children).map(card => card.id);
             userAlarms.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
@@ -391,11 +448,8 @@ function initializeSortableGrids() {
         }
     });
 
-    initializeSortable('.alarms-grid[data-alarm-grid="default"]', {
-        animation: 150,
-        ghostClass: 'sortable-ghost',
-        chosenClass: 'sortable-chosen',
-        dragClass: 'sortable-drag',
+    initializeSortable('.tool-grid[data-alarm-grid="default"]', {
+        ...sortableOptions,
         onEnd: function (evt) {
             const newOrderIds = Array.from(evt.to.children).map(card => card.id);
             defaultAlarmsState.sort((a, b) => newOrderIds.indexOf(a.id) - newOrderIds.indexOf(b.id));
@@ -404,84 +458,27 @@ function initializeSortableGrids() {
     });
 }
 
-function setupEventListeners() {
-    const sectionBottom = document.querySelector('.section-alarm .section-bottom');
-    if (sectionBottom) {
-        sectionBottom.addEventListener('click', (e) => {
-            const target = e.target.closest('[data-action]');
-            if (!target) return;
-            const card = target.closest('.alarm-card');
-            if (!card) return;
-            const alarmId = card.dataset.id;
-            const alarm = findAlarmById(alarmId);
-
-            switch (target.dataset.action) {
-                case 'toggle-alarm-menu':
-                    e.stopPropagation();
-                    const dropdown = card.querySelector('.card-dropdown-menu');
-                    document.querySelectorAll('.card-dropdown-menu').forEach(m => m !== dropdown && m.classList.add('disabled'));
-                    dropdown?.classList.toggle('disabled');
-                    break;
-                case 'toggle-alarm':
-                    toggleAlarm(alarmId);
-                    break;
-                case 'test-alarm':
-                    if (alarm) playAlarmSound(alarm.sound);
-                    break;
-                case 'edit-alarm':
-                    e.stopPropagation();
-                    if (alarm) {
-                        prepareAlarmForEdit({ ...alarm, updateAlarm: updateAlarm });
-                        if (getCurrentActiveOverlay() !== 'menuAlarm') {
-                            activateModule('toggleMenuAlarm');
-                        }
-                    }
-                    break;
-                case 'delete-alarm':
-                    if (confirm(getTranslation('confirm_delete_alarm', 'alarms'))) {
-                        deleteAlarm(alarmId);
-                    }
-                    break;
-            }
-        });
-    }
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.card-menu-btn-wrapper')) {
-            document.querySelectorAll('.card-dropdown-menu').forEach(m => m.classList.add('disabled'));
-        }
-    });
-}
-
 export function initializeAlarmClock() {
     startClock();
+    
+    const wrapper = document.querySelector('.alarms-list-wrapper');
+    if(wrapper) {
+        const userContainer = createExpandableContainer('user', 'my_alarms', 'alarm');
+        const defaultContainer = createExpandableContainer('default', 'default_alarms', 'alarm_on');
+        wrapper.appendChild(userContainer);
+        wrapper.appendChild(defaultContainer);
+    }
+
     loadAlarmsFromStorage();
     loadDefaultAlarms();
-    setupEventListeners();
     updateAlarmCounts();
     initializeSortableGrids(); 
     if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
     }
 
-    const soundListContainer = document.querySelector('.menu-alarm .menu-list');
-    generateSoundList(soundListContainer, (soundId) => {
-        const selectedSoundSpan = document.querySelector('#alarm-selected-sound');
-        if (selectedSoundSpan) {
-            const soundName = getTranslation(soundId, 'sounds');
-            selectedSoundSpan.textContent = soundName;
-        }
-    });
-
-    document.addEventListener('customSoundUploaded', () => {
-        const soundListContainer = document.querySelector('.menu-alarm .menu-list');
-        generateSoundList(soundListContainer, (soundId, soundName) => {
-            const selectedSoundSpan = document.querySelector('#alarm-selected-sound');
-            if (selectedSoundSpan) {
-                selectedSoundSpan.textContent = soundName;
-            }
-        });
-    });
+    // Se ha movido la lógica de 'getTranslation' a la importación global
+    // y se ha eliminado la función local duplicada.
 
     window.alarmManager = { 
         createAlarm, 
@@ -490,6 +487,20 @@ export function initializeAlarmClock() {
         updateAlarm, 
         toggleAlarmsSection, 
         playAlarmSound, 
-        dismissAlarm 
+        dismissAlarm,
+        findAlarmById 
     };
+    document.addEventListener('translationsApplied', () => {
+        const allAlarms = [...userAlarms, ...defaultAlarmsState];
+        allAlarms.forEach(alarm => {
+            updateAlarmCardVisuals(alarm);
+        });
+        document.querySelectorAll('[data-translate-category="alarms"]').forEach(element => {
+            const key = element.dataset.translate;
+            if (key) {
+                // Asumiendo que getTranslation está disponible globalmente a través del import
+                element.textContent = getTranslation(key, 'alarms');
+            }
+        });
+    });
 }

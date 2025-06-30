@@ -67,31 +67,7 @@
         </div>
     </div>
     <div class="section-bottom">
-        <div class="world-clocks-grid">
-            <div class="world-clock-card local-clock-card" data-id="local">
-                <div class="card-header">
-                    <div class="card-location-details">
-                        <span class="location-text" data-translate="local_time" data-translate-category="world_clock_options">Tiempo Local</span>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <span class="clock-time">--:--:--</span>
-                </div>
-                <div class="card-footer">
-                    <div class="badges-container">
-                        <span class="badge clock-date">---, -- ----</span>
-                        <span class="badge clock-offset">UTC</span>
-                    </div>
-                </div>
-                <div class="card-menu-container disabled">
-                    <button class="card-pin-btn active" data-action="pin-clock"
-                            data-translate="pin_clock"
-                            data-translate-category="tooltips"
-                            data-translate-target="tooltip">
-                        <span class="material-symbols-rounded">push_pin</span>
-                    </button>
-                </div>
+        <div class="tool-grid world-clocks-grid active">
             </div>
-        </div>
     </div>
 </div>

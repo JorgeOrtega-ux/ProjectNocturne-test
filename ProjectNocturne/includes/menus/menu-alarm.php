@@ -76,18 +76,9 @@
                                         <span class="material-symbols-rounded">expand_more</span>
                                     </div>
                                 </div>
-                                <div class="dropdown-menu-container dropdown-menu--structured menu-alarm-sound disabled body-title" data-menu="alarmSoundMenu">
-                                    <div class="dropdown-menu-top">
-                                        <div class="menu-link" data-action="upload-sound" data-target-input="alarm-audio-upload">
-                                            <div class="menu-link-icon"><span class="material-symbols-rounded">upload</span></div>
-                                            <div class="menu-link-text"><span data-translate="upload_audio" data-translate-category="sounds">Subir audio</span></div>
-                                            <input type="file" accept="audio/*" style="display: none;" id="alarm-audio-upload">
+                                <div class="dropdown-menu-container menu-alarm-sound disabled body-title" data-menu="alarmSoundMenu">
+                                    <div class="menu-list">
                                         </div>
-                                    </div>
-                                    <div class="dropdown-menu-bottom overflow-y">
-                                        <div class="menu-list">
-                                            </div>
-                                    </div>
                                 </div>
                                 <div class="menu-action-button" data-action="previewAlarmSound">
                                     <span class="material-symbols-rounded">play_arrow</span>

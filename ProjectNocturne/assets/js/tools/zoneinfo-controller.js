@@ -20,9 +20,15 @@ function updateZoneInfo(timezone = null) {
                 tool.appendChild(span);
             }
 
-            // Actualiza el contenido del span y el tooltip del div
+            // Actualiza el contenido del span
             span.textContent = userFriendlyTimeZone;
-            tool.setAttribute('data-tooltip', `Timezone: ${userFriendlyTimeZone}`);
+            
+            // ===== LÍNEAS CORREGIDAS =====
+            // En lugar de poner texto estático, usamos los atributos de traducción.
+            // El sistema de tooltips leerá estos atributos y mostrará el texto correcto para el idioma seleccionado.
+            tool.setAttribute('data-translate', 'timezone');
+            tool.setAttribute('data-translate-category', 'tooltips');
+            tool.setAttribute('data-translate-target', 'tooltip');
         });
 
         // Si el sistema de tooltips está listo, actualiza los tooltips para estos elementos

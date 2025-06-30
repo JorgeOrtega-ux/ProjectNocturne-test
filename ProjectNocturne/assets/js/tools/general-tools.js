@@ -1,74 +1,27 @@
-// jorgeortega-ux/projectnocturne-untested/ProjectNocturne-Untested-40cb09d19e05067b15f05652c8beaac6f8a29ff7/ProjectNocturne/assets/js/tools/general-tools.js
+import { getTranslation } from '../general/translations-controller.js';
+import { prepareAlarmForEdit, prepareWorldClockForEdit, prepareTimerForEdit, prepareCountToDateForEdit } from './menu-interactions.js';
+import { activateModule, getCurrentActiveOverlay } from '../general/main.js';
+
 // ========== SOUND LOGIC ==========
 const SOUND_PATTERNS = {
-    'classic-beep': { frequencies: [800], beepDuration: 150, pauseDuration: 150, type: 'square' },
-    'gentle-chime': { frequencies: [523.25, 659.25, 783.99], beepDuration: 300, pauseDuration: 500, type: 'sine' },
-    'digital-alarm': { frequencies: [1200, 800], beepDuration: 100, pauseDuration: 100, type: 'square' },
-    'peaceful-tone': { frequencies: [440, 554.37, 659.25], beepDuration: 400, pauseDuration: 600, type: 'sine' },
-    'urgent-beep': { frequencies: [1600, 1600], beepDuration: 80, pauseDuration: 80, type: 'sawtooth' }
+    'classic_beep': { frequencies: [800], beepDuration: 150, pauseDuration: 150, type: 'square' },
+    'gentle_chime': { frequencies: [523.25, 659.25, 783.99], beepDuration: 300, pauseDuration: 500, type: 'sine' },
+    'digital_alarm': { frequencies: [1200, 800], beepDuration: 100, pauseDuration: 100, type: 'square' },
+    'peaceful_tone': { frequencies: [440, 554.37, 659.25], beepDuration: 400, pauseDuration: 600, type: 'sine' },
+    'urgent_beep': { frequencies: [1600, 1600], beepDuration: 80, pauseDuration: 80, type: 'sawtooth' }
 };
 
 export const AVAILABLE_SOUNDS = [
-    { id: 'classic-beep', nameKey: 'classic_beep', icon: 'volume_up' },
-    { id: 'gentle-chime', nameKey: 'gentle_chime', icon: 'notifications' },
-    { id: 'digital-alarm', nameKey: 'digital_alarm', icon: 'alarm' },
-    { id: 'peaceful-tone', nameKey: 'peaceful_tone', icon: 'self_care' },
-    { id: 'urgent-beep', nameKey: 'urgent_beep', icon: 'priority_high' }
+    { id: 'classic_beep', nameKey: 'classic_beep', icon: 'volume_up' },
+    { id: 'gentle_chime', nameKey: 'gentle_chime', icon: 'notifications' },
+    { id: 'digital_alarm', nameKey: 'digital_alarm', icon: 'alarm' },
+    { id: 'peaceful_tone', nameKey: 'peaceful_tone', icon: 'self_care' },
+    { id: 'urgent_beep', nameKey: 'urgent_beep', icon: 'priority_high' }
 ];
 
 let audioContext = null;
 let activeSoundSource = null;
 let isPlayingSound = false;
-
-// ========== IndexedDB for Custom Sounds ==========
-const DB_NAME = 'ProjectNocturneDB';
-const DB_VERSION = 1;
-const SOUNDS_STORE_NAME = 'customSounds';
-
-function openDB() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        request.onerror = () => reject("Error opening DB");
-        request.onsuccess = () => resolve(request.result);
-        request.onupgradeneeded = event => {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains(SOUNDS_STORE_NAME)) {
-                db.createObjectStore(SOUNDS_STORE_NAME, { keyPath: 'id' });
-            }
-        };
-    });
-}
-
-async function saveCustomSound(id, name, data) {
-    const db = await openDB();
-    const transaction = db.transaction(SOUNDS_STORE_NAME, 'readwrite');
-    const store = transaction.objectStore(SOUNDS_STORE_NAME);
-    store.put({ id, name, data });
-    return transaction.complete;
-}
-
-async function getCustomSound(id) {
-    const db = await openDB();
-    const transaction = db.transaction(SOUNDS_STORE_NAME, 'readonly');
-    const store = transaction.objectStore(SOUNDS_STORE_NAME);
-    const request = store.get(id);
-    return new Promise(resolve => {
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => resolve(null);
-    });
-}
-
-async function getAllCustomSounds() {
-    const db = await openDB();
-    const transaction = db.transaction(SOUNDS_STORE_NAME, 'readonly');
-    const store = transaction.objectStore(SOUNDS_STORE_NAME);
-    const request = store.getAll();
-    return new Promise(resolve => {
-        request.onsuccess = () => resolve(request.result || []);
-        request.onerror = () => resolve([]);
-    });
-}
-
 
 function initializeAudioContext() {
     if (!audioContext) {
@@ -82,61 +35,41 @@ function initializeAudioContext() {
     return true;
 }
 
-export async function playSound(soundType = 'classic-beep') {
+export async function playSound(soundType = 'classic_beep') {
     if (isPlayingSound || !initializeAudioContext()) return;
     stopSound();
     isPlayingSound = true;
 
-    if (soundType.startsWith('custom-')) {
-        const soundData = await getCustomSound(soundType);
-        if (soundData) {
-            const source = audioContext.createBufferSource();
-            const audioBuffer = await audioContext.decodeAudioData(soundData.data.slice(0)); // Create a copy
-            source.buffer = audioBuffer;
-            source.connect(audioContext.destination);
-            source.start(0);
-            activeSoundSource = { sourceNode: source, type: 'custom' };
-            source.onended = () => {
-                if (activeSoundSource && activeSoundSource.sourceNode === source) {
-                    isPlayingSound = false;
-                    activeSoundSource = null;
-                }
-            };
+    const pattern = SOUND_PATTERNS[soundType] || SOUND_PATTERNS['classic_beep'];
+    let freqIndex = 0;
+    const playBeep = () => {
+        if (!isPlayingSound) return;
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
         }
-    } else {
-        const pattern = SOUND_PATTERNS[soundType] || SOUND_PATTERNS['classic-beep'];
-        let freqIndex = 0;
-        const playBeep = () => {
-            if (!isPlayingSound) return;
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
-            const freq = pattern.frequencies[freqIndex % pattern.frequencies.length];
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            oscillator.type = pattern.type;
-            oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
-            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.01);
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + (pattern.beepDuration / 1000));
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + (pattern.beepDuration / 1000));
-            freqIndex++;
-        };
-        playBeep();
-        const intervalId = setInterval(playBeep, pattern.beepDuration + pattern.pauseDuration);
-        activeSoundSource = { intervalId: intervalId, type: 'pattern' };
-    }
+        const freq = pattern.frequencies[freqIndex % pattern.frequencies.length];
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        oscillator.type = pattern.type;
+        oscillator.frequency.setValueAtTime(freq, audioContext.currentTime);
+        gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.5, audioContext.currentTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + (pattern.beepDuration / 1000));
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + (pattern.beepDuration / 1000));
+        freqIndex++;
+    };
+    playBeep();
+    const intervalId = setInterval(playBeep, pattern.beepDuration + pattern.pauseDuration);
+    activeSoundSource = { intervalId: intervalId, type: 'pattern' };
 }
 
 
 export function stopSound() {
     if (activeSoundSource) {
-        if (activeSoundSource.type === 'custom' && activeSoundSource.sourceNode) {
-            activeSoundSource.sourceNode.stop();
-        } else if (activeSoundSource.type === 'pattern' && activeSoundSource.intervalId) {
+        if (activeSoundSource.type === 'pattern' && activeSoundSource.intervalId) {
             clearInterval(activeSoundSource.intervalId);
         }
     }
@@ -144,54 +77,30 @@ export function stopSound() {
     isPlayingSound = false;
 }
 
-export async function generateSoundList(listElement, onSelectCallback) {
+// ========== EXTRACTO MODIFICADO ==========
+
+export async function generateSoundList(listElement, actionName, activeSoundId = null) {
     if (!listElement) return;
-    listElement.innerHTML = ''; // Clear existing list
+    listElement.innerHTML = '';
     const getTranslation = window.getTranslation || ((key, category) => key);
 
-    // Add default sounds
     AVAILABLE_SOUNDS.forEach(sound => {
         const menuLink = document.createElement('div');
         menuLink.className = 'menu-link';
-        menuLink.dataset.action = 'selectSound';
+        menuLink.dataset.action = actionName;
         menuLink.dataset.sound = sound.id;
+
+        if (sound.id === activeSoundId) {
+            menuLink.classList.add('active');
+        }
+
         menuLink.innerHTML = `
             <div class="menu-link-icon"><span class="material-symbols-rounded">${sound.icon}</span></div>
             <div class="menu-link-text"><span data-translate="${sound.nameKey}" data-translate-category="sounds">${getTranslation(sound.nameKey, 'sounds')}</span></div>
         `;
-        menuLink.addEventListener('click', () => {
-            if (typeof onSelectCallback === 'function') {
-                onSelectCallback(sound.id, getTranslation(sound.nameKey, 'sounds'));
-            }
-        });
-        listElement.appendChild(menuLink);
-    });
-
-    // Add custom sounds from DB
-    const customSounds = await getAllCustomSounds();
-    if (customSounds.length > 0) {
-        const separator = document.createElement('hr');
-        separator.style.margin = '8px 0';
-        listElement.appendChild(separator);
-    }
-    customSounds.forEach(sound => {
-        const menuLink = document.createElement('div');
-        menuLink.className = 'menu-link';
-        menuLink.dataset.action = 'selectSound';
-        menuLink.dataset.sound = sound.id;
-        menuLink.innerHTML = `
-            <div class="menu-link-icon"><span class="material-symbols-rounded">music_note</span></div>
-            <div class="menu-link-text"><span>${sound.name}</span></div>
-        `;
-        menuLink.addEventListener('click', () => {
-            if (typeof onSelectCallback === 'function') {
-                onSelectCallback(sound.id, sound.name);
-            }
-        });
         listElement.appendChild(menuLink);
     });
 }
-
 
 // ========== SERVICE: CATEGORY SLIDER DRAG & SCROLL ==========
 
@@ -1108,12 +1017,159 @@ export function initializeSortable(gridSelector, options) {
     }
 }
 
+// ========== NUEVA FUNCIÓN CENTRALIZADA PARA EVENTOS DE TARJETAS ==========
+export function initializeCardEventListeners() {
+    const mainContainer = document.querySelector('.general-content-scrolleable');
+    if (!mainContainer) {
+        console.error("Main container for card events not found!");
+        return;
+    }
+
+    mainContainer.addEventListener('click', (e) => {
+        const card = e.target.closest('.tool-card');
+        if (!card) {
+            // Cierra todos los menús si se hace clic fuera de una tarjeta
+            document.querySelectorAll('.card-dropdown-menu').forEach(m => m.classList.add('disabled'));
+            return;
+        }
+
+        const cardId = card.dataset.id;
+        const actionTarget = e.target.closest('[data-action]');
+
+        // Lógica para abrir/cerrar el menú de la tarjeta
+        if (e.target.closest('.card-menu-btn')) {
+            e.stopPropagation();
+            const dropdown = card.querySelector('.card-dropdown-menu');
+            if (dropdown) {
+                const isOpening = dropdown.classList.contains('disabled');
+                // Primero, cierra todos los demás menús
+                document.querySelectorAll('.card-dropdown-menu').forEach(m => {
+                    if (m !== dropdown) {
+                        m.classList.add('disabled');
+                    }
+                });
+                // Luego, abre o cierra el menú actual
+                if (isOpening) {
+                    dropdown.classList.remove('disabled');
+                } else {
+                    dropdown.classList.add('disabled');
+                }
+            }
+            return;
+        }
+        
+        // Si no se hizo clic en un botón de acción, no hagas nada más
+        if (!actionTarget) return;
+
+        const action = actionTarget.dataset.action;
+
+        // Delegación de acciones según el tipo de tarjeta
+        if (card.classList.contains('alarm-card')) {
+            handleAlarmCardAction(action, cardId, actionTarget);
+        } else if (card.classList.contains('timer-card')) {
+            handleTimerCardAction(action, cardId, actionTarget);
+        } else if (card.classList.contains('world-clock-card')) {
+            handleWorldClockCardAction(action, cardId, actionTarget);
+        }
+    });
+}
+
+function handleAlarmCardAction(action, alarmId, target) {
+    const alarm = window.alarmManager.findAlarmById(alarmId);
+
+    switch (action) {
+        case 'toggle-alarm':
+            window.alarmManager.toggleAlarm(alarmId);
+            break;
+        case 'test-alarm':
+            if (alarm) window.alarmManager.playAlarmSound(alarm.sound);
+            break;
+        case 'edit-alarm':
+            if (alarm) {
+                prepareAlarmForEdit({ ...alarm, updateAlarm: window.alarmManager.updateAlarm });
+                if (getCurrentActiveOverlay() !== 'menuAlarm') {
+                    activateModule('toggleMenuAlarm');
+                }
+            }
+            break;
+        case 'delete-alarm':
+            if (confirm(getTranslation('confirm_delete_alarm', 'alarms'))) {
+                window.alarmManager.deleteAlarm(alarmId);
+            }
+            break;
+        case 'dismiss-alarm':
+             window.alarmManager.dismissAlarm(alarmId);
+             break;
+    }
+}
+
+function handleTimerCardAction(action, timerId, target) {
+    if (!window.timerManager) {
+        console.error("Timer manager no está disponible.");
+        return;
+    }
+
+    switch (action) {
+        case 'pin-timer':
+            window.timerManager.handlePinTimer(timerId);
+            break;
+        case 'start-card-timer':
+            window.timerManager.startTimer(timerId);
+            break;
+        case 'pause-card-timer':
+            window.timerManager.pauseTimer(timerId);
+            break;
+        case 'reset-card-timer':
+            window.timerManager.resetTimer(timerId);
+            break;
+        case 'edit-timer':
+            window.timerManager.handleEditTimer(timerId);
+            break;
+        case 'delete-timer':
+            window.timerManager.handleDeleteTimer(timerId);
+            break;
+        case 'dismiss-timer':
+            window.timerManager.dismissTimer(timerId);
+            break;
+    }
+}
+
+function handleWorldClockCardAction(action, clockId, target) {
+    if (!window.worldClockManager) {
+        console.error("WorldClock manager no está disponible.");
+        return;
+    }
+
+    switch(action) {
+        case 'pin-clock':
+            window.worldClockManager.pinClock(target);
+            break;
+        case 'edit-clock':
+             const card = document.getElementById(clockId);
+             if (card) {
+                const clockData = {
+                    id: card.dataset.id,
+                    title: card.dataset.title,
+                    country: card.dataset.country,
+                    timezone: card.dataset.timezone,
+                    countryCode: card.dataset.countryCode
+                };
+                prepareWorldClockForEdit(clockData);
+                 if (getCurrentActiveOverlay() !== 'menuWorldClock') {
+                    activateModule('toggleMenuWorldClock');
+                }
+             }
+            break;
+        case 'delete-clock':
+            window.worldClockManager.deleteClock(clockId);
+            break;
+    }
+}
 
 // ========== EXPORTS ==========
 export {
     initializeCategorySliderService,
     initializeCentralizedFontManager,
     initializeTextStyleManager,
-    initializeFullScreenManager,
-    saveCustomSound,
+    initializeFullScreenManager
 };

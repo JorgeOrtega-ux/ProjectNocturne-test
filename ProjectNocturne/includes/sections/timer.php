@@ -88,40 +88,6 @@
     </div>
     <div class="section-bottom">
         <div class="timers-list-wrapper">
-            <div class="timers-container" data-container="user">
-                <div class="timers-header" onclick="window.timerManager.toggleTimersSection('user')">
-                    <div class="timers-header-left">
-                        <div class="timers-header-icon">
-                            <span class="material-symbols-rounded">timer</span>
-                        </div>
-                        <h3 data-translate="my_timers" data-translate-category="timer">Mis Temporizadores</h3>
-                    </div>
-                    <div class="timers-header-right">
-                        <span class="timer-count-badge" data-count-for="user">0</span>
-                        <button class="collapse-timers-btn">
-                            <span class="material-symbols-rounded expand-icon">expand_more</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="timers-grid-container" data-timer-grid="user"></div>
             </div>
-            <div class="timers-container" data-container="default">
-                <div class="timers-header" onclick="window.timerManager.toggleTimersSection('default')">
-                    <div class="timers-header-left">
-                        <div class="timers-header-icon">
-                            <span class="material-symbols-rounded">timelapse</span>
-                        </div>
-                        <h3 data-translate="default_timers" data-translate-category="timer">Temporizadores Predeterminados</h3>
-                    </div>
-                    <div class="timers-header-right">
-                        <span class="timer-count-badge" data-count-for="default">0</span>
-                        <button class="collapse-timers-btn">
-                            <span class="material-symbols-rounded expand-icon">expand_more</span>
-                        </button>
-                    </div>
-                </div>
-                <div class="timers-grid-container" data-timer-grid="default"></div>
-            </div>
-        </div>
     </div>
 </div>

@@ -14,6 +14,18 @@
 </head>
 
 <body>
+    <div id="dynamic-island">
+        <div class="island-content">
+            <div class="island-left-group">
+                <div class="island-circle"></div>
+                <div class="notification-info">
+                    <div class="notification-title"></div>
+                    <div class="notification-message"></div>
+                </div>
+            </div>
+            <div class="island-right-icon"></div>
+        </div>
+    </div>
     <div class="page-wrapper">
         <div class="main-content">
             <?php include 'includes/layouts/sidebar-desktop.php'; ?>
@@ -47,16 +59,18 @@
     <script type="module" src="assets/js/general/language-manager.js"></script>
     <script type="module" src="assets/js/general/tooltip-controller.js"></script>
     <script type="module" src="assets/js/general/drag-controller.js"></script>
+    <script type="module" src="assets/js/general/dynamic-island-controller.js"></script>
     <script type="module" src="assets/js/general/init-app.js"></script>
     <script type="module" src="assets/js/tools/general-tools.js"></script>
     <script type="module" src="assets/js/tools/palette-colors.js"></script>
     <script type="module" src="assets/js/tools/color-search-system.js"></script>
     <script type="module" src="assets/js/tools/alarm-controller.js"></script>
-        <script type="module" src="assets/js/tools/timer-controller.js"></script>
-     <script type="module" src="assets/js/tools/stopwatch-controller.js"></script>
-     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-        <script type="module" src="assets/js/tools/worldClock-controller.js"></script>
-    <script type="module" src="assets/js/tools/menu-interactions.js"></script> <script type="module" src="assets/js/tools/zoneinfo-controller.js"></script>
+    <script type="module" src="assets/js/tools/timer-controller.js"></script>
+    <script type="module" src="assets/js/tools/stopwatch-controller.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script type="module" src="assets/js/tools/worldClock-controller.js"></script>
+    <script type="module" src="assets/js/tools/menu-interactions.js"></script>
+    <script type="module" src="assets/js/tools/zoneinfo-controller.js"></script>
 </body>
 
 </html>

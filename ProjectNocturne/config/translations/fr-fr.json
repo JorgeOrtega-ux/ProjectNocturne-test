@@ -130,6 +130,7 @@
     "stopwatch": "Chronomètre",
     "lap": "Tour",
     "timer": "Minuterie",
+    "timezone": "Fuseau horaire",
     "world_clock": "Horloge Mondiale",
     "pin_clock": "Épingler l'horloge",
     "pin_timer": "Épingler le minuteur"
@@ -155,7 +156,10 @@
     "default_alarms": "Alarmes par Défaut",
     "activate_alarm": "Activer l'Alarme",
     "deactivate_alarm": "Désactiver l'Alarme",
-    "dismiss": "Rejeter"
+    "dismiss": "Rejeter",
+    "clean_room": "Nettoyer la chambre",
+    "exercise": "Faire de l'exercice",
+    "read_book": "Lire un livre"
   },
   "world_clock": {
     "clock_title": "Titre de l'horloge",
@@ -201,7 +205,11 @@
     "event_finished": "Événement terminé !",
     "timer_limit_reached": "Limite de {limit} minuteries atteinte.",
     "my_timers": "Mes Minuteries",
-    "default_timers": "Minuteries par Défaut"
+    "default_timers": "Minuteries par Défaut",
+    "timer_options": "Options de la minuterie",
+    "pomodoro_25": "Pomodoro (25 min)",
+    "short_break_5": "Courte Pause (5 min)",
+    "exercise_1": "Exercice (1 min)"
   },
   "world_clock_options": {
     "options": "Options de l'horloge",
