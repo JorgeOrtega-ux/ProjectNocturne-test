@@ -14,18 +14,6 @@
 </head>
 
 <body>
-    <div id="dynamic-island">
-        <div class="island-content">
-            <div class="island-left-group">
-                <div class="island-circle"></div>
-                <div class="notification-info">
-                    <div class="notification-title"></div>
-                    <div class="notification-message"></div>
-                </div>
-            </div>
-            <div class="island-right-icon"></div>
-        </div>
-    </div>
     <div class="page-wrapper">
         <div class="main-content">
             <?php include 'includes/layouts/sidebar-desktop.php'; ?>

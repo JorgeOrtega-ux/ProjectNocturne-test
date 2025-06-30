@@ -67,8 +67,11 @@ function updateAlarmCounts() {
 function createAlarm(title, hour, minute, sound) {
     const alarmLimit = PREMIUM_FEATURES ? 100 : 10;
     if (userAlarms.length >= alarmLimit) {
-        const limitMessage = getTranslation('alarm_limit_reached', 'alarms').replace('{limit}', alarmLimit);
-        alert(limitMessage);
+        // Corrected: Replaced alert() with dynamic island notification for alarm limit
+        showDynamicIslandNotification('system', 'premium_required', 'limit_reached_generic', 'notifications', {
+            type: getTranslation('alarms', 'tooltips'), // "Alarm"
+            limit: alarmLimit
+        });
         return false;
     }
     const alarm = {
@@ -87,8 +90,8 @@ function createAlarm(title, hour, minute, sound) {
     scheduleAlarm(alarm);
     updateAlarmCounts();
 
-    // Show dynamic island notification
-    showDynamicIslandNotification('alarm', 'created', {
+    // Show dynamic island notification on creation
+    showDynamicIslandNotification('alarm', 'created', 'notifications_message_placeholder', 'notifications', { // Placeholder, since the title is dynamic
         title: alarm.title,
         time: formatTime(alarm.hour, alarm.minute)
     });
@@ -206,6 +209,21 @@ function triggerAlarm(alarm) {
         const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
         new Notification(`Alarma: ${translatedTitle}`, { body: `${formatTime(alarm.hour, alarm.minute)}`, icon: '/favicon.ico' });
     }
+
+    // Show dynamic island notification when alarm is ringing
+    const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
+    showDynamicIslandNotification('alarm', 'ringing', 'notifications_message_placeholder', 'notifications', { // Placeholder
+        title: translatedTitle,
+        time: formatTime(alarm.hour, alarm.minute),
+        toolId: alarm.id
+    }, (dismissedId) => {
+        // This callback is executed when the dynamic island's dismiss button is clicked
+        if (dismissedId === alarm.id) {
+            dismissAlarm(alarm.id);
+        }
+    });
+
+    // Re-schedule the alarm for the next day after it triggers
     scheduleAlarm(alarm);
 }
 
@@ -220,7 +238,15 @@ function dismissAlarm(alarmId) {
     }
     const alarm = findAlarmById(alarmId);
     if (alarm && alarm.enabled) {
-        toggleAlarm(alarmId);
+        // If alarm is ringing and dismissed, typically it should be toggled off or snoozed.
+        // For simplicity here, we'll just ensure it's not ringing visually/audibly.
+        // If it's a regular toggle, then it will simply toggle.
+        // If you want dismissing to turn off the alarm, you'd call toggleAlarm(alarmId) here.
+        console.log(`Alarm ${alarmId} dismissed.`);
+    }
+    // Ensure the dynamic island is hidden if it was showing this alarm
+    if (window.hideDynamicIsland) {
+        window.hideDynamicIsland();
     }
 }
 
@@ -270,6 +296,16 @@ function deleteAlarm(alarmId) {
         alarmCard.remove();
     }
     updateAlarmCounts();
+    // Also hide dynamic island if this alarm was ringing
+    if (window.hideDynamicIsland) {
+        window.hideDynamicIsland();
+    }
+    
+    // Show dynamic island notification on successful deletion
+    const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
+    showDynamicIslandNotification('alarm', 'deleted', 'alarm_deleted_success', 'notifications', {
+        title: translatedTitle
+    });
 }
 
 function updateAlarm(alarmId, newData) {
@@ -295,9 +331,9 @@ function updateAlarm(alarmId, newData) {
 
     updateAlarmCardVisuals(alarm);
 
-    // Show dynamic island notification
+    // Show dynamic island notification on update
     const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
-    showDynamicIslandNotification('alarm', 'updated', {
+    showDynamicIslandNotification('alarm', 'updated', 'notifications_message_placeholder', 'notifications', { // Placeholder
         title: translatedTitle,
         time: formatTime(alarm.hour, alarm.minute)
     });

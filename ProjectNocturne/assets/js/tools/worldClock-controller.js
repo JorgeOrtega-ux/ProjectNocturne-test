@@ -2,7 +2,7 @@ import { PREMIUM_FEATURES, use24HourFormat, activateModule, getCurrentActiveOver
 import { prepareWorldClockForEdit } from './menu-interactions.js';
 import { updateZoneInfo } from './zoneinfo-controller.js';
 import { initializeSortable } from './general-tools.js';
-import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js'; // NEW LINE
+import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js';
 
 const clockIntervals = new Map();
 const CLOCKS_STORAGE_KEY = 'world-clocks';
@@ -14,7 +14,11 @@ const loadCountriesAndTimezones = () => new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = 'https://cdn.jsdelivr.net/gh/manuelmhtr/countries-and-timezones@latest/dist/index.min.js';
     script.onload = () => window.ct ? resolve(window.ct) : reject(new Error('Library loaded but ct object not found'));
-    script.onerror = (error) => reject(new Error('Failed to load countries-and-timezones script'));
+    script.onerror = (error) => {
+        // Show dynamic island notification on error
+        showDynamicIslandNotification('system', 'error', 'loading_countries_error', 'notifications');
+        reject(new Error('Failed to load countries-and-timezones script'));
+    };
     document.head.appendChild(script);
 });
 
@@ -194,9 +198,11 @@ function createAndStartClockCard(title, country, timezone, existingId = null, sa
 
 
     if (save && actualCurrentClocks >= totalClockLimit) {
-        const limitMessage = getTranslation('clock_limit_reached', 'world_clock').replace('{limit}', totalClockLimit);
-        alert(limitMessage);
-        return;
+        showDynamicIslandNotification('system', 'premium_required', 'limit_reached_generic', 'notifications', {
+            type: getTranslation('world_clock', 'tooltips'), // "World Clock"
+            limit: totalClockLimit
+        });
+        return; // Prevent creating clock if limit reached
     }
 
     const ct = window.ct;
@@ -288,8 +294,8 @@ function createAndStartClockCard(title, country, timezone, existingId = null, sa
     if (save) {
         userClocks.push({ id: cardId, title, country, timezone, countryCode });
         saveClocksToStorage();
-        // Show dynamic island notification
-        showDynamicIslandNotification('worldClock', 'created', {
+        // Show dynamic island notification on creation
+        showDynamicIslandNotification('worldClock', 'created', 'notifications_message_placeholder', 'notifications', { // Placeholder
             title: title,
             time: utcOffsetText
         });
@@ -335,8 +341,8 @@ function updateClockCard(id, newData) {
         }
     }, 0);
 
-    // Show dynamic island notification
-    showDynamicIslandNotification('worldClock', 'updated', {
+    // Show dynamic island notification on update
+    showDynamicIslandNotification('worldClock', 'updated', 'notifications_message_placeholder', 'notifications', { // Placeholder
         title: newData.title,
         time: utcOffsetText
     });
@@ -467,6 +473,11 @@ function deleteClock(clockId) {
         const localPinBtn = localClockCard.querySelector('.card-pin-btn');
         pinClock(localPinBtn);
     }
+    // Show dynamic island notification on successful deletion
+    const deletedClock = userClocks.find(clock => clock.id === clockId) || {title: "Unknown Clock"}; // Attempt to get original title if possible
+    showDynamicIslandNotification('worldClock', 'deleted', 'world_clock_deleted_success', 'notifications', {
+        title: deletedClock.title
+    });
 }
 
 function updateMainPinnedDisplay(card) {

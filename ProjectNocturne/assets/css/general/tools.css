@@ -905,82 +905,161 @@
 }/* ====================================== */
 /* ======== DYNAMIC ISLAND ============= */
 /* ====================================== */
-.dynamic-island-container {
+#dynamic-island {
     position: fixed;
     top: 15px; /* Adjust as needed */
     left: 50%;
-    transform: translateX(-50%);
+    transform: translateX(-50%) translateY(-10px); /* Initial position slightly above and centered */
     z-index: 10000; /* Ensure it's above everything else */
+    background-color: #000000; /* Black background like Apple's Dynamic Island */
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center; /* Center content horizontally */
+    opacity: 0; /* Start invisible */
     pointer-events: none; /* Allow clicks to pass through when inactive */
-    opacity: 0;
-    transition: all 0.3s ease-in-out;
+    width: 50px; /* Collapsed width */
+    height: 50px; /* Collapsed height */
+    border-radius: 25px; /* Collapsed pill shape */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Subtle shadow */
+
+    /* Orchestrated transition when collapsing */
+    transition: opacity 0.3s ease-out,
+                transform 0.3s ease-out,
+                /* Shrinking (width, height, border-radius) is delayed for content to disappear */
+                width 0.35s cubic-bezier(0.32, 0.72, 0, 1) 0.05s,
+                height 0.35s cubic-bezier(0.32, 0.72, 0, 1) 0.05s,
+                border-radius 0.35s cubic-bezier(0.32, 0.72, 0, 1) 0.05s;
 }
 
-.dynamic-island-container.active {
-    opacity: 1;
-    pointer-events: auto;
+/* --- EXPANDED STATE --- */
+#dynamic-island.expanded {
+    opacity: 1; /* Fully visible */
+    pointer-events: auto; /* Interactable */
+    transform: translateX(-50%) translateY(0); /* Slide down to final position */
+    width: 280px; /* Expanded width */
+    height: 60px; /* Expanded height */
+    border-radius: 30px; /* Expanded pill shape */
+
+    /* Transition for expansion (no delay for size) */
+    transition: width 0.45s cubic-bezier(0.32, 0.72, 0, 1),
+                height 0.45s cubic-bezier(0.32, 0.72, 0, 1),
+                border-radius 0.45s cubic-bezier(0.32, 0.72, 0, 1),
+                opacity 0.4s ease-in,
+                transform 0.4s ease-in;
 }
 
-.dynamic-island-container.hidden {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-100px); /* Slide up and fade out */
+/* --- Expanded state for active alarms/timers (wider to accommodate dismiss button) --- */
+#dynamic-island.active-tool-ringing {
+    width: 320px; /* Wider for dismiss button */
 }
 
-.island-notification {
+#dynamic-island.active-tool-ringing.expanded {
+    width: 320px; /* Match width even if expanded is toggled back on for some reason */
+}
+
+
+/* --- INNER CONTENT OF THE ISLAND --- */
+/* This div holds the actual notification text and icon */
+.island-notification-content {
+    width: 100%;
+    padding: 0 15px;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
-    background-color: #252627; /* Dark background similar to other menus */
-    color: #ffffff;
-    padding: 10px 20px;
-    border-radius: 30px; /* Pill shape */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    gap: 10px;
-    max-width: 300px; /* Limit width */
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    justify-content: space-between;
+    color: white;
+    opacity: 0; /* Start invisible */
+    /* Almost instant exit transition for content */
+    transition: opacity 0.1s ease-out;
 }
 
-.notification-icon {
+#dynamic-island.expanded .island-notification-content {
+    opacity: 1; /* Fully visible */
+    /* Entry transition, delayed to wait for container to expand */
+    transition: opacity 0.35s ease-in 0.15s;
+}
+
+/* Group for icon and text info */
+.island-left-group {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Space between icon and text */
+}
+
+/* Circle background for icon */
+.island-circle {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(255, 255, 255, 0.125); /* Semi-transparent white */
+    border-radius: 50%;
+    flex-shrink: 0; /* Prevent shrinking */
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+/* Icon symbol styling */
+.notification-icon-symbol {
     font-size: 24px;
-    color: #5adfe4; /* Accent color */
+    color: #bfff70; /* Green accent color */
+    /* Add a subtle shadow for better contrast on dark background */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.notification-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    overflow: hidden;
+/* Text info container */
+.notification-text-info {
+    text-align: left;
+    overflow: hidden; /* Hide overflow text */
+    white-space: nowrap; /* Prevent wrapping */
+    flex-grow: 1; /* Allow text to take available space */
 }
 
 .notification-title {
-    font-weight: 700;
-    font-size: 0.95rem;
-    line-height: 1.2;
+    font-weight: 600;
+    font-size: 16px;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis; /* Add ellipsis for long titles */
 }
 
 .notification-message {
-    font-size: 0.8rem;
-    opacity: 0.8;
-    line-height: 1.2;
+    font-size: 12px;
+    opacity: 0.7;
     overflow: hidden;
-    text-overflow: ellipsis;
+    text-overflow: ellipsis; /* Add ellipsis for long messages */
 }
 
-/* Dark mode adjustments for dynamic island */
-.dark-mode .island-notification {
-    background-color: #3a3b3d;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+/* --- Dismiss Button --- */
+.island-dismiss-button {
+    background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent background */
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease, opacity 0.3s ease;
+    flex-shrink: 0; /* Prevent shrinking */
+    margin-left: 10px; /* Space from text content */
+    opacity: 0; /* Hidden by default */
+    pointer-events: none; /* Not interactable when hidden */
 }
 
-.dark-mode .notification-icon {
-    color: #bfff70; /* Different accent for dark mode */
+#dynamic-island.expanded.active-tool-ringing .island-dismiss-button {
+    opacity: 1; /* Show button when ringing and expanded */
+    pointer-events: auto; /* Make interactable */
+}
+
+.island-dismiss-button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* No specific dark mode adjustments needed for dynamic island itself,
+   as it uses a black background and bright text by design.
+   However, if your theme changes primary background colors, you might
+   adjust the main #dynamic-island background or its text colors. */
+
+/* Example of how to adjust the icon color for light mode if it exists */
+html.light-mode #dynamic-island .notification-icon-symbol {
+    color: #008552; /* Darker green for light mode contrast */
 }

@@ -2,6 +2,7 @@
 
 import { getTranslation } from '../general/translations-controller.js';
 import { PREMIUM_FEATURES } from '../general/main.js';
+import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js'; // NEW LINE
 
 const stopwatchState = {
     isRunning: false,
@@ -126,14 +127,17 @@ function recordLap() {
     const lapLimit = PREMIUM_FEATURES ? 1000 : 100;
 
     if (stopwatchState.lapNumber >= lapLimit) {
-        // Si es premium, simplemente bloquea y no hace nada más.
+        // If premium, simply block and do nothing more.
         if (PREMIUM_FEATURES) {
-            console.warn(`Límite de vueltas premium (${lapLimit}) alcanzado.`);
-            updateButtonStates(); // Llama para asegurar que el botón se deshabilite.
-            return; 
+            console.warn(`Premium lap limit (${lapLimit}) reached.`);
+            updateButtonStates(); // Call to ensure button is disabled.
+            return;
         } else {
-            // Si es free, muestra una alerta pero no bloquea el botón aquí.
-            alert(`Has alcanzado el límite de ${lapLimit} vueltas para la versión gratuita.`);
+            // If free, show dynamic island notification instead of alert.
+            showDynamicIslandNotification('system', 'premium_required', 'limit_reached_generic', 'notifications', {
+                type: getTranslation('stopwatch', 'tooltips'), // "Stopwatch"
+                limit: lapLimit
+            });
             return;
         }
     }
@@ -170,7 +174,7 @@ function updateButtonStates() {
     const hasTime = stopwatchState.elapsedTime > 0;
     let isLapDisabled = !stopwatchState.isRunning;
 
-    // Solo para premium, deshabilita el botón si se alcanza el límite.
+    // Only for premium, disable button if limit is reached.
     if (PREMIUM_FEATURES) {
         const lapLimit = 1000;
         if (stopwatchState.lapNumber >= lapLimit) {
