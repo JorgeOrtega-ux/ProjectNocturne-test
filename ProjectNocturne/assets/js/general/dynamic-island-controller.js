@@ -37,22 +37,22 @@ export function initDynamicIsland() {
     dynamicIslandElement.classList.remove('active-tool-ringing');
 
     // Construct the inner HTML structure
-    dynamicIslandElement.innerHTML = `
-        <div class="island-notification-content">
-            <div class="island-left-group">
-                <div class="island-circle notification-icon-wrapper">
-                    <span class="material-symbols-rounded notification-icon-symbol"></span>
-                </div>
-                <div class="notification-text-info">
-                    <p class="notification-title"></p>
-                    <p class="notification-message"></p>
-                </div>
+dynamicIslandElement.innerHTML = `
+    <div class="island-notification-content">
+        <div class="island-left-group">
+            <div class="island-circle">
+                <span class="material-symbols-rounded notification-icon-symbol"></span>
             </div>
-            <button class="island-dismiss-button" data-action="dismiss-active-tool">
-                ${getTranslation('dismiss', 'general')}
-            </button>
+            <div class="notification-text-info">
+                <p class="notification-title"></p>
+                <p class="notification-message"></p>
+            </div>
         </div>
-    `;
+        <button class="island-dismiss-button" data-action="dismiss-active-tool">
+            ${getTranslation('dismiss', 'general')}
+        </button>
+    </div>
+`;
     
     // Append the dynamic island to the body
     document.body.appendChild(dynamicIslandElement);
