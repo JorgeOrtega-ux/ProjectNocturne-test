@@ -185,6 +185,25 @@ function createLocalClockCardAndAppend() {
     grid.insertAdjacentHTML('afterbegin', cardHTML); // Use afterbegin to ensure it's the first card
 }
 
+function getTranslation(key, category) {
+    if (typeof window.getTranslation === 'function') {
+        const text = window.getTranslation(key, category);
+        return text === key ? key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : text;
+    }
+    return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+// Function to get the current number of user-created clocks
+function getClockCount() {
+    return userClocks.length;
+}
+
+// Function to get the clock limit based on PREMIUM_FEATURES
+function getClockLimit() {
+    return PREMIUM_FEATURES ? 100 : 5;
+}
+
+
 function createAndStartClockCard(title, country, timezone, existingId = null, save = true) {
     const grid = document.querySelector('.world-clocks-grid');
     if (!grid) return;
@@ -348,13 +367,6 @@ function updateClockCard(id, newData) {
     });
 }
 
-function getTranslation(key, category) {
-    if (typeof window.getTranslation === 'function') {
-        const text = window.getTranslation(key, category);
-        return text === key ? key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : text;
-    }
-    return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-}
 
 function updateExistingCardsTranslations() {
     const cards = document.querySelectorAll('.tool-card.world-clock-card');
@@ -534,7 +546,9 @@ window.worldClockManager = {
     updateExistingCardsTranslations,
     updateLocalClockTranslation,
     pinClock,
-    deleteClock
+    deleteClock,
+    getClockCount,
+    getClockLimit
 };
 
 export function initWorldClock() {
