@@ -12,7 +12,7 @@ import {
     getAppliedColor,
     getAppliedFontScale
 } from './main.js';
-
+import { initializeEverything } from '../tools/everything-controller.js'; // <-- NUEVA LÍNEA
 import {
     initModuleManager,
     updateMenuLabels,
@@ -51,6 +51,7 @@ import {
     initializeFullScreenManager,
     initializeCardEventListeners
 } from '../tools/general-tools.js';
+
 import { initializeZoneInfoTool } from '../tools/zoneinfo-controller.js';
 import {
     initColorTextSystem,
@@ -383,7 +384,8 @@ function initializeMainComponents() {
     initControlCenter();
     initMobileDragController();
     initNewOverlayModules();
-    initializeZoneInfoTool();
+    initializeZoneInfoTool();    initializeEverything(); // <-- NUEVA LÍNEA
+    initDynamicIsland(); // NEW LINE: Initialize dynamic island
     initializeCategorySliderService();
     initializeCentralizedFontManager();
     initializeFullScreenManager();

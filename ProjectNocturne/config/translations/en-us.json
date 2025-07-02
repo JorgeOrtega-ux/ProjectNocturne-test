@@ -1,4 +1,44 @@
 {
+  "general": {
+    "dismiss": "Dismiss",
+    "created": "created",
+    "updated": "updated",
+    "deleted": "deleted",
+    "ringing": "ringing"
+  },
+  "notifications": {
+    "alarm_ringing_title": "Alarm Ringing",
+    "alarm_created_title": "Alarm Created",
+    "alarm_updated_title": "Alarm Updated",
+    "alarm_deleted_title": "Alarm Deleted",
+    "timer_ringing_title": "Timer Ringing",
+    "timer_created_title": "Timer Created",
+    "timer_updated_title": "Timer Updated",
+    "timer_deleted_title": "Timer Deleted",
+    "worldclock_created_title": "Clock Added",
+    "worldclock_updated_title": "Clock Updated",
+    "worldclock_deleted_title": "Clock Deleted",
+    "info_title": "Information",
+    "error_title": "Error",
+    "premium_title": "Premium Feature",
+    "limit_reached_title": "Limit Reached",
+    "premium_required_title": "Premium Required",
+    "alarm_ringing": "The time for '{title}' is up.",
+    "alarm_created": "The alarm '{title}' has been set correctly.",
+    "alarm_updated": "The alarm '{title}' has been updated correctly.",
+    "alarm_deleted": "The alarm '{title}' has been deleted.",
+    "timer_ringing": "The time for '{title}' is up.",
+    "timer_created": "The timer '{title}' has been started correctly.",
+    "timer_updated": "The timer '{title}' has been updated correctly.",
+    "timer_deleted": "The timer '{title}' has been deleted.",
+    "worldclock_created": "The clock '{title}' has been added correctly.",
+    "worldclock_updated": "The clock '{title}' has been updated correctly.",
+    "worldclock_deleted": "The clock '{title}' has been deleted.",
+    "limit_reached": "Limit of {limit} {type}s reached.",
+    "limit_reached_generic": "Limit of {limit} {type}s reached. Upgrade to add more.",
+    "loading_countries_error": "Error loading countries list.",
+    "dismiss": "Dismiss"
+  },
   "color_system": {
     "color_unavailable": "Not available",
     "default_colors": "Default Colors",
@@ -91,6 +131,8 @@
     "search_error": "Could not process search",
     "search_placeholder": "Try \"red\" or \"#f44336\"",
     "search_alarms_placeholder": "Search alarms...",
+    "search_timers_placeholder": "Search timers...",
+    "search_clocks_placeholder": "Search clocks...",
     "search_cities_placeholder": "Search cities or countries..."
   },
   "search_sections": {
@@ -110,7 +152,7 @@
     "add_alarm": "Add Alarm",
     "add_clock": "Add Clock",
     "add_timer": "Add Timer",
-    "alarms": "Alarm",
+    "alarms": "Alarms",
     "auto": "Automatic Color",
     "bold": "Bold",
     "color": "Text Color",
@@ -138,7 +180,9 @@
   "stopwatch": {
     "lap_header": "Lap",
     "time_header": "Time",
-    "total_time_header": "Total Time"
+    "total_time_header": "Total Time",
+    "running": "Running",
+    "paused": "Paused"
   },
   "alarms": {
     "alarm_title": "Alarm Title",
@@ -163,7 +207,7 @@
   },
   "world_clock": {
     "clock_title": "Clock Title",
-    "new_clock_placeholder": "New clock",
+    "my_new_clock_placeholder": "My new clock",
     "select_country": "Select a country",
     "select_a_country": "Select a country",
     "select_timezone": "Select a timezone",
@@ -219,5 +263,45 @@
     "edit_not_implemented": "Edit clock functionality is pending implementation.",
     "fullscreen_not_implemented": "Fullscreen functionality is pending implementation.",
     "save_changes": "Save Changes"
+  },"weekdays": {
+    "sunday": "Sunday",
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday"
+},
+"months": {
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+},
+  "everything": {
+    "main_panel": "Main Panel",
+    "local_time": "Local Time",
+    "active_alarms": "Active Alarms",
+    "running_timers": "Running Timers",
+    "world_clocks": "World Clocks",
+    "upcoming_events": "Upcoming Events",
+    "next_alarm": "Next Alarm",
+    "active_timer": "Active Timer",
+    "stopwatch": "Stopwatch",
+    "quick_actions": "Quick Actions",
+    "new_alarm": "New Alarm",
+    "new_timer": "New Timer",
+    "add_clock": "Add Clock",
+    "no_active_alarms": "No active alarms",
+    "no_running_timers": "No running timers",
+    "upcoming_festivities": "Upcoming Festivities"
   }
 }

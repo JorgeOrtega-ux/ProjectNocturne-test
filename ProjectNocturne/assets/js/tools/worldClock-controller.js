@@ -3,11 +3,186 @@ import { prepareWorldClockForEdit } from './menu-interactions.js';
 import { updateZoneInfo } from './zoneinfo-controller.js';
 import { initializeSortable } from './general-tools.js';
 import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js';
+// Se importa la función para actualizar los widgets de la sección principal.
+import { updateEverythingWidgets } from './everything-controller.js';
 
 const clockIntervals = new Map();
 const CLOCKS_STORAGE_KEY = 'world-clocks';
 let userClocks = [];
 let mainDisplayInterval = null;
+
+// --- LÓGICA DE BÚSQUEDA Y RENDERIZADO ---
+
+function renderWorldClockSearchResults(searchTerm) {
+    const resultsWrapper = document.querySelector('.worldclock-search-results-wrapper');
+    const creationWrapper = document.querySelector('.worldclock-creation-wrapper');
+
+    if (!resultsWrapper || !creationWrapper) return;
+
+    if (!searchTerm) {
+        resultsWrapper.classList.add('disabled');
+        creationWrapper.classList.remove('disabled');
+        resultsWrapper.innerHTML = '';
+        return;
+    }
+
+    const filteredClocks = userClocks.filter(clock => 
+        clock.title.toLowerCase().includes(searchTerm)
+    );
+
+    creationWrapper.classList.add('disabled');
+    resultsWrapper.classList.remove('disabled');
+    resultsWrapper.innerHTML = '';
+
+    if (filteredClocks.length > 0) {
+        const list = document.createElement('div');
+        list.className = 'menu-list';
+        filteredClocks.forEach(clock => {
+            const item = createWorldClockSearchResultItem(clock);
+            list.appendChild(item);
+            addSearchItemEventListeners(item);
+        });
+        resultsWrapper.appendChild(list);
+    } else {
+        resultsWrapper.innerHTML = `<p class="no-results-message">${getTranslation('no_results', 'search')} "${searchTerm}"</p>`;
+    }
+}
+
+/**
+ * Refresca los resultados de búsqueda basándose en el valor actual del input.
+ */
+function refreshWorldClockSearchResults() {
+    const searchInput = document.getElementById('worldclock-search-input');
+    // Solo refresca si el input de búsqueda existe y tiene un valor.
+    if (searchInput && searchInput.value) {
+        renderWorldClockSearchResults(searchInput.value.toLowerCase());
+    }
+}
+
+
+function createWorldClockSearchResultItem(clock) {
+    const item = document.createElement('div');
+    item.className = 'search-result-item';
+    item.id = `search-clock-${clock.id}`;
+    item.dataset.id = clock.id;
+    item.dataset.type = 'world-clock';
+
+    const time = '--:--:--'; 
+    
+    const editText = getTranslation('edit_clock', 'world_clock_options');
+    const deleteText = getTranslation('delete_clock', 'world_clock_options');
+
+    // --- HTML con la corrección aplicada ---
+    item.innerHTML = `
+        <div class="result-info">
+            <span class="result-title">${clock.title}</span>
+            <span class="result-time">${clock.country}</span>
+        </div>
+        <div class="card-menu-container disabled">
+             <button class="card-pin-btn" data-action="pin-clock" data-translate="pin_clock" data-translate-category="tooltips" data-translate-target="tooltip">
+                 <span class="material-symbols-rounded">push_pin</span>
+             </button>
+             <div class="card-menu-btn-wrapper">
+                 <button class="card-menu-btn" data-action="toggle-item-menu" data-translate="options" data-translate-category="world_clock_options" data-translate-target="tooltip">
+                     <span class="material-symbols-rounded">more_horiz</span>
+                 </button>
+                 <div class="card-dropdown-menu body-title disabled">
+                     <div class="menu-link" data-action="edit-clock">
+                         <div class="menu-link-icon"><span class="material-symbols-rounded">edit</span></div>
+                         <div class="menu-link-text">
+                             <span data-translate="edit_clock" data-translate-category="world_clock_options" data-translate-target="text">${editText}</span>
+                         </div>
+                     </div>
+                     <div class="menu-link" data-action="delete-clock">
+                         <div class="menu-link-icon"><span class="material-symbols-rounded">delete</span></div>
+                         <div class="menu-link-text">
+                             <span data-translate="delete_clock" data-translate-category="world_clock_options" data-translate-target="text">${deleteText}</span>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+        </div>
+    `;
+    
+    if (typeof window.attachTooltipsToNewElements === 'function') {
+        window.attachTooltipsToNewElements(item);
+    }
+    
+    return item;
+}
+
+function addSearchItemEventListeners(item) {
+    const menuContainer = item.querySelector('.card-menu-container');
+    if (!menuContainer) return;
+
+    item.addEventListener('mouseenter', () => {
+        menuContainer.classList.remove('disabled');
+    });
+
+    item.addEventListener('mouseleave', () => {
+        const dropdown = menuContainer.querySelector('.card-dropdown-menu');
+        if (dropdown?.classList.contains('disabled')) {
+            menuContainer.classList.add('disabled');
+        }
+    });
+
+    item.addEventListener('click', e => {
+        const actionTarget = e.target.closest('[data-action]');
+        if (!actionTarget) return;
+
+        e.stopPropagation();
+
+        const action = actionTarget.dataset.action;
+        const clockId = item.dataset.id;
+
+        if (action === 'toggle-item-menu') {
+            const dropdown = item.querySelector('.card-dropdown-menu');
+            const isOpening = dropdown.classList.contains('disabled');
+            
+            document.querySelectorAll('.worldclock-search-results-wrapper .card-dropdown-menu').forEach(d => {
+                if (d !== dropdown) d.classList.add('disabled');
+            });
+            
+            dropdown.classList.toggle('disabled');
+        } else {
+            handleWorldClockCardAction(action, clockId, actionTarget);
+        }
+    });
+}
+
+function handleWorldClockCardAction(action, clockId, target) {
+    if (!window.worldClockManager) {
+        console.error("WorldClock manager no está disponible.");
+        return;
+    }
+
+    switch(action) {
+        case 'pin-clock':
+            window.worldClockManager.pinClock(target);
+            break;
+        case 'edit-clock':
+             const card = userClocks.find(c => c.id === clockId);
+             if (card) {
+                prepareWorldClockForEdit(card);
+                 if (getCurrentActiveOverlay() !== 'menuWorldClock') {
+                    activateModule('toggleMenuWorldClock');
+                }
+                const resultsWrapper = document.querySelector('.worldclock-search-results-wrapper');
+                const creationWrapper = document.querySelector('.worldclock-creation-wrapper');
+                const searchInput = document.getElementById('worldclock-search-input');
+                if (resultsWrapper) resultsWrapper.classList.add('disabled');
+                if (creationWrapper) creationWrapper.classList.remove('disabled');
+                if (searchInput) {
+                    searchInput.value = '';
+                }
+             }
+            break;
+        case 'delete-clock':
+            window.worldClockManager.deleteClock(clockId);
+            break;
+    }
+}
+
 
 const loadCountriesAndTimezones = () => new Promise((resolve, reject) => {
     if (window.ct) return resolve(window.ct);
@@ -15,7 +190,6 @@ const loadCountriesAndTimezones = () => new Promise((resolve, reject) => {
     script.src = 'https://cdn.jsdelivr.net/gh/manuelmhtr/countries-and-timezones@latest/dist/index.min.js';
     script.onload = () => window.ct ? resolve(window.ct) : reject(new Error('Library loaded but ct object not found'));
     script.onerror = (error) => {
-        // Show dynamic island notification on error
         showDynamicIslandNotification('system', 'error', 'loading_countries_error', 'notifications');
         reject(new Error('Failed to load countries-and-timezones script'));
     };
@@ -108,6 +282,9 @@ async function loadClocksFromStorage() {
                 }, index * 10);
             });
         }
+        if (typeof updateEverythingWidgets === 'function') {
+            updateEverythingWidgets();
+        }
     } catch (error) {
         console.error('Error cargando los relojes desde localStorage:', error);
         userClocks = [];
@@ -182,7 +359,7 @@ function createLocalClockCardAndAppend() {
             </div>
         </div>
     `;
-    grid.insertAdjacentHTML('afterbegin', cardHTML); // Use afterbegin to ensure it's the first card
+    grid.insertAdjacentHTML('afterbegin', cardHTML);
 }
 
 function getTranslation(key, category) {
@@ -193,12 +370,23 @@ function getTranslation(key, category) {
     return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
-// Function to get the current number of user-created clocks
 function getClockCount() {
-    return userClocks.length;
+    if (userClocks.length > 0) {
+        return userClocks.length;
+    }
+    try {
+        const storedClocks = localStorage.getItem(CLOCKS_STORAGE_KEY);
+        if (storedClocks) {
+            const parsedClocks = JSON.parse(storedClocks);
+            return Array.isArray(parsedClocks) ? parsedClocks.length : 0;
+        }
+    } catch (e) {
+        console.error("Error reading clock count from localStorage", e);
+        return 0;
+    }
+    return 0;
 }
 
-// Function to get the clock limit based on PREMIUM_FEATURES
 function getClockLimit() {
     return PREMIUM_FEATURES ? 100 : 5;
 }
@@ -211,17 +399,16 @@ function createAndStartClockCard(title, country, timezone, existingId = null, sa
     const totalClockLimit = PREMIUM_FEATURES ? 100 : 5;
     const totalCurrentClocks = grid.querySelectorAll('.tool-card').length;
 
-    // Check if the local clock card exists and count it if it's not the one being created
     const hasLocalClock = document.querySelector('.local-clock-card');
     const actualCurrentClocks = hasLocalClock && existingId !== 'local' ? totalCurrentClocks - 1 : totalCurrentClocks;
 
 
     if (save && actualCurrentClocks >= totalClockLimit) {
-        showDynamicIslandNotification('system', 'premium_required', 'limit_reached_generic', 'notifications', {
-            type: getTranslation('world_clock', 'tooltips'), // "World Clock"
+        showDynamicIslandNotification('system', 'limit_reached', 'limit_reached_generic', 'notifications', {
+            type: getTranslation('world_clock', 'tooltips'),
             limit: totalClockLimit
         });
-        return; // Prevent creating clock if limit reached
+        return; 
     }
 
     const ct = window.ct;
@@ -313,11 +500,11 @@ function createAndStartClockCard(title, country, timezone, existingId = null, sa
     if (save) {
         userClocks.push({ id: cardId, title, country, timezone, countryCode });
         saveClocksToStorage();
-        // Show dynamic island notification on creation
-        showDynamicIslandNotification('worldClock', 'created', 'notifications_message_placeholder', 'notifications', { // Placeholder
-            title: title,
-            time: utcOffsetText
-        });
+        showDynamicIslandNotification('worldclock', 'created', 'worldclock_created', 'notifications', { title: title });
+
+        if (typeof updateEverythingWidgets === 'function') {
+            updateEverythingWidgets();
+        }
     }
 }
 
@@ -360,11 +547,11 @@ function updateClockCard(id, newData) {
         }
     }, 0);
 
-    // Show dynamic island notification on update
-    showDynamicIslandNotification('worldClock', 'updated', 'notifications_message_placeholder', 'notifications', { // Placeholder
-        title: newData.title,
-        time: utcOffsetText
-    });
+    showDynamicIslandNotification('worldclock', 'updated', 'worldclock_updated', 'notifications', { title: newData.title });
+
+    if (typeof updateEverythingWidgets === 'function') {
+        updateEverythingWidgets();
+    }
 }
 
 
@@ -407,7 +594,6 @@ function initializeLocalClock() {
 
     localClockCard.addEventListener('mouseleave', () => {
         const dropdown = menuContainer?.querySelector('.card-dropdown-menu');
-        // If there is no dropdown (like in the local card), or if it's closed, hide the container.
         if (!dropdown || dropdown.classList.contains('disabled')) {
             menuContainer?.classList.add('disabled');
         }
@@ -453,24 +639,33 @@ function initializeSortableGrid() {
 }
 
 function pinClock(button) {
-    const card = button.closest('.tool-card');
+    const card = button.closest('.tool-card, .search-result-item');
     if (!card) return;
 
     const allPinButtons = document.querySelectorAll('.card-pin-btn');
 
     allPinButtons.forEach(btn => btn.classList.remove('active'));
+    
+    const clockId = card.dataset.id;
+    const mainCardPinBtn = document.querySelector(`.tool-card[data-id="${clockId}"] .card-pin-btn`);
+    if(mainCardPinBtn) mainCardPinBtn.classList.add('active');
     button.classList.add('active');
 
-    const timezone = card.dataset.timezone;
-    updateZoneInfo(timezone);
-    updateMainPinnedDisplay(card);
+
+    const timezone = card.dataset.timezone || userClocks.find(c => c.id === clockId)?.timezone;
+    if(timezone) {
+        updateZoneInfo(timezone);
+        updateMainPinnedDisplay(card);
+    }
 }
 
 function deleteClock(clockId) {
     const card = document.getElementById(clockId);
     if (!card) return;
 
+    const deletedClockTitle = card.dataset.title;
     const isPinned = card.querySelector('.card-pin-btn.active');
+    
     if (clockIntervals.has(card)) {
         clearInterval(clockIntervals.get(card));
         clockIntervals.delete(card);
@@ -479,18 +674,28 @@ function deleteClock(clockId) {
     userClocks = userClocks.filter(clock => clock.id !== clockId);
     saveClocksToStorage();
     card.remove();
+    
+    const searchItem = document.getElementById(`search-clock-${clockId}`);
+    if (searchItem) searchItem.remove();
+
 
     if (isPinned) {
         const localClockCard = document.querySelector('.local-clock-card');
         const localPinBtn = localClockCard.querySelector('.card-pin-btn');
         pinClock(localPinBtn);
     }
-    // Show dynamic island notification on successful deletion
-    const deletedClock = userClocks.find(clock => clock.id === clockId) || {title: "Unknown Clock"}; // Attempt to get original title if possible
-    showDynamicIslandNotification('worldClock', 'deleted', 'world_clock_deleted_success', 'notifications', {
-        title: deletedClock.title
+
+    showDynamicIslandNotification('worldclock', 'deleted', 'worldclock_deleted', 'notifications', {
+        title: deletedClockTitle
     });
+
+    if (typeof updateEverythingWidgets === 'function') {
+        updateEverythingWidgets();
+    }
+
+    refreshWorldClockSearchResults();
 }
+
 
 function updateMainPinnedDisplay(card) {
     if (mainDisplayInterval) {
@@ -556,4 +761,18 @@ export function initWorldClock() {
     initializeLocalClock();
     loadClocksFromStorage();
     initializeSortableGrid();
+    
+    const searchInput = document.getElementById('worldclock-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => renderWorldClockSearchResults(e.target.value.toLowerCase()));
+    }
+
+    document.addEventListener('moduleDeactivated', (e) => {
+        if (e.detail && e.detail.module === 'toggleMenuWorldClock') {
+            if (searchInput) {
+                searchInput.value = '';
+                renderWorldClockSearchResults('');
+            }
+        }
+    });
 }

@@ -2,7 +2,8 @@
 
 import { getTranslation } from '../general/translations-controller.js';
 import { PREMIUM_FEATURES } from '../general/main.js';
-import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js'; // NEW LINE
+import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js';
+import { updateEverythingWidgets } from './everything-controller.js';
 
 const stopwatchState = {
     isRunning: false,
@@ -44,24 +45,21 @@ function loadState() {
     stopwatchState.elapsedTime = parsedState.elapsedTime || 0;
     stopwatchState.isRunning = parsedState.isRunning || false;
 
-    // Si el cronómetro estaba corriendo, se recalcula el tiempo transcurrido hasta ahora.
     if (stopwatchState.isRunning) {
         stopwatchState.elapsedTime = Date.now() - stopwatchState.startTime;
-        startStopwatch(true); // Inicia el intervalo sin resetear el tiempo de inicio.
+        startStopwatch(true);
     } else {
-        updateDisplay(); // Si estaba pausado, solo muestra el tiempo guardado.
+        updateDisplay();
     }
 
-    // Renderiza las vueltas guardadas
     if (stopwatchState.laps.length > 0) {
         lapsTableBody.innerHTML = '';
         stopwatchState.laps.forEach(renderLap);
-        sectionBottom.style.display = 'block';
+        sectionBottom.classList.remove('disabled'); // Corrected line
     }
 
     updateButtonStates();
 }
-
 
 function formatTime(milliseconds) {
     const totalSeconds = Math.floor(milliseconds / 1000);
@@ -73,52 +71,54 @@ function formatTime(milliseconds) {
 }
 
 function updateDisplay() {
-    // Si está corriendo, calcula el tiempo desde el inicio. Si no, usa el tiempo transcurrido guardado.
     const currentTime = stopwatchState.isRunning ? (Date.now() - stopwatchState.startTime) : stopwatchState.elapsedTime;
     displayElement.textContent = formatTime(currentTime);
 }
 
 function startStopwatch(isReload = false) {
     if (stopwatchState.isRunning && !isReload) return;
-    
+
     stopwatchState.isRunning = true;
-    
-    // Si no es una recarga, calcula el tiempo de inicio basado en el tiempo ya transcurrido.
+
     if (!isReload) {
         stopwatchState.startTime = Date.now() - stopwatchState.elapsedTime;
     }
-    
-    clearInterval(stopwatchState.timerInterval); // Limpia cualquier intervalo previo.
+
+    clearInterval(stopwatchState.timerInterval);
     stopwatchState.timerInterval = setInterval(updateDisplay, 10);
     updateButtonStates();
     saveState();
+    if (!isReload) {
+        updateEverythingWidgets();
+    }
 }
 
 function stopStopwatch() {
     if (!stopwatchState.isRunning) return;
-    
+
     stopwatchState.isRunning = false;
-    // Al detener, calcula y guarda el tiempo exacto transcurrido.
     stopwatchState.elapsedTime = Date.now() - stopwatchState.startTime;
     clearInterval(stopwatchState.timerInterval);
     updateButtonStates();
     saveState();
+    updateEverythingWidgets();
 }
 
 function resetStopwatch() {
     stopwatchState.isRunning = false;
     clearInterval(stopwatchState.timerInterval);
-    
+
     stopwatchState.elapsedTime = 0;
     stopwatchState.startTime = 0;
     stopwatchState.lapNumber = 0;
     stopwatchState.laps = [];
-    
+
     updateDisplay();
     lapsTableBody.innerHTML = '';
-    sectionBottom.style.display = 'none';
+    sectionBottom.classList.add('disabled'); // Corrected line
     updateButtonStates();
-    saveState(); // Guarda el estado reseteado.
+    saveState();
+    updateEverythingWidgets();
 }
 
 function recordLap() {
@@ -127,15 +127,13 @@ function recordLap() {
     const lapLimit = PREMIUM_FEATURES ? 1000 : 100;
 
     if (stopwatchState.lapNumber >= lapLimit) {
-        // If premium, simply block and do nothing more.
         if (PREMIUM_FEATURES) {
             console.warn(`Premium lap limit (${lapLimit}) reached.`);
-            updateButtonStates(); // Call to ensure button is disabled.
+            updateButtonStates();
             return;
         } else {
-            // If free, show dynamic island notification instead of alert.
             showDynamicIslandNotification('system', 'premium_required', 'limit_reached_generic', 'notifications', {
-                type: getTranslation('stopwatch', 'tooltips'), // "Stopwatch"
+                type: getTranslation('stopwatch', 'tooltips'),
                 limit: lapLimit
             });
             return;
@@ -155,9 +153,9 @@ function recordLap() {
     stopwatchState.laps.push(lapData);
 
     renderLap(lapData);
-    sectionBottom.style.display = 'block';
+    sectionBottom.classList.remove('disabled'); // Corrected line
     saveState();
-    updateButtonStates(); 
+    updateButtonStates();
 }
 
 function renderLap(lapData) {
@@ -174,19 +172,46 @@ function updateButtonStates() {
     const hasTime = stopwatchState.elapsedTime > 0;
     let isLapDisabled = !stopwatchState.isRunning;
 
-    // Only for premium, disable button if limit is reached.
     if (PREMIUM_FEATURES) {
         const lapLimit = 1000;
         if (stopwatchState.lapNumber >= lapLimit) {
             isLapDisabled = true;
         }
     }
-    
+
     startBtn.classList.toggle('disabled-interactive', stopwatchState.isRunning);
     stopBtn.classList.toggle('disabled-interactive', !stopwatchState.isRunning);
     lapBtn.classList.toggle('disabled-interactive', isLapDisabled);
     resetBtn.classList.toggle('disabled-interactive', stopwatchState.isRunning || !hasTime);
 }
+
+function getStopwatchDetails() {
+    const state = stopwatchState;
+    const time = formatTime(state.isRunning ? (Date.now() - state.startTime) : state.elapsedTime);
+    const statusKey = state.isRunning ? 'running' : 'paused';
+    const statusText = getTranslation(statusKey, 'stopwatch');
+
+    if (state.elapsedTime === 0 && !state.isRunning) {
+        return getTranslation('paused', 'stopwatch') + ' en 00:00:00.00';
+    }
+
+    return `${statusText} en ${time}`;
+}
+
+// <-- INICIO DE CAMBIOS -->
+/**
+ * Devuelve si el cronómetro está actualmente en funcionamiento.
+ * @returns {boolean}
+ */
+function isStopwatchRunning() {
+    return stopwatchState.isRunning;
+}
+
+window.stopwatchController = {
+    getStopwatchDetails,
+    isStopwatchRunning // Exportamos la nueva función
+};
+// <-- FIN DE CAMBIOS -->
 
 export function initializeStopwatch() {
     const stopwatchSection = document.querySelector('.section-stopwatch');
@@ -199,12 +224,11 @@ export function initializeStopwatch() {
     resetBtn = stopwatchSection.querySelector('[data-action="reset"]');
     lapsTableBody = stopwatchSection.querySelector('.laps-table tbody');
     sectionBottom = stopwatchSection.querySelector('.section-bottom');
-    
+
     startBtn.addEventListener('click', () => startStopwatch(false));
     stopBtn.addEventListener('click', stopStopwatch);
     lapBtn.addEventListener('click', recordLap);
     resetBtn.addEventListener('click', resetStopwatch);
 
-    // Carga el estado guardado al inicializar.
     loadState();
 }

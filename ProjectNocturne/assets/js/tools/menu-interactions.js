@@ -29,7 +29,8 @@ const dropdownMap = {
     'toggleCalendarDropdown': '.calendar-container',
     'toggleTimerHourDropdown': '.menu-timer-hour-selection',
     'toggleCountryDropdown': '.menu-worldclock-country',
-    'toggleTimezoneDropdown': '.menu-worldclock-timezone'
+    'toggleTimezoneDropdown': '.menu-worldclock-timezone',
+    'toggleTimerTypeDropdown': '.menu-timer-type'
 };
 
 const menuTimeouts = {};
@@ -519,12 +520,38 @@ const updateTimerDurationDisplay = (timerMenu) => {
 
 const updateTimerTabView = (timerMenu) => {
     if (!timerMenu) return;
-    timerMenu.querySelectorAll('.menu-tab[data-tab]').forEach(t => t.classList.remove('active'));
-    timerMenu.querySelectorAll('.menu-content-wrapper[data-tab-content]').forEach(c => { c.classList.remove('active'); c.classList.add('disabled'); });
-    const activeTab = timerMenu.querySelector(`.menu-tab[data-tab="${state.timer.currentTab}"]`);
+
+    // Actualizar el texto y el icono del desplegable
+    const display = timerMenu.querySelector('#timer-type-display');
+    const iconDisplay = timerMenu.querySelector('#timer-type-icon');
+    if (display && iconDisplay) {
+        const isCountdown = state.timer.currentTab === 'countdown';
+        const key = isCountdown ? 'countdown' : 'count_to_date';
+        display.textContent = getTranslation(key, 'timer');
+        iconDisplay.textContent = isCountdown ? 'timer' : 'event';
+    }
+
+    // Actualizar la clase 'active' en las opciones del desplegable
+    const dropdown = timerMenu.querySelector('.menu-timer-type');
+    if (dropdown) {
+        dropdown.querySelectorAll('.menu-link').forEach(link => {
+            link.classList.remove('active');
+            if (link.dataset.tab === state.timer.currentTab) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    // Mostrar/ocultar el contenido correspondiente
+    timerMenu.querySelectorAll('.menu-content-wrapper[data-tab-content]').forEach(c => {
+        c.classList.remove('active');
+        c.classList.add('disabled');
+    });
     const activeContent = timerMenu.querySelector(`.menu-content-wrapper[data-tab-content="${state.timer.currentTab}"]`);
-    if (activeTab) activeTab.classList.add('active');
-    if (activeContent) { activeContent.classList.remove('disabled'); activeContent.classList.add('active'); }
+    if (activeContent) {
+        activeContent.classList.remove('disabled');
+        activeContent.classList.add('active');
+    }
 };
 
 const renderCalendar = (timerMenu) => {
@@ -702,8 +729,19 @@ function setupGlobalEventListeners() {
         const parentMenu = event.target.closest('.menu-alarm, .menu-timer, .menu-worldClock');
         if (!parentMenu) return;
 
-        const tabTarget = event.target.closest('.menu-tab[data-tab]');
-        if (tabTarget) { state.timer.currentTab = tabTarget.dataset.tab; updateTimerTabView(parentMenu); return; }
+        // --- INICIO DE LA MODIFICACIÓN PARA EL MENÚ DESPLEGABLE ---
+        const tabTarget = event.target.closest('.menu-timer-type .menu-link[data-tab]');
+        if (tabTarget) {
+            event.stopPropagation();
+            state.timer.currentTab = tabTarget.dataset.tab;
+            updateTimerTabView(parentMenu);
+            const dropdown = tabTarget.closest('.dropdown-menu-container');
+            if (dropdown) {
+                dropdown.classList.add('disabled');
+            }
+            return;
+        }
+        // --- FIN DE LA MODIFICACIÓN ---
 
         const dayTarget = event.target.closest('.calendar-days .day:not(.other-month)');
         if (dayTarget && dayTarget.dataset.day) { event.stopPropagation(); selectCalendarDate(parseInt(dayTarget.dataset.day, 10), parentMenu); return; }
@@ -713,6 +751,7 @@ function setupGlobalEventListeners() {
 
         const action = actionTarget.dataset.action;
         if (dropdownMap[action]) { toggleDropdown(action, parentMenu); return; }
+        // ... el resto del switch case se mantiene igual ...
 
         switch (action) {
             case 'increaseHour': state.alarm.hour = (state.alarm.hour + 1) % 24; updateAlarmDisplay(parentMenu); break;

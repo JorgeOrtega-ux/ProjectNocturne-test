@@ -1,8 +1,9 @@
-// jorgeortega-ux/projectnocturne-alpha/ProjectNocturne-Alpha-32dae5d9be5dbd76db6b6638608d9bf9b2fb28e3/ProjectNocturne/assets/js/tools/alarm-controller.js
+// /assets/js/tools/alarm-controller.js
 import { use24HourFormat, PREMIUM_FEATURES, activateModule, getCurrentActiveOverlay, allowCardMovement } from '../general/main.js';
 import { prepareAlarmForEdit } from './menu-interactions.js';
 import { playSound as playAlarmSound, stopSound as stopAlarmSound, generateSoundList, initializeSortable } from './general-tools.js';
-import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js'; // NEW LINE
+import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js';
+import { updateEverythingWidgets } from './everything-controller.js';
 
 const ALARMS_STORAGE_KEY = 'user-alarms';
 const DEFAULT_ALARMS_STORAGE_KEY = 'default-alarms-order';
@@ -17,6 +18,189 @@ let clockInterval = null;
 let userAlarms = [];
 let defaultAlarmsState = [];
 let activeAlarmTimers = new Map();
+
+// --- LÓGICA DE BÚSQUEDA Y RENDERIZADO ---
+
+function renderSearchResults(searchTerm) {
+    const resultsWrapper = document.querySelector('.alarm-search-results-wrapper');
+    const creationWrapper = document.querySelector('.alarm-creation-wrapper');
+    
+    if (!resultsWrapper || !creationWrapper) return;
+
+    if (!searchTerm) {
+        resultsWrapper.classList.add('disabled');
+        creationWrapper.classList.remove('disabled');
+        resultsWrapper.innerHTML = '';
+        return;
+    }
+
+    const allAlarms = [...userAlarms, ...defaultAlarmsState];
+    const filteredAlarms = allAlarms.filter(alarm => {
+        const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
+        return translatedTitle.toLowerCase().includes(searchTerm);
+    });
+
+    creationWrapper.classList.add('disabled');
+    resultsWrapper.classList.remove('disabled');
+    resultsWrapper.innerHTML = '';
+
+    if (filteredAlarms.length > 0) {
+        const list = document.createElement('div');
+        list.className = 'menu-list';
+        filteredAlarms.forEach(alarm => {
+            const item = createSearchResultItem(alarm); // Create the item
+            list.appendChild(item); // Append it to the list
+            addSearchItemEventListeners(item); // Add listeners after creation
+        });
+        resultsWrapper.appendChild(list);
+    } else {
+        resultsWrapper.innerHTML = `<p class="no-results-message">${getTranslation('no_results', 'search')} "${searchTerm}"</p>`;
+    }
+}
+
+function createSearchResultItem(alarm) {
+    const item = document.createElement('div');
+    item.className = 'search-result-item'; 
+    item.id = `search-alarm-${alarm.id}`;
+    item.dataset.id = alarm.id;
+    item.dataset.type = 'alarm';
+
+    const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
+    const time = formatTime(alarm.hour, alarm.minute);
+    
+    // Conditionally include delete link for non-default alarms
+    const deleteLinkHtml = alarm.type === 'default' ? '' : `
+        <div class="menu-link" data-action="delete-alarm">
+            <div class="menu-link-icon"><span class="material-symbols-rounded">delete</span></div>
+            <div class="menu-link-text"><span data-translate="delete_alarm" data-translate-category="alarms">${getTranslation('delete_alarm', 'alarms')}</span></div>
+        </div>
+    `;
+
+    item.innerHTML = `
+        <div class="result-info">
+            <span class="result-title">${translatedTitle}</span>
+            <span class="result-time">${time}</span>
+        </div>
+        <div class="card-menu-container disabled"> <div class="card-menu-btn-wrapper">
+                <button class="card-menu-btn" data-action="toggle-item-menu"
+                        data-translate="options"
+                        data-translate-category="world_clock_options"
+                        data-translate-target="tooltip">
+                    <span class="material-symbols-rounded">more_horiz</span>
+                </button>
+                <div class="card-dropdown-menu disabled body-title">
+                     <div class="menu-link" data-action="toggle-alarm">
+                         <div class="menu-link-icon"><span class="material-symbols-rounded">${alarm.enabled ? 'toggle_on' : 'toggle_off'}</span></div>
+                         <div class="menu-link-text"><span data-translate="${alarm.enabled ? 'deactivate_alarm' : 'activate_alarm'}" data-translate-category="alarms">${getTranslation(alarm.enabled ? 'deactivate_alarm' : 'activate_alarm', 'alarms')}</span></div>
+                     </div>
+                     <div class="menu-link" data-action="test-alarm">
+                         <div class="menu-link-icon"><span class="material-symbols-rounded">volume_up</span></div>
+                         <div class="menu-link-text"><span data-translate="test_alarm" data-translate-category="alarms">${getTranslation('test_alarm', 'alarms')}</span></div>
+                     </div>
+                     <div class="menu-link" data-action="edit-alarm">
+                         <div class="menu-link-icon"><span class="material-symbols-rounded">edit</span></div>
+                         <div class="menu-link-text"><span data-translate="edit_alarm" data-translate-category="alarms">${getTranslation('edit_alarm', 'alarms')}</span></div>
+                     </div>
+                     ${deleteLinkHtml}
+                </div>
+            </div>
+        </div>
+    `;
+    return item;
+}
+
+// New function to add event listeners to search result items
+function addSearchItemEventListeners(item) {
+    const menuContainer = item.querySelector('.card-menu-container');
+    if (!menuContainer) return;
+
+    // Show menuContainer on mouseenter
+    item.addEventListener('mouseenter', () => {
+        menuContainer.classList.remove('disabled');
+    });
+
+    // Hide menuContainer on mouseleave, but only if dropdown is closed
+    item.addEventListener('mouseleave', () => {
+        const dropdown = menuContainer.querySelector('.card-dropdown-menu');
+        if (dropdown?.classList.contains('disabled')) {
+            menuContainer.classList.add('disabled');
+        }
+    });
+
+    // Handle clicks within the search result item
+    item.addEventListener('click', e => {
+        const actionTarget = e.target.closest('[data-action]');
+        if (!actionTarget) return;
+
+        e.stopPropagation(); // Prevent closing other menus if a dropdown item is clicked
+
+        const action = actionTarget.dataset.action;
+        const alarmId = item.dataset.id;
+
+        if (action === 'toggle-item-menu') {
+            const dropdown = item.querySelector('.card-dropdown-menu');
+            const isOpening = dropdown.classList.contains('disabled');
+
+            // Close all other dropdowns in the search results wrapper
+            document.querySelectorAll('.alarm-search-results-wrapper .card-dropdown-menu').forEach(d => {
+                if (d !== dropdown) {
+                    d.classList.add('disabled');
+                }
+            });
+
+            // Toggle the current dropdown
+            if (isOpening) {
+                dropdown.classList.remove('disabled');
+            } else {
+                dropdown.classList.add('disabled');
+            }
+            // Keep menuContainer visible if dropdown is open
+            if(!dropdown.classList.contains('disabled')) {
+                menuContainer.classList.remove('disabled');
+            }
+        } else {
+            handleAlarmCardAction(action, alarmId, actionTarget);
+        }
+    });
+}
+
+function refreshSearchResults() {
+    const searchInput = document.getElementById('alarm-search-input');
+    if (searchInput && searchInput.value) {
+        renderSearchResults(searchInput.value.toLowerCase());
+    }
+}
+
+// --- LÓGICA PRINCIPAL (EXISTENTE Y SIN CAMBIOS) ---
+// (El resto del archivo permanece igual)
+function getActiveAlarmsCount() {
+    const allAlarms = [...userAlarms, ...defaultAlarmsState].filter(alarm => alarm.enabled);
+    return allAlarms.length;
+}
+
+function getNextAlarmDetails() {
+    const now = new Date();
+    const activeAlarms = [...userAlarms, ...defaultAlarmsState].filter(a => a.enabled);
+
+    if (activeAlarms.length === 0) {
+        return null;
+    }
+
+    const upcomingAlarms = activeAlarms.map(alarm => {
+        const alarmTime = new Date();
+        alarmTime.setHours(alarm.hour, alarm.minute, 0, 0);
+        if (alarmTime <= now) {
+            alarmTime.setDate(alarmTime.getDate() + 1);
+        }
+        return { ...alarm, time: alarmTime };
+    }).sort((a, b) => a.time - b.time);
+
+    const nextAlarm = upcomingAlarms[0];
+    const title = nextAlarm.type === 'default' ? getTranslation(nextAlarm.title, 'alarms') : nextAlarm.title;
+    const timeString = nextAlarm.time.toLocaleTimeString(navigator.language, { hour: '2-digit', minute: '2-digit', hour12: !use24HourFormat });
+
+    return `${title} (${timeString})`;
+}
 
 function createExpandableContainer(type, titleKey, icon) {
     const container = document.createElement('div');
@@ -40,13 +224,12 @@ function createExpandableContainer(type, titleKey, icon) {
         </div>
         <div class="tool-grid" data-alarm-grid="${type}"></div>
     `;
-    
+
     const header = container.querySelector('.expandable-card-header');
     header.addEventListener('click', () => toggleAlarmsSection(type));
 
     return container;
 }
-
 
 function updateAlarmCounts() {
     const userAlarmsCount = userAlarms.length;
@@ -61,8 +244,25 @@ function updateAlarmCounts() {
     const userContainer = document.querySelector('.alarms-container[data-container="user"]');
     const defaultContainer = document.querySelector('.alarms-container[data-container="default"]');
 
-    if (userContainer) userContainer.style.display = userAlarmsCount > 0 ? 'flex' : 'none';
-    if (defaultContainer) defaultContainer.style.display = defaultAlarmsCount > 0 ? 'flex' : 'none';
+    if (userContainer) {
+        if (userAlarmsCount > 0) {
+            userContainer.classList.remove('disabled');
+            userContainer.classList.add('active');
+        } else {
+            userContainer.classList.remove('active');
+            userContainer.classList.add('disabled');
+        }
+    }
+    if (defaultContainer) {
+        if (defaultAlarmsCount > 0) {
+            defaultContainer.classList.remove('disabled');
+            defaultContainer.classList.add('active');
+        } else {
+            defaultContainer.classList.remove('active');
+            defaultContainer.classList.add('disabled');
+        }
+    }
+    updateEverythingWidgets();
 }
 
 export function getAlarmCount() {
@@ -74,11 +274,10 @@ export function getAlarmLimit() {
 }
 
 function createAlarm(title, hour, minute, sound) {
-    const alarmLimit = PREMIUM_FEATURES ? 100 : 10;
+    const alarmLimit = getAlarmLimit();
     if (userAlarms.length >= alarmLimit) {
-        // Corrected: Replaced alert() with dynamic island notification for alarm limit
-        showDynamicIslandNotification('system', 'premium_required', 'limit_reached_generic', 'notifications', {
-            type: getTranslation('alarms', 'tooltips'), // "Alarm"
+        showDynamicIslandNotification('system', 'limit_reached', 'limit_reached_generic', 'notifications', {
+            type: getTranslation('alarms', 'tooltips'),
             limit: alarmLimit
         });
         return false;
@@ -99,12 +298,8 @@ function createAlarm(title, hour, minute, sound) {
     scheduleAlarm(alarm);
     updateAlarmCounts();
 
-    // Show dynamic island notification on creation
-    showDynamicIslandNotification('alarm', 'created', 'notifications_message_placeholder', 'notifications', { // Placeholder, since the title is dynamic
-        title: alarm.title,
-        time: formatTime(alarm.hour, alarm.minute)
-    });
-
+    showDynamicIslandNotification('alarm', 'created', 'alarm_created', 'notifications', { title: alarm.title });
+    updateEverythingWidgets();
     return true;
 }
 
@@ -113,6 +308,14 @@ function createAlarmCard(alarm) {
     if (!grid) return;
 
     const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
+
+    // Conditionally include delete link for non-default alarms
+    const deleteLinkHtml = alarm.type === 'default' ? '' : `
+        <div class="menu-link" data-action="delete-alarm">
+            <div class="menu-link-icon"><span class="material-symbols-rounded">delete</span></div>
+            <div class="menu-link-text"><span data-translate="delete_alarm" data-translate-category="alarms">${getTranslation('delete_alarm', 'alarms')}</span></div>
+        </div>
+    `;
 
     const cardHTML = `
         <div class="tool-card alarm-card ${!alarm.enabled ? 'alarm-disabled' : ''}" id="${alarm.id}" data-id="${alarm.id}" data-type="${alarm.type}">
@@ -153,10 +356,7 @@ function createAlarmCard(alarm) {
                             <div class="menu-link-icon"><span class="material-symbols-rounded">edit</span></div>
                             <div class="menu-link-text"><span data-translate="edit_alarm" data-translate-category="alarms">${getTranslation('edit_alarm', 'alarms')}</span></div>
                         </div>
-                        <div class="menu-link" data-action="delete-alarm">
-                            <div class="menu-link-icon"><span class="material-symbols-rounded">delete</span></div>
-                            <div class="menu-link-text"><span data-translate="delete_alarm" data-translate-category="alarms">${getTranslation('delete_alarm', 'alarms')}</span></div>
-                        </div>
+                        ${deleteLinkHtml}
                     </div>
                 </div>
             </div>
@@ -181,7 +381,7 @@ function addCardEventListeners(card) {
         }
     });
     const dismissButton = card.querySelector('[data-action="dismiss-alarm"]');
-    if(dismissButton) {
+    if (dismissButton) {
         dismissButton.addEventListener('click', () => dismissAlarm(card.id));
     }
 }
@@ -214,25 +414,23 @@ function triggerAlarm(alarm) {
             optionsContainer.classList.add('active');
         }
     }
+    const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
     if ('Notification' in window && Notification.permission === 'granted') {
-        const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
-        new Notification(`Alarma: ${translatedTitle}`, { body: `${formatTime(alarm.hour, alarm.minute)}`, icon: '/favicon.ico' });
+        new Notification(getTranslation('alarm_ringing_title', 'notifications'), {
+            body: getTranslation('alarm_ringing', 'notifications').replace('{title}', translatedTitle),
+            icon: '/favicon.ico'
+        });
     }
 
-    // Show dynamic island notification when alarm is ringing
-    const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
-    showDynamicIslandNotification('alarm', 'ringing', 'notifications_message_placeholder', 'notifications', { // Placeholder
+    showDynamicIslandNotification('alarm', 'ringing', 'alarm_ringing', 'notifications', {
         title: translatedTitle,
-        time: formatTime(alarm.hour, alarm.minute),
         toolId: alarm.id
     }, (dismissedId) => {
-        // This callback is executed when the dynamic island's dismiss button is clicked
         if (dismissedId === alarm.id) {
             dismissAlarm(alarm.id);
         }
     });
 
-    // Re-schedule the alarm for the next day after it triggers
     scheduleAlarm(alarm);
 }
 
@@ -247,12 +445,8 @@ function dismissAlarm(alarmId) {
     }
     const alarm = findAlarmById(alarmId);
     if (alarm && alarm.enabled) {
-        // If alarm is ringing and dismissed, typically it should be toggled off or snoozed.
-        // For simplicity here, we'll just ensure it's not ringing visually/audibly.
-        // If you want dismissing to turn off the alarm, you'd call toggleAlarm(alarmId) here.
         console.log(`Alarm ${alarmId} dismissed.`);
     }
-    // Ensure the dynamic island is hidden if it was showing this alarm
     if (window.hideDynamicIsland) {
         window.hideDynamicIsland();
     }
@@ -280,21 +474,32 @@ function toggleAlarm(alarmId) {
         }
     }
     updateAlarmCardVisuals(alarm);
+    refreshSearchResults();
+    updateEverythingWidgets();
 }
 
 function deleteAlarm(alarmId) {
     const alarm = findAlarmById(alarmId);
     if (!alarm) return;
 
+    // Prevent deletion of default alarms
+    if (alarm.type === 'default') {
+        console.warn(`Attempted to delete default alarm: ${alarmId}. Deletion is not allowed for default alarms.`);
+        return; 
+    }
+
     if (activeAlarmTimers.has(alarmId)) {
         clearTimeout(activeAlarmTimers.get(alarmId));
         activeAlarmTimers.delete(alarmId);
     }
 
+    const originalTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
+
     if (alarm.type === 'user') {
         userAlarms = userAlarms.filter(a => a.id !== alarmId);
         saveAlarmsToStorage();
     } else {
+        // This block should ideally not be reached if the above check works, but as a fallback
         defaultAlarmsState = defaultAlarmsState.filter(a => a.id !== alarmId);
         saveDefaultAlarmsOrder();
     }
@@ -304,16 +509,13 @@ function deleteAlarm(alarmId) {
         alarmCard.remove();
     }
     updateAlarmCounts();
-    // Also hide dynamic island if this alarm was ringing
     if (window.hideDynamicIsland) {
         window.hideDynamicIsland();
     }
-    
-    // Show dynamic island notification on successful deletion
-    const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
-    showDynamicIslandNotification('alarm', 'deleted', 'alarm_deleted_success', 'notifications', {
-        title: translatedTitle
-    });
+
+    showDynamicIslandNotification('alarm', 'deleted', 'alarm_deleted', 'notifications', { title: originalTitle });
+    refreshSearchResults();
+    updateEverythingWidgets();
 }
 
 function updateAlarm(alarmId, newData) {
@@ -338,13 +540,11 @@ function updateAlarm(alarmId, newData) {
     }
 
     updateAlarmCardVisuals(alarm);
+    refreshSearchResults();
 
-    // Show dynamic island notification on update
     const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
-    showDynamicIslandNotification('alarm', 'updated', 'notifications_message_placeholder', 'notifications', { // Placeholder
-        title: translatedTitle,
-        time: formatTime(alarm.hour, alarm.minute)
-    });
+    showDynamicIslandNotification('alarm', 'updated', 'alarm_updated', 'notifications', { title: translatedTitle });
+    updateEverythingWidgets();
 }
 
 function updateAlarmCardVisuals(alarm) {
@@ -356,7 +556,7 @@ function updateAlarmCardVisuals(alarm) {
     const toggleLink = card.querySelector('[data-action="toggle-alarm"]');
     const toggleIcon = toggleLink?.querySelector('.material-symbols-rounded');
     const toggleText = toggleLink?.querySelector('.menu-link-text span');
-    
+
     const translatedTitle = alarm.type === 'default' ? getTranslation(alarm.title, 'alarms') : alarm.title;
     if (title) {
         title.textContent = translatedTitle;
@@ -381,13 +581,11 @@ function updateAlarmCardVisuals(alarm) {
 }
 
 function saveAlarmsToStorage() {
-    // MODIFICACIÓN: Añadido console.log para depuración
     console.log(`[LocalStorage Save] Guardando datos de alarmas en la clave: '${ALARMS_STORAGE_KEY}'`, userAlarms);
     localStorage.setItem(ALARMS_STORAGE_KEY, JSON.stringify(userAlarms));
 }
 
 function saveDefaultAlarmsOrder() {
-    // MODIFICACIÓN: Añadido console.log para depuración
     console.log(`[LocalStorage Save] Guardando orden de alarmas por defecto en la clave: '${DEFAULT_ALARMS_STORAGE_KEY}'`, defaultAlarmsState);
     localStorage.setItem(DEFAULT_ALARMS_STORAGE_KEY, JSON.stringify(defaultAlarmsState));
 }
@@ -398,11 +596,10 @@ function loadDefaultAlarmsOrder() {
         try {
             defaultAlarmsState = JSON.parse(stored);
             const defaultIds = new Set(defaultAlarmsState.map(alarm => alarm.id));
-            
+
             DEFAULT_ALARMS.forEach(defaultAlarm => {
                 if (!defaultIds.has(defaultAlarm.id)) {
-                    defaultAlarmsState.push({...defaultAlarm});
-                    // A diferencia del script de timers, este no guarda automáticamente aquí.
+                    defaultAlarmsState.push({ ...defaultAlarm });
                 }
             });
         } catch (error) {
@@ -428,7 +625,7 @@ function loadAlarmsFromStorage() {
 
 function loadDefaultAlarms() {
     loadDefaultAlarmsOrder();
-    
+
     defaultAlarmsState.forEach(alarm => {
         createAlarmCard(alarm);
         if (alarm.enabled) scheduleAlarm(alarm);
@@ -444,8 +641,6 @@ function formatTime(hour, minute) {
     h12 = h12 ? h12 : 12;
     return `${h12}:${String(minute).padStart(2, '0')} ${ampm}`;
 }
-
-// Se ha eliminado la función getTranslation duplicada para usar la versión global importada.
 
 function toggleAlarmsSection(type) {
     const grid = document.querySelector(`.tool-grid[data-alarm-grid="${type}"]`);
@@ -477,7 +672,7 @@ function initializeSortableGrids() {
 
     const sortableOptions = {
         animation: 150,
-        filter: '.card-menu-container', 
+        filter: '.card-menu-container',
         ghostClass: 'sortable-ghost',
         chosenClass: 'sortable-chosen',
         dragClass: 'sortable-drag',
@@ -502,11 +697,54 @@ function initializeSortableGrids() {
     });
 }
 
+function handleEditAlarm(alarmId) {
+    const alarmData = findAlarmById(alarmId);
+    if (alarmData) {
+        prepareAlarmForEdit(alarmData);
+        const searchInput = document.getElementById('alarm-search-input');
+        if (searchInput) {
+            searchInput.value = '';
+        }
+        renderSearchResults('');
+        if (getCurrentActiveOverlay() !== 'menuAlarm') {
+            activateModule('toggleMenuAlarm');
+        }
+    }
+}
+
+function handleAlarmCardAction(action, alarmId, target) {
+    const alarm = window.alarmManager.findAlarmById(alarmId);
+    if (!alarm) return;
+
+    switch (action) {
+        case 'toggle-alarm':
+            window.alarmManager.toggleAlarm(alarmId);
+            break;
+        case 'test-alarm':
+            window.alarmManager.playAlarmSound(alarm.sound);
+            setTimeout(() => stopAlarmSound(), 1000);
+            break;
+        case 'edit-alarm':
+            handleEditAlarm(alarmId);
+            break;
+        case 'delete-alarm':
+            // Added check to prevent deleting default alarms
+            if (alarm.type === 'default') {
+                console.warn(`Deletion of default alarm ${alarmId} is not allowed.`);
+                return;
+            }
+            if (confirm(getTranslation('confirm_delete_alarm', 'alarms'))) {
+                window.alarmManager.deleteAlarm(alarmId);
+            }
+            break;
+    }
+}
+
 export function initializeAlarmClock() {
     startClock();
-    
+
     const wrapper = document.querySelector('.alarms-list-wrapper');
-    if(wrapper) {
+    if (wrapper) {
         const userContainer = createExpandableContainer('user', 'my_alarms', 'alarm');
         const defaultContainer = createExpandableContainer('default', 'default_alarms', 'alarm_on');
         wrapper.appendChild(userContainer);
@@ -516,26 +754,32 @@ export function initializeAlarmClock() {
     loadAlarmsFromStorage();
     loadDefaultAlarms();
     updateAlarmCounts();
-    initializeSortableGrids(); 
+    initializeSortableGrids();
     if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
     }
 
-    // Se ha movido la lógica de 'getTranslation' a la importación global
-    // y se ha eliminado la función local duplicada.
+    const searchInput = document.getElementById('alarm-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => renderSearchResults(e.target.value.toLowerCase()));
+    }
 
-    window.alarmManager = { 
-        createAlarm, 
-        toggleAlarm, 
-        deleteAlarm, 
-        updateAlarm, 
-        toggleAlarmsSection, 
-        playAlarmSound, 
+    window.alarmManager = {
+        createAlarm,
+        toggleAlarm,
+        deleteAlarm,
+        updateAlarm,
+        toggleAlarmsSection,
+        playAlarmSound,
         dismissAlarm,
         findAlarmById,
         getAlarmCount,
-        getAlarmLimit
+        getAlarmLimit,
+        getActiveAlarmsCount,
+        getNextAlarmDetails
     };
+
+    updateEverythingWidgets();
     document.addEventListener('translationsApplied', () => {
         const allAlarms = [...userAlarms, ...defaultAlarmsState];
         allAlarms.forEach(alarm => {
@@ -544,9 +788,22 @@ export function initializeAlarmClock() {
         document.querySelectorAll('[data-translate-category="alarms"]').forEach(element => {
             const key = element.dataset.translate;
             if (key) {
-                // Asumiendo que getTranslation está disponible globalmente a través del import
                 element.textContent = getTranslation(key, 'alarms');
             }
         });
+        const searchInput = document.getElementById('alarm-search-input');
+        if (searchInput && searchInput.value) {
+            renderSearchResults(searchInput.value.toLowerCase());
+        }
+    });
+
+    document.addEventListener('moduleDeactivated', (e) => {
+        if (e.detail && e.detail.module === 'toggleMenuAlarm') {
+            const searchInput = document.getElementById('alarm-search-input');
+            if (searchInput) {
+                searchInput.value = '';
+                renderSearchResults('');
+            }
+        }
     });
 }

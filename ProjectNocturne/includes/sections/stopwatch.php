@@ -86,7 +86,7 @@
             </div>
         </div>
     </div>
-    <div class="section-bottom" style="display: none;">
+   <div class="section-bottom disabled">
         <div class="laps-table-container">
             <table class="laps-table body-title">
                 <thead>

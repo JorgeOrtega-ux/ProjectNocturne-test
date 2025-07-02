@@ -30,7 +30,6 @@ body {
 .body-title {
     font-size: 0.875rem;
     font-weight: 500;
-    line-height: 1.25rem;
     color: #000000;
     letter-spacing: 0.0178571429em;
 }
@@ -431,7 +430,6 @@ body {
     width: 100%;
     height: auto;
     gap: 4px;
-    overflow: auto;
     user-select: none;
 }
 
@@ -496,6 +494,12 @@ body {
     width: 100%;
     height: auto;
 }
+
+/* INICIO: Clase específica para el borde */
+.menu-content-selector {
+    border-bottom: 1px solid #00000020;
+}
+/* FIN: Clase específica para el borde */
 
 .menu-content-header {
     display: flex;
@@ -1143,4 +1147,105 @@ body {
 
 .italic-mode {
     font-style: italic;
+}
+.alarm-search-results-wrapper {
+    padding: 8px;
+}
+
+.alarm-search-results-wrapper .menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px; /* Espacio entre items */
+}
+
+.alarm-search-results-wrapper.disabled {
+    display: none;
+}
+
+/* Nuevo estilo compacto para los resultados */
+.alarm-search-result {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background-color: #f5f5fa;
+    transition: background-color 0.2s ease;
+    position: relative; /* Para el menú desplegable */
+}
+
+.alarm-search-result:hover {
+    background-color: #ebebf0;
+}
+
+.alarm-search-result .result-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden; /* Para el ellipsis */
+}
+
+.alarm-search-result .result-title {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.alarm-search-result .result-time {
+    font-size: 0.85rem;
+    color: #6e6e73;
+}
+
+.alarm-search-result .result-actions {
+    position: relative; /* Contexto para el menú */
+    flex-shrink: 0;
+}
+
+/* Reutilizamos el botón de menú pero lo ajustamos si es necesario */
+.alarm-search-result .card-menu-btn {
+    width: 32px;
+    height: 32px;
+}
+
+/* Aseguramos que el menú desplegable se posicione correctamente */
+.alarm-search-result .card-dropdown-menu {
+    right: 0;
+    top: 100%; /* Se posiciona debajo del botón */
+    margin-top: 5px;
+    width: 180px; /* Un poco más angosto */
+}
+
+.no-results-message {
+    text-align: center;
+    padding: 20px;
+    color: #888;
+}
+
+/* Ocultar el formulario de creación cuando la búsqueda está activa */
+.menu-alarm .menu-section-center.disabled,
+.menu-alarm .menu-section-bottom.disabled {
+    display: none;
+}.dark-mode .alarm-search-result {
+    background-color: #2e2f31;
+}
+
+.dark-mode .alarm-search-result:hover {
+    background-color: #3a3b3d;
+}
+
+.dark-mode .alarm-search-result .result-title {
+    color: #ffffff;
+}
+
+.dark-mode .alarm-search-result .result-time {
+    color: #8d8d92;
+}
+
+.dark-mode .no-results-message {
+    color: #888;
+}
+
+.dark-mode .menu-content-selector {
+    border-color: #ffffff20;
 }

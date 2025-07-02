@@ -27,7 +27,7 @@
                     <div class="scrollable-content overflow-y">
                         <div class="general-content-bottom">
                             <div class="section-content">
-                                <div class="section-everything active">Everything</div>
+                                <?php include 'includes/sections/everything.php'; ?>
                                 <?php include 'includes/sections/alarm.php'; ?>
                                 <?php include 'includes/sections/timer.php'; ?>
                                 <?php include 'includes/sections/stopwatch.php'; ?>
@@ -57,6 +57,7 @@
     <script type="module" src="assets/js/tools/stopwatch-controller.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script type="module" src="assets/js/tools/worldClock-controller.js"></script>
+    <script type="module" src="assets/js/tools/everything-controller.js"></script>
     <script type="module" src="assets/js/tools/menu-interactions.js"></script>
     <script type="module" src="assets/js/tools/zoneinfo-controller.js"></script>
 </body>
