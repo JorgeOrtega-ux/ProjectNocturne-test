@@ -109,18 +109,27 @@ function renderAllWidgets() {
     if (!mainContainer) return;
     mainContainer.innerHTML = '';
 
+    // Crear el widget del reloj (va primero y ocupa todo el ancho)
     const clockWidget = createWidgetElement('clock-widget');
     if (clockWidget) {
         mainContainer.appendChild(clockWidget);
     }
 
+    // Crear el contenedor para los otros widgets
+    const widgetsRow = document.createElement('div');
+    widgetsRow.className = 'widgets-row';
+
+    // Añadir los otros widgets al contenedor de fila
     const savedOrder = JSON.parse(localStorage.getItem(WIDGET_ORDER_KEY)) || DEFAULT_WIDGET_ORDER;
     savedOrder.forEach(widgetId => {
         const widgetElement = createWidgetElement(widgetId);
         if (widgetElement) {
-            mainContainer.appendChild(widgetElement);
+            widgetsRow.appendChild(widgetElement);
         }
     });
+
+    // Añadir la fila de widgets al contenedor principal
+    mainContainer.appendChild(widgetsRow);
 
     if (typeof translateElementTree === 'function') {
         translateElementTree(mainContainer);
