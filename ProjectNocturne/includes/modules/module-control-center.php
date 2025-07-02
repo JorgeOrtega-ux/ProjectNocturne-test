@@ -127,11 +127,24 @@
         </div>
     </div>
     
-    <div class="menu-control-center disabled" data-menu="location">
-        <div class="pill-container">
-            <div class="drag-handle"></div>
-        </div>
-        <div class="menu-list overflow-y" style="max-height: 300px;">
-            </div>
+   <div class="menu-control-center disabled" data-menu="location">
+    <div class="pill-container">
+        <div class="drag-handle"></div>
     </div>
+    <div class="search-content" style="margin-bottom: 8px;">
+        <div class="search-content-icon">
+            <span class="material-symbols-rounded">search</span>
+        </div>
+        <div class="search-content-text">
+            <input type="text" id="location-search-input" class="body-title" autocomplete="off" 
+                   data-translate="search_cities_placeholder" 
+                   data-translate-category="search" 
+                   data-translate-target="placeholder" 
+                   placeholder="">
+        </div>
+    </div>
+    <div class="menu-list overflow-y" style="max-height: 300px;">
+        <!-- Los países se cargarán dinámicamente aquí -->
+    </div>
+</div>
 </div>
