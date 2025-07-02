@@ -47,12 +47,12 @@
                                 </div>
                             </div>
                             <div class="menu-content-general">
-                                <div class="enter-sound-wrapper">
-                                    <div class="enter-sound-content" data-action="toggleCountryDropdown">
-                                        <div class="enter-sound-content-left">
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select-content" data-action="toggleCountryDropdown">
+                                        <div class="custom-select-content-left">
                                             <span id="worldclock-selected-country" data-translate="select_a_country" data-translate-category="world_clock">Seleccionar un país</span>
                                         </div>
-                                        <div class="enter-sound-content-right">
+                                        <div class="custom-select-content-right">
                                             <span class="material-symbols-rounded">expand_more</span>
                                         </div>
                                     </div>
@@ -85,12 +85,12 @@
                                 </div>
                             </div>
                             <div class="menu-content-general">
-                                <div class="enter-sound-wrapper">
-                                    <div class="enter-sound-content" data-action="toggleTimezoneDropdown">
-                                        <div class="enter-sound-content-left">
+                                <div class="custom-select-wrapper">
+                                    <div class="custom-select-content" data-action="toggleTimezoneDropdown">
+                                        <div class="custom-select-content-left">
                                             <span id="worldclock-selected-timezone" data-translate="select_a_timezone" data-translate-category="world_clock">Seleccionar zona horaria</span>
                                         </div>
-                                        <div class="enter-sound-content-right">
+                                        <div class="custom-select-content-right">
                                             <span class="material-symbols-rounded">expand_more</span>
                                         </div>
                                     </div>
