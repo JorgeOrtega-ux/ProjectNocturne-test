@@ -2,15 +2,24 @@
 
 import { getTranslation, translateElementTree } from '../general/translations-controller.js';
 
+// --- CONFIGURACIÓN Y ESTADO CENTRALIZADO ---
 const LOCATION_STORAGE_KEY = 'user-location';
 const IPWHO_API_URL = 'https://ipwho.is/';
+
+const TIMING_CONFIG = {
+    LOCATION_CHANGE_DURATION: 750, // Duración para la animación de carga
+};
 
 const state = {
     isInitialized: false,
     isLoading: false,
+    isChanging: false,
+    changeTimeout: null,
+    pendingCountry: null,
     selectedCountry: null,
     countries: [],
 };
+
 
 /**
  * Inicializa el gestor de ubicación.
@@ -31,6 +40,142 @@ async function initLocationManager() {
         state.isInitialized = true;
     }
 }
+
+/**
+ * Devuelve el objeto del país seleccionado actualmente.
+ * @returns {object|null}
+ */
+function getCurrentLocation() {
+    return state.selectedCountry;
+}
+window.getCurrentLocation = getCurrentLocation; // Expuesto globalmente
+
+// --- SISTEMA DE CAMBIO DE UBICACIÓN CON ANIMACIÓN ---
+
+/**
+ * Inicia el proceso de cambio de país, incluyendo la UI de carga.
+ * @param {object} country - El objeto del país { code, name } a aplicar.
+ */
+function applyCountryChange(country) {
+    if (state.isChanging || (state.selectedCountry && state.selectedCountry.code === country.code)) {
+        return Promise.resolve(false);
+    }
+    
+    const previousCountry = state.selectedCountry;
+    state.isChanging = true;
+    state.pendingCountry = country;
+
+    // --- MODIFICADO ---
+    console.log(`✈️ Applying country change: ${country.name} (${country.code})`);
+    setupCountryLoadingUI(country);
+
+    return performCountryChange(country)
+        .then(() => {
+            if (state.isChanging && state.pendingCountry.code === country.code) {
+                setCountry(country);
+                completeCountryChange(country);
+                return true;
+            }
+            return false;
+        })
+        .catch(error => {
+            console.error('Error changing country:', error);
+            revertCountryChange(previousCountry);
+            return false;
+        })
+        .finally(() => {
+            setTimeout(() => {
+                state.isChanging = false;
+                state.pendingCountry = null;
+            }, 100);
+        });
+}
+
+/**
+ * Simula un retraso para la operación de cambio.
+ */
+function performCountryChange(country) {
+    return new Promise((resolve, reject) => {
+        state.changeTimeout = setTimeout(() => {
+            if (state.isChanging && state.pendingCountry.code === country.code) {
+                resolve();
+            } else {
+                reject(new Error('Country change was cancelled'));
+            }
+            state.changeTimeout = null;
+        }, TIMING_CONFIG.LOCATION_CHANGE_DURATION);
+    });
+}
+
+// --- FUNCIONES PARA MANEJAR LA UI DE CARGA ---
+
+function getCountryLinks() {
+    return document.querySelectorAll('.menu-control-center[data-menu="location"] .menu-list .menu-link[data-country-code]');
+}
+
+function setupCountryLoadingUI(newCountry) {
+    const countryLinks = getCountryLinks();
+    countryLinks.forEach(link => {
+        const linkCountryCode = link.dataset.countryCode;
+        if (linkCountryCode === newCountry.code) {
+            link.classList.remove('active');
+            link.classList.add('preview-active');
+            addSpinnerToLink(link);
+        } else {
+            link.classList.remove('active', 'preview-active');
+            link.classList.add('disabled-interactive');
+        }
+    });
+}
+
+function completeCountryChange(newCountry) {
+    const countryLinks = getCountryLinks();
+    countryLinks.forEach(link => {
+        const linkCountryCode = link.dataset.countryCode;
+        link.classList.remove('preview-active', 'disabled-interactive');
+        removeSpinnerFromLink(link);
+
+        if (linkCountryCode === newCountry.code) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+}
+
+function revertCountryChange(previousCountry) {
+    const countryLinks = getCountryLinks();
+    countryLinks.forEach(link => {
+        const linkCountryCode = link.dataset.countryCode;
+        link.classList.remove('preview-active', 'disabled-interactive');
+        removeSpinnerFromLink(link);
+
+        if (previousCountry && linkCountryCode === previousCountry.code) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+}
+
+// --- UTILIDADES DE SPINNER ---
+
+function addSpinnerToLink(link) {
+    removeSpinnerFromLink(link);
+    const loaderDiv = document.createElement('div');
+    loaderDiv.className = 'menu-link-icon menu-link-loader';
+    loaderDiv.innerHTML = '<span class="material-symbols-rounded spinning">progress_activity</span>';
+    link.appendChild(loaderDiv);
+}
+
+function removeSpinnerFromLink(link) {
+    const loaderDiv = link.querySelector('.menu-link-loader');
+    if (loaderDiv) {
+        loaderDiv.remove();
+    }
+}
+
+// --- FUNCIONES DE LÓGICA DE UBICACIÓN ---
 
 /**
  * Carga la librería de países y zonas horarias si no está presente.
@@ -64,9 +209,7 @@ function loadStoredLocation() {
     if (storedLocation) {
         try {
             state.selectedCountry = JSON.parse(storedLocation);
-            console.log("📍 Ubicación cargada desde localStorage:", state.selectedCountry);
         } catch (error) {
-            console.error("Error parsing stored location:", error);
             state.selectedCountry = null;
         }
     }
@@ -78,15 +221,13 @@ function loadStoredLocation() {
 async function detectLocationIfNotSet() {
     if (state.selectedCountry || state.isLoading) return;
 
-    console.log("✈️ No location set. Detecting via IP...");
     state.isLoading = true;
     showLoadingState(true);
 
     try {
         const response = await fetch(IPWHO_API_URL);
-        if (!response.ok) {
-            throw new Error(`IPWHO API request failed with status ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`IPWHO API request failed with status ${response.status}`);
+        
         const data = await response.json();
         if (data.success && data.country_code) {
             const country = state.countries.find(c => c.id === data.country_code);
@@ -111,8 +252,8 @@ function setCountry(country) {
     state.selectedCountry = country;
     localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(country));
     updateLocationDisplay();
-    highlightSelectedCountryInMenu();
-    console.log(`País seleccionado: ${country.name}`);
+    // --- MODIFICADO ---
+    console.log(`País seleccionado: ${country.name} (${country.code})`);
 }
 
 /**
@@ -122,7 +263,7 @@ function populateLocationMenu() {
     const menuList = document.querySelector('.menu-control-center[data-menu="location"] .menu-list');
     if (!menuList) return;
 
-    menuList.innerHTML = ''; // Limpiar lista
+    menuList.innerHTML = '';
     state.countries.forEach(country => {
         const link = document.createElement('div');
         link.className = 'menu-link';
@@ -150,9 +291,7 @@ function highlightSelectedCountryInMenu() {
 
     if (state.selectedCountry) {
         const activeLink = menuList.querySelector(`.menu-link[data-country-code="${state.selectedCountry.code}"]`);
-        if (activeLink) {
-            activeLink.classList.add('active');
-        }
+        if (activeLink) activeLink.classList.add('active');
     }
 }
 
@@ -160,9 +299,15 @@ function highlightSelectedCountryInMenu() {
  * Actualiza el texto que muestra la ubicación actual.
  */
 function updateLocationDisplay() {
-    const displayElement = document.querySelector('.menu-link[data-toggle="location"] .current-location-value');
-    if (displayElement) {
-        displayElement.textContent = state.selectedCountry ? state.selectedCountry.name : getTranslation('none_selected', 'menu');
+    const locationLinkSpan = document.querySelector('.menu-link[data-toggle="location"] .menu-link-text span');
+    if (locationLinkSpan) {
+        const locationLabel = getTranslation('location', 'menu');
+        const currentLocation = state.selectedCountry ? state.selectedCountry.name : getTranslation('none_selected', 'menu');
+        const newText = `${locationLabel}: ${currentLocation}`;
+        
+        if (locationLinkSpan.textContent !== newText) {
+            locationLinkSpan.textContent = newText;
+        }
     }
 }
 
@@ -170,10 +315,13 @@ function updateLocationDisplay() {
  * Muestra u oculta el estado de carga en el menú.
  */
 function showLoadingState(isLoading) {
-    const displayElement = document.querySelector('.menu-link[data-toggle="location"] .current-location-value');
-    if (displayElement) {
+    const locationLinkSpan = document.querySelector('.menu-link[data-toggle="location"] .menu-link-text span');
+    if (locationLinkSpan) {
         if (isLoading) {
-            displayElement.textContent = getTranslation('detecting', 'menu');
+            const locationLabel = getTranslation('location', 'menu');
+            const detectingText = getTranslation('detecting', 'menu');
+            const newText = `${locationLabel}: ${detectingText}`;
+            locationLinkSpan.textContent = newText;
         } else {
             updateLocationDisplay();
         }
@@ -192,11 +340,7 @@ function filterCountryList(query) {
     const links = menuList.querySelectorAll('.menu-link');
     links.forEach(link => {
         const countryName = link.dataset.countryName.toLowerCase();
-        if (countryName.includes(normalizedQuery)) {
-            link.style.display = 'flex';
-        } else {
-            link.style.display = 'none';
-        }
+        link.style.display = countryName.includes(normalizedQuery) ? 'flex' : 'none';
     });
 }
 
@@ -208,22 +352,20 @@ function addEventListeners() {
     if (locationMenu) {
         // Listener para la lista de países
         locationMenu.querySelector('.menu-list').addEventListener('click', (e) => {
-            const link = e.target.closest('.menu-link');
+            const link = e.target.closest('.menu-link[data-country-code]');
             if (link && link.dataset.countryCode) {
                 e.preventDefault();
-                setCountry({
+                applyCountryChange({
                     code: link.dataset.countryCode,
                     name: link.dataset.countryName
                 });
             }
         });
 
-        // Listener para el input de búsqueda (actualizado al ID corregido)
+        // Listener para el input de búsqueda
         const searchInput = locationMenu.querySelector('#location-search-input');
         if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                filterCountryList(e.target.value);
-            });
+            searchInput.addEventListener('input', (e) => filterCountryList(e.target.value));
         }
     }
 
@@ -232,5 +374,5 @@ function addEventListeners() {
     });
 }
 
-// Exporta la función de inicialización para ser llamada desde init-app.js
-export { initLocationManager };
+// Exporta la función de inicialización para ser llamada desde otros módulos
+export { initLocationManager, getCurrentLocation };

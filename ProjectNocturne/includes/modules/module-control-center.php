@@ -57,8 +57,7 @@
                     <span class="material-symbols-rounded">location_on</span>
                 </div>
                 <div class="menu-link-text">
-                    <span data-translate="location" data-translate-category="menu">Ubicación</span>:
-                    <span class="current-location-value" style="opacity: 0.7; margin-left: 4px;"></span>
+                    <span data-translate="location" data-translate-category="menu" data-translate-target="text"></span>
                 </div>
             </div>
         </div>
@@ -128,23 +127,11 @@
         </div>
     </div>
     
-  <div class="menu-control-center disabled" data-menu="location">
-    <div class="pill-container">
-        <div class="drag-handle"></div>
-    </div>
-    
-    <div class="menu-section-top" style="padding-bottom: 4px;">
-        <div class="search-content">
-            <div class="search-content-icon">
-                <span class="material-symbols-rounded">search</span>
-            </div>
-            <div class="search-content-text">
-                <input type="text" id="location-search-input" class="body-title" autocomplete="off" data-translate="search_cities_placeholder" data-translate-category="search" data-translate-target="placeholder" placeholder="Buscar país...">
-            </div>
+    <div class="menu-control-center disabled" data-menu="location">
+        <div class="pill-container">
+            <div class="drag-handle"></div>
         </div>
+        <div class="menu-list overflow-y" style="max-height: 300px;">
+            </div>
     </div>
-    
-    <div class="menu-list overflow-y" style="max-height: 260px; padding: 0 8px 8px 8px;">
-        </div>
-</div>
 </div>

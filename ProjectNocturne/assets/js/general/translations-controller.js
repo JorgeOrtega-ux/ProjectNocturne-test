@@ -175,7 +175,8 @@ function isDynamicMenuElement(element) {
     const menuLink = element.closest('.menu-link');
     if (menuLink) {
         const toggle = menuLink.getAttribute('data-toggle');
-        if (toggle === 'appearance' || toggle === 'language') {
+        // --- MODIFICADO ---
+        if (toggle === 'appearance' || toggle === 'language' || toggle === 'location') {
             return true;
         }
     }
@@ -282,6 +283,7 @@ function updateDynamicMenuLabels() {
 
     updateAppearanceLabel();
     updateLanguageLabel();
+    updateLocationLabel(); // --- AÑADIDO ---
 }
 
 function updateAppearanceLabel() {
@@ -304,6 +306,21 @@ function updateLanguageLabel() {
 
         if (languageKey && translations.menu[languageKey] && translations.menu.language) {
             languageLink.textContent = `${translations.menu.language}: ${translations.menu[languageKey]}`;
+        }
+    }
+}
+
+// --- NUEVA FUNCIÓN AÑADIDA ---
+function updateLocationLabel() {
+    const locationLinkSpan = document.querySelector('.menu-link[data-toggle="location"] .menu-link-text span');
+    if (locationLinkSpan && typeof window.getCurrentLocation === 'function') {
+        const locationLabel = getTranslation('location', 'menu');
+        const currentLocationData = window.getCurrentLocation();
+        const currentLocationName = currentLocationData ? currentLocationData.name : getTranslation('none_selected', 'menu');
+        const newText = `${locationLabel}: ${currentLocationName}`;
+
+        if (locationLinkSpan.textContent !== newText) {
+            locationLinkSpan.textContent = newText;
         }
     }
 }
