@@ -22,7 +22,7 @@ import {
     getCurrentTheme as getModuleManagerCurrentTheme,
     isLoading as isModuleManagerLoading
 } from './module-manager.js';
-
+import { initLocationManager } from '../general/location-manager.js'; // <-- AÑADIR ESTA LÍNEA
 import {
     initializeTooltipSystem,
     refreshTooltips,
@@ -384,24 +384,24 @@ function initializeMainComponents() {
     initControlCenter();
     initMobileDragController();
     initNewOverlayModules();
-    initializeZoneInfoTool();    initializeEverything(); // <-- NUEVA LÍNEA
-    initDynamicIsland(); // NEW LINE: Initialize dynamic island
+    initializeZoneInfoTool();
+    initializeEverything();
+    initDynamicIsland();
     initializeCategorySliderService();
     initializeCentralizedFontManager();
     initializeFullScreenManager();
-    initializeCardEventListeners(); // <-- AÑADIDO
+    initializeCardEventListeners();
     initColorTextSystem();
     initColorSearchSystem(); 
     initializeAlarmClock();
     initWorldClock();
     initializeStopwatch();
     initializeTimerController();
-    initDynamicIsland(); // NEW LINE: Initialize dynamic island
+    initLocationManager(); // <-- AÑADIR ESTA LÍNEA
     setupEventListeners();
     batchMigrateTooltips();
     initializeMobileSidebarTooltips();
 }
-
 function finalizeInitialization() {
     applicationState.isReady = true;
 

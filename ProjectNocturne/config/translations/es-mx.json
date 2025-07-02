@@ -123,7 +123,10 @@
     "settings": "Configuración",
     "spanish_mx": "Español (MX)",
     "suggest_improvements": "Sugerir mejoras",
-    "sync_with_system": "Sincronizar con el sistema"
+    "sync_with_system": "Sincronizar con el sistema",
+    "location": "Ubicación",
+    "detecting": "Detectando...",
+    "none_selected": "No seleccionado"
   },
   "search": {
     "no_results": "No se encontraron resultados para",

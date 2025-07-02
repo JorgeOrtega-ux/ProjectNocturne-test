@@ -69,7 +69,8 @@ const CONTROL_CENTER_MENUS = {
     'control_center': 'control_center',
     'appearance': 'appearance',
     'language': 'language',
-    'settings': 'settings'
+    'settings': 'settings',
+    'location': 'location' // <-- AÑADIR ESTA LÍNEA
 };
 
 const INDEPENDENT_OVERLAYS = {
@@ -146,21 +147,21 @@ function dispatchModuleEvent(eventName, detail = {}) {
 
 function cancelAllActiveProcesses(reason = 'unknown') {
     let processesCancelled = false;
-    
+
     if (isThemeChanging()) {
         console.log(`🚫 Cancelling active theme change (${reason})`);
-        
+
         cleanThemeChangeStates();
         processesCancelled = true;
     }
-    
+
     if (isLanguageChanging()) {
         console.log(`🚫 Cancelling active language change (${reason})`);
-        
+
         cleanLanguageChangeStates();
         processesCancelled = true;
     }
-    
+
     return processesCancelled;
 }
 
@@ -168,19 +169,19 @@ function cancelAllActiveProcesses(reason = 'unknown') {
 
 function cleanThemeChangeStates() {
     resetThemeStates();
-    
+
     const themeLinks = document.querySelectorAll('.menu-link[data-theme]');
     const currentTheme = getCurrentTheme();
-    
+
     themeLinks.forEach(link => {
         const linkTheme = link.getAttribute('data-theme');
         link.classList.remove('preview-active', 'disabled-interactive');
-        
+
         const loaderDiv = link.querySelector('.menu-link-loader');
         if (loaderDiv) {
             loaderDiv.remove();
         }
-        
+
         if (linkTheme === currentTheme) {
             link.classList.add('active');
         } else {
@@ -191,19 +192,19 @@ function cleanThemeChangeStates() {
 
 function cleanLanguageChangeStates() {
     resetLanguageStates();
-    
+
     const languageLinks = document.querySelectorAll('.menu-link[data-language]');
     const currentLanguage = getCurrentLanguage();
-    
+
     languageLinks.forEach(link => {
         const linkLanguage = link.getAttribute('data-language');
         link.classList.remove('preview-active', 'disabled-interactive');
-        
+
         const loaderDiv = link.querySelector('.menu-link-loader');
         if (loaderDiv) {
             loaderDiv.remove();
         }
-        
+
         if (linkLanguage === currentLanguage) {
             link.classList.add('active');
         } else {
@@ -311,7 +312,7 @@ function activateModule(moduleName) {
     } else if (normalizedName === 'overlayContainer') {
         activateOverlayContainer(moduleName);
     }
-    
+
     dispatchModuleEvent('moduleActivated', { module: moduleName });
 
     setTimeout(() => {
@@ -347,14 +348,14 @@ function toggleModule(moduleName) {
     }
 
     const isActive = moduleState.modules[normalizedName]?.active || false;
-    
+
     if (isActive) {
         const overlayContainer = domCache.overlayContainer.module;
         const currentToggle = getToggleFromOverlay(moduleState.modules.overlayContainer.currentOverlay);
         if (normalizedName === 'overlayContainer' && currentToggle !== moduleName) {
-             activateModule(moduleName);
+            activateModule(moduleName);
         } else {
-             deactivateModule(normalizedName);
+            deactivateModule(normalizedName);
         }
     } else {
         activateModule(moduleName);
@@ -398,7 +399,7 @@ function activateOverlayContainer(originalToggleName) {
         if (overlayToShow) {
             showSpecificOverlay(overlayToShow);
             moduleState.modules.overlayContainer.currentOverlay = overlayToShow;
-            
+
             // ========== HOOK DE ACTIVACIÓN ==========
             // Llama a la función de inicialización del menú correspondiente.
             initializeMenuForOverlay(overlayToShow);
@@ -470,7 +471,7 @@ function performModuleDeactivation(moduleName) {
             overlayContainer.classList.remove('active');
             overlayContainer.classList.add('disabled');
             module.active = false;
-            
+
             // ========== HOOK DE DESACTIVACIÓN ==========
             // Obtiene el nombre del overlay que se va a cerrar...
             const overlayToReset = module.currentOverlay;
@@ -485,7 +486,7 @@ function performModuleDeactivation(moduleName) {
             }
         }
     }
-    
+
     if (deactivatedToggle) {
         dispatchModuleEvent('moduleDeactivated', { module: deactivatedToggle });
     }
@@ -569,12 +570,12 @@ function getOverlayFromToggle(toggleName) {
 
 function getToggleFromOverlay(overlayName) {
     const overlayToToggleMap = {
-       'menuAlarm': 'toggleMenuAlarm',
-       'menuTimer': 'toggleMenuTimer',
-       'menuWorldClock': 'toggleMenuWorldClock',
-       'menuPaletteColors': 'togglePaletteColors'
-   };
-   return overlayToToggleMap[overlayName] || null;
+        'menuAlarm': 'toggleMenuAlarm',
+        'menuTimer': 'toggleMenuTimer',
+        'menuWorldClock': 'toggleMenuWorldClock',
+        'menuPaletteColors': 'togglePaletteColors'
+    };
+    return overlayToToggleMap[overlayName] || null;
 }
 
 
@@ -955,13 +956,13 @@ function forceUpdateStates() {
 function isModuleCurrentlyChanging() {
     const controlCenterModule = domCache.controlCenter.module;
     const overlayContainer = domCache.overlayContainer.module;
-    
-    const isControlCenterBusy = controlCenterModule?.classList.contains('closing') || 
-                               controlCenterModule?.querySelector('.menu-control-center.closing') || false;
-    
+
+    const isControlCenterBusy = controlCenterModule?.classList.contains('closing') ||
+        controlCenterModule?.querySelector('.menu-control-center.closing') || false;
+
     const isOverlayBusy = overlayContainer?.classList.contains('closing') ||
-                         overlayContainer?.querySelector('.menu-alarm.closing, .menu-timer.closing, .menu-worldClock.closing, .menu-paletteColors.closing') || false;
-    
+        overlayContainer?.querySelector('.menu-alarm.closing, .menu-timer.closing, .menu-worldClock.closing, .menu-paletteColors.closing') || false;
+
     return moduleState.isModuleChanging || isControlCenterBusy || isOverlayBusy;
 }
 
@@ -1001,7 +1002,7 @@ function logModuleStates() {
         const status = module.active ? '✅ ACTIVE' : '❌ INACTIVE';
 
         if (moduleName === 'controlCenter') {
-            allStates['Control Center'] = { 
+            allStates['Control Center'] = {
                 Status: status,
                 'Current Menu': module.currentMenu || 'None'
             };
@@ -1027,7 +1028,7 @@ function debugModuleState() {
     console.log('Loading States:', isLoading());
     console.log('Active Module:', getActiveModule());
     console.log('Any Module Active:', isAnyModuleActive());
-    
+
     console.log('Theme Changing:', isThemeChanging());
     console.log('Language Changing:', isLanguageChanging());
 

@@ -123,7 +123,10 @@
     "settings": "Settings",
     "spanish_mx": "Español (MX)",
     "suggest_improvements": "Suggest Improvements",
-    "sync_with_system": "Sync with System"
+    "sync_with_system": "Sync with System",
+    "location": "Location",
+    "detecting": "Detecting...",
+    "none_selected": "None Selected"
   },
   "search": {
     "no_results": "No results found for",
@@ -263,7 +266,8 @@
     "edit_not_implemented": "Edit clock functionality is pending implementation.",
     "fullscreen_not_implemented": "Fullscreen functionality is pending implementation.",
     "save_changes": "Save Changes"
-  },"weekdays": {
+  },
+  "weekdays": {
     "sunday": "Sunday",
     "monday": "Monday",
     "tuesday": "Tuesday",
@@ -271,8 +275,8 @@
     "thursday": "Thursday",
     "friday": "Friday",
     "saturday": "Saturday"
-},
-"months": {
+  },
+  "months": {
     "january": "January",
     "february": "February",
     "march": "March",
@@ -285,7 +289,7 @@
     "october": "October",
     "november": "November",
     "december": "December"
-},
+  },
   "everything": {
     "main_panel": "Main Panel",
     "local_time": "Local Time",
