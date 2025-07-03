@@ -5,7 +5,7 @@ import { use24HourFormat, deactivateModule, PREMIUM_FEATURES } from '../general/
 import { getTranslation } from '../general/translations-controller.js';
 import { addTimerAndRender, updateTimer, getTimersCount, getTimerLimit } from './timer-controller.js';
 import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js';
-import { playSound, stopSound, generateSoundList, handleAudioUpload } from './general-tools.js';
+import { playSound, stopSound, generateSoundList, handleAudioUpload, deleteUserAudio } from './general-tools.js';
 
 const initialState = {
     alarm: { hour: 0, minute: 0, sound: 'classic_beep' },
@@ -879,6 +879,30 @@ function setupGlobalEventListeners() {
                         generateSoundList(listElement, actionName, activeSoundId);
                     }
                 });
+                break;
+            case 'delete-user-audio':
+                event.stopPropagation();
+                const audioIdToDelete = actionTarget.dataset.audioId;
+                if (confirm(getTranslation('confirm_delete_audio', 'sounds'))) {
+                    deleteUserAudio(audioIdToDelete);
+                    // Refrescar la lista actual
+                    const listElement = actionTarget.closest('.menu-list');
+                    const dropdown = actionTarget.closest('.dropdown-menu-container');
+                    if (listElement && dropdown) {
+                        const grandParent = dropdown.closest('.menu-alarm, .menu-timer');
+                        let actionName = '', activeSoundId = '';
+
+                        if (grandParent.classList.contains('menu-alarm')) {
+                            actionName = 'selectAlarmSound';
+                            activeSoundId = state.alarm.sound;
+                        } else {
+                            const soundSelector = grandParent.querySelector('[data-action="toggleCountdownSoundDropdown"]') ? 'countdown' : 'count_to_date';
+                            actionName = soundSelector === 'countdown' ? 'selectCountdownSound' : 'selectCountToDateSound';
+                            activeSoundId = soundSelector === 'countdown' ? state.timer.sound : state.timer.countTo.sound;
+                        }
+                        generateSoundList(listElement, actionName, activeSoundId);
+                    }
+                }
                 break;
 
             case 'createAlarm': {

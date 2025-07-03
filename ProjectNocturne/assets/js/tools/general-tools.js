@@ -4,7 +4,7 @@ import { getTranslation } from '../general/translations-controller.js';
 import { prepareAlarmForEdit, prepareWorldClockForEdit, prepareTimerForEdit, prepareCountToDateForEdit } from './menu-interactions.js';
 import { activateModule, getCurrentActiveOverlay } from '../general/main.js';
 
-// ========== USER AUDIO MANAGEMENT (NUEVO) ==========
+// ========== USER AUDIO MANAGEMENT (NUEVO Y CORREGIDO) ==========
 const USER_AUDIO_STORAGE_KEY = 'user_custom_audio';
 
 /**
@@ -40,6 +40,63 @@ function saveUserAudio(name, dataUrl) {
     return newAudio;
 }
 
+/**
+ * Elimina un audio de usuario de localStorage y actualiza las alarmas/temporizadores.
+ * @param {string} audioId - El ID del audio a eliminar.
+ */
+function deleteUserAudio(audioId) {
+    let userAudios = loadUserAudios();
+    const audioToDelete = userAudios.find(audio => audio.id === audioId);
+
+    if (!audioToDelete) return;
+
+    userAudios = userAudios.filter(audio => audio.id !== audioId);
+    localStorage.setItem(USER_AUDIO_STORAGE_KEY, JSON.stringify(userAudios));
+
+    // Llama a la nueva función para actualizar todo.
+    replaceDeletedAudioInTools(audioId, 'classic_beep');
+}
+
+
+/**
+ * Reemplaza un audio eliminado en todas las alarmas y temporizadores.
+ * @param {string} deletedAudioId - El ID del audio que fue eliminado.
+ * @param {string} defaultSoundId - El ID del sonido predeterminado a usar como reemplazo.
+ */
+function replaceDeletedAudioInTools(deletedAudioId, defaultSoundId) {
+    // Actualizar Alarmas
+    if (window.alarmManager && typeof window.alarmManager.getAllAlarms === 'function') {
+        const { userAlarms, defaultAlarms } = window.alarmManager.getAllAlarms();
+        let changed = false;
+        [...userAlarms, ...defaultAlarms].forEach(alarm => {
+            if (alarm.sound === deletedAudioId) {
+                alarm.sound = defaultSoundId;
+                changed = true;
+            }
+        });
+        if (changed) {
+            window.alarmManager.saveAllAlarms();
+            window.alarmManager.renderAllAlarmCards(); // Re-render para actualizar UI
+        }
+    }
+
+    // Actualizar Temporizadores
+    if (window.timerManager && typeof window.timerManager.getAllTimers === 'function') {
+        const { userTimers, defaultTimers } = window.timerManager.getAllTimers();
+         let changed = false;
+        [...userTimers, ...defaultTimers].forEach(timer => {
+            if (timer.sound === deletedAudioId) {
+                timer.sound = defaultSoundId;
+                changed = true;
+            }
+        });
+        if (changed) {
+            window.timerManager.saveAllTimers();
+            window.timerManager.renderAllTimerCards(); // Re-render para actualizar UI
+        }
+    }
+}
+
 
 // ========== SOUND LOGIC (MODIFICADO) ==========
 const SOUND_PATTERNS = {
@@ -54,7 +111,7 @@ const SOUND_PATTERNS = {
  * Obtiene la lista completa de sonidos disponibles, incluyendo los subidos por el usuario.
  * @returns {Array}
  */
-function getAvailableSounds() {
+export function getAvailableSounds() {
     const defaultSounds = [
         { id: 'classic_beep', nameKey: 'classic_beep', icon: 'volume_up' },
         { id: 'gentle_chime', nameKey: 'gentle_chime', icon: 'notifications' },
@@ -155,41 +212,79 @@ export function stopSound() {
 
 export async function generateSoundList(listElement, actionName, activeSoundId = null) {
     if (!listElement) return;
-    listElement.innerHTML = '';
+    listElement.innerHTML = ''; // Limpiar contenido anterior
     const getTranslation = window.getTranslation || ((key, category) => key);
 
     const availableSounds = getAvailableSounds();
+    const defaultSounds = availableSounds.filter(s => !s.isCustom);
+    const userAudios = availableSounds.filter(s => s.isCustom);
 
-    availableSounds.forEach(sound => {
-        const menuLink = document.createElement('div');
-        menuLink.className = 'menu-link';
-        menuLink.dataset.action = actionName;
-        menuLink.dataset.sound = sound.id;
-
-        if (sound.id === activeSoundId) {
-            menuLink.classList.add('active');
-        }
-
-        const soundName = sound.isCustom ? sound.nameKey : getTranslation(sound.nameKey, 'sounds');
-        const translationAttrs = sound.isCustom ? '' : `data-translate="${sound.nameKey}" data-translate-category="sounds"`;
-
-        menuLink.innerHTML = `
-            <div class="menu-link-icon"><span class="material-symbols-rounded">${sound.icon}</span></div>
-            <div class="menu-link-text"><span ${translationAttrs}>${soundName}</span></div>
-        `;
-        listElement.appendChild(menuLink);
-    });
-
-    // Añadir el enlace para subir audio
+    // 1. Enlace para subir audio (movido arriba)
     const uploadLink = document.createElement('div');
     uploadLink.className = 'menu-link';
-    uploadLink.dataset.action = 'upload-audio'; // Acción específica para la carga
+    uploadLink.dataset.action = 'upload-audio';
     uploadLink.innerHTML = `
         <div class="menu-link-icon"><span class="material-symbols-rounded">upload_file</span></div>
         <div class="menu-link-text"><span data-translate="upload_audio" data-translate-category="sounds">${getTranslation('upload_audio', 'sounds')}</span></div>
     `;
     listElement.appendChild(uploadLink);
+
+    // 2. Sección de audios subidos por el usuario
+    if (userAudios.length > 0) {
+        const userAudiosHeader = document.createElement('div');
+        userAudiosHeader.className = 'menu-content-header';
+        userAudiosHeader.innerHTML = `<span>${getTranslation('user_uploaded_audios', 'sounds')}</span>`;
+        listElement.appendChild(userAudiosHeader);
+
+        userAudios.forEach(sound => {
+            const menuLink = createSoundMenuItem(sound, actionName, activeSoundId, true);
+            listElement.appendChild(menuLink);
+        });
+    }
+
+    // 3. Sección de audios predeterminados
+    const defaultSoundsHeader = document.createElement('div');
+    defaultSoundsHeader.className = 'menu-content-header';
+    defaultSoundsHeader.innerHTML = `<span>${getTranslation('default_audios', 'sounds')}</span>`;
+    listElement.appendChild(defaultSoundsHeader);
+
+    defaultSounds.forEach(sound => {
+        const menuLink = createSoundMenuItem(sound, actionName, activeSoundId, false);
+        listElement.appendChild(menuLink);
+    });
 }
+
+function createSoundMenuItem(sound, actionName, activeSoundId, isCustom) {
+    const menuLink = document.createElement('div');
+    menuLink.className = 'menu-link';
+    menuLink.dataset.action = actionName;
+    menuLink.dataset.sound = sound.id;
+
+    if (sound.id === activeSoundId) {
+        menuLink.classList.add('active');
+    }
+
+    const soundName = isCustom ? sound.nameKey : getTranslation(sound.nameKey, 'sounds');
+    const translationAttrs = isCustom ? '' : `data-translate="${sound.nameKey}" data-translate-category="sounds"`;
+
+    let deleteButton = '';
+    if (isCustom) {
+        deleteButton = `
+            <div class="menu-link-action" data-action="delete-user-audio" data-audio-id="${sound.id}">
+                <span class="material-symbols-rounded">delete</span>
+            </div>
+        `;
+    }
+
+    menuLink.innerHTML = `
+        <div class="menu-link-icon"><span class="material-symbols-rounded">${sound.icon}</span></div>
+        <div class="menu-link-text"><span ${translationAttrs}>${soundName}</span></div>
+        ${deleteButton}
+    `;
+
+    return menuLink;
+}
+
 
 // ========== NUEVA FUNCIÓN PARA GESTIONAR LA CARGA DE AUDIO ==========
 export function handleAudioUpload(callback) {
@@ -1285,5 +1380,6 @@ export {
     initializeCategorySliderService,
     initializeCentralizedFontManager,
     initializeTextStyleManager,
-    initializeFullScreenManager
+    initializeFullScreenManager,
+    deleteUserAudio,
 };

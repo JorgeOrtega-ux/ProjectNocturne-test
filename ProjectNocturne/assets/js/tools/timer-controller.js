@@ -2,7 +2,7 @@
 import { getTranslation } from '../general/translations-controller.js';
 import { PREMIUM_FEATURES, activateModule, getCurrentActiveOverlay, allowCardMovement } from '../general/main.js';
 import { prepareTimerForEdit, prepareCountToDateForEdit } from './menu-interactions.js';
-import { playSound, stopSound, generateSoundList, initializeSortable } from './general-tools.js';
+import { playSound, stopSound, generateSoundList, initializeSortable, getAvailableSounds } from './general-tools.js';
 import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js';
 import { updateEverythingWidgets } from './everything-controller.js';
 
@@ -392,7 +392,13 @@ function initializeTimerController() {
         findTimerById,
         getTimersCount,
         getTimerLimit, getRunningTimersCount,
-        getActiveTimerDetails
+        getActiveTimerDetails,
+        getAllTimers: () => ({ userTimers, defaultTimers: defaultTimersState }),
+        saveAllTimers: () => {
+            saveTimersToStorage();
+            saveDefaultTimersOrder();
+        },
+        renderAllTimerCards
     };
 
     updateEverythingWidgets();
@@ -765,6 +771,7 @@ function createTimerCard(timer) {
 
     const isDefault = timer.id.startsWith('default-timer-');
     const titleText = isDefault ? getTranslation(timer.title, 'timer') : timer.title;
+    const soundName = getSoundNameById(timer.sound);
 
     let countdownMenu = '';
     if (isCountdown) {
@@ -797,7 +804,7 @@ function createTimerCard(timer) {
         </div>
         <div class="card-footer">
             <div class="card-tags">
-                 <span class="card-tag">${getTranslation((timer.sound || '').replace(/-/g, '_'), 'sounds')}</span>
+                 <span class="card-tag" data-sound-id="${timer.sound}">${soundName}</span>
             </div>
         </div>
         <div class="card-options-container">
@@ -1004,9 +1011,18 @@ function handleTimerEnd(timerId) {
 
     const isUserTimer = userTimers.some(t => t.id === timerId);
     if (isUserTimer) saveTimersToStorage(); else saveDefaultTimersOrder();
+    
+    let soundToPlay = timer.sound;
+    const availableSounds = getAvailableSounds();
+    if (!availableSounds.some(s => s.id === soundToPlay)) {
+        console.warn(`Audio "${soundToPlay}" not found for timer "${timer.title}". Reverting to default.`);
+        soundToPlay = 'classic_beep';
+        timer.sound = soundToPlay;
+        updateTimer(timer.id, { sound: soundToPlay });
+    }
 
     if (timer.sound) {
-        playSound(timer.sound);
+        playSound(soundToPlay);
     }
     const translatedTitle = timer.id.startsWith('default-timer-') ? getTranslation(timer.title, 'timer') : timer.title;
 
@@ -1187,7 +1203,8 @@ function updateTimerCardVisuals(timer) {
 
     const tagElement = card.querySelector('.card-tag');
     if (tagElement) {
-        tagElement.textContent = getTranslation((timer.sound || '').replace(/-/g, '_'), 'sounds');
+        tagElement.textContent = getSoundNameById(timer.sound);
+        tagElement.dataset.soundId = timer.sound;
     }
 
     const dismissButton = card.querySelector('.card-dismiss-btn span');
@@ -1247,5 +1264,12 @@ document.addEventListener('translationsApplied', () => {
     });
     updateMainDisplay(); 
 });
+
+function getSoundNameById(soundId) {
+    const sound = getAvailableSounds().find(s => s.id === soundId);
+    if (!sound) return getTranslation('classic_beep', 'sounds'); // Fallback
+    return sound.isCustom ? sound.nameKey : getTranslation(sound.nameKey, 'sounds');
+}
+
 
 export { initializeTimerController };
