@@ -14,9 +14,7 @@
             </div>
         </div>
         <div class="menu-content-scrolleable overflow-y">
-            <div class="alarm-search-results-wrapper disabled">
-                </div>
-
+            <div class="alarm-search-results-wrapper disabled"></div>
             <div class="alarm-creation-wrapper active">
                 <div class="menu-section-center overflow-y">
                     <div class="menu-content-wrapper active">
@@ -24,7 +22,7 @@
                             <div class="menu-content-header">
                                 <div class="menu-content-header-primary">
                                     <span class="material-symbols-rounded">label</span>
-                                    <span data-translate="alarm_title" data-translate-category="alarms">Título de la alarma</span>
+                                    <span data-translate="alarm_title" data-translate-category="alarms"></span>
                                 </div>
                             </div>
                             <div class="menu-content-general">
@@ -37,7 +35,7 @@
                             <div class="menu-content-header">
                                 <div class="menu-content-header-primary">
                                     <span class="material-symbols-rounded">schedule</span>
-                                    <span data-translate="alarm_settings" data-translate-category="alarms">Configuración de la alarma</span>
+                                    <span data-translate="alarm_settings" data-translate-category="alarms"></span>
                                 </div>
                             </div>
                             <div class="menu-content-general">
@@ -67,14 +65,14 @@
                             <div class="menu-content-header">
                                 <div class="menu-content-header-primary">
                                     <span class="material-symbols-rounded">music_note</span>
-                                    <span data-translate="alarm_sound" data-translate-category="alarms">Sonido de la alarma</span>
+                                    <span data-translate="alarm_sound" data-translate-category="alarms"></span>
                                 </div>
                             </div>
                             <div class="menu-content-general">
                                 <div class="custom-select-wrapper">
                                     <div class="custom-select-content" data-action="toggleAlarmSoundDropdown">
                                         <div class="custom-select-content-left">
-                                            <span id="alarm-selected-sound" data-translate="classic_beep" data-translate-category="sounds">Beep Clásico</span>
+                                            <span id="alarm-selected-sound" data-translate="classic_beep" data-translate-category="sounds"></span>
                                         </div>
                                         <div class="custom-select-content-right">
                                             <span class="material-symbols-rounded">expand_more</span>
@@ -94,10 +92,10 @@
                 </div>
                 <div class="menu-section-bottom">
                     <div class="create-tool" data-action="createAlarm">
-                        <span data-translate="create_alarm" data-translate-category="alarms">Crear alarma</span>
+                        <span data-translate="create_alarm" data-translate-category="alarms"></span>
                     </div>
                 </div>
             </div>
-            </div>
+        </div>
     </div>
 </div>

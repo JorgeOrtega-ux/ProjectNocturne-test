@@ -10,6 +10,7 @@
     <link rel="stylesheet" type="text/css" href="assets/css/general/dark-mode.css">
     <link rel="stylesheet" type="text/css" href="assets/css/general/tools.css">
     <script src="assets/js/general/initial-theme.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <title>ProjectNocturne - Home</title>
 </head>
 
@@ -40,6 +41,7 @@
         </div>
     </div>
 
+    <!-- General scripts -->
     <script type="module" src="assets/js/general/translations-controller.js"></script>
     <script type="module" src="assets/js/general/main.js"></script>
     <script type="module" src="assets/js/general/module-manager.js"></script>
@@ -49,19 +51,21 @@
     <script type="module" src="assets/js/general/drag-controller.js"></script>
     <script type="module" src="assets/js/general/dynamic-island-controller.js"></script>
     <script type="module" src="assets/js/general/init-app.js"></script>
+    <script type="module" src="assets/js/general/location-manager.js"></script>
+
+    <!-- Tools scripts -->
     <script type="module" src="assets/js/tools/general-tools.js"></script>
     <script type="module" src="assets/js/tools/palette-colors.js"></script>
     <script type="module" src="assets/js/tools/color-search-system.js"></script>
     <script type="module" src="assets/js/tools/alarm-controller.js"></script>
-    <script type="module" src="assets/js/general/location-manager.js"></script>
     <script type="module" src="assets/js/tools/timer-controller.js"></script>
     <script type="module" src="assets/js/tools/stopwatch-controller.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script type="module" src="assets/js/tools/worldClock-controller.js"></script>
     <script type="module" src="assets/js/tools/everything-controller.js"></script>
     <script type="module" src="assets/js/tools/menu-interactions.js"></script>
     <script type="module" src="assets/js/tools/zoneinfo-controller.js"></script>
     <script type="module" src="assets/js/tools/festivities-manager.js"></script>
+
 </body>
 
 </html>

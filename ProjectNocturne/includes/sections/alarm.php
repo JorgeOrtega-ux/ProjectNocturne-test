@@ -67,7 +67,6 @@
         </div>
     </div>
     <div class="section-bottom">
-        <div class="alarms-list-wrapper">
-            </div>
+        <div class="alarms-list-wrapper"></div>
     </div>
 </div>

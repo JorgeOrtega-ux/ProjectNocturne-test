@@ -1,10 +1,11 @@
-// jorgeortega-ux/projectnocturne-alpha/ProjectNocturne-Alpha-32dae5d9be5dbd76db6b6638608d9bf9b2fb28e3/ProjectNocturne/assets/js/tools/menu-interactions.js
+// /assets/js/tools/menu-interactions.js
+
 "use strict";
 import { use24HourFormat, deactivateModule, PREMIUM_FEATURES } from '../general/main.js';
 import { getTranslation } from '../general/translations-controller.js';
-import { addTimerAndRender, updateTimer, getTimersCount, getTimerLimit } from './timer-controller.js'; // Added getTimerLimit
+import { addTimerAndRender, updateTimer, getTimersCount, getTimerLimit } from './timer-controller.js';
 import { showDynamicIslandNotification } from '../general/dynamic-island-controller.js';
-import { playSound, stopSound, generateSoundList } from './general-tools.js';
+import { playSound, stopSound, generateSoundList, handleAudioUpload } from './general-tools.js';
 
 const initialState = {
     alarm: { hour: 0, minute: 0, sound: 'classic_beep' },
@@ -846,6 +847,38 @@ function setupGlobalEventListeners() {
                 event.stopPropagation();
                 handleSelect(actionTarget, '#worldclock-selected-timezone');
                 state.worldClock.timezone = actionTarget.getAttribute('data-timezone');
+                break;
+
+            case 'upload-audio':
+                event.stopPropagation();
+                handleAudioUpload((newAudio) => {
+                    // Refrescar la lista de sonidos del menú actual
+                    const dropdown = actionTarget.closest('.dropdown-menu-container');
+                    const listElement = dropdown?.querySelector('.menu-list');
+                    const soundSelector = actionTarget.closest('.custom-select-wrapper');
+                    
+                    if (listElement && soundSelector) {
+                        const isAlarm = soundSelector.querySelector('[data-action="toggleAlarmSoundDropdown"]');
+                        const isCountdown = soundSelector.querySelector('[data-action="toggleCountdownSoundDropdown"]');
+                        const isCountToDate = soundSelector.querySelector('[data-action="toggleCountToDateSoundDropdown"]');
+
+                        let actionName = '';
+                        let activeSoundId = '';
+
+                        if(isAlarm) {
+                            actionName = 'selectAlarmSound';
+                            activeSoundId = state.alarm.sound;
+                        } else if (isCountdown) {
+                            actionName = 'selectCountdownSound';
+                            activeSoundId = state.timer.sound;
+                        } else if (isCountToDate) {
+                            actionName = 'selectCountToDateSound';
+                            activeSoundId = state.timer.countTo.sound;
+                        }
+                        
+                        generateSoundList(listElement, actionName, activeSoundId);
+                    }
+                });
                 break;
 
             case 'createAlarm': {

@@ -88,7 +88,6 @@
         </div>
     </div>
     <div class="section-bottom">
-        <div class="timers-list-wrapper">
-            </div>
+        <div class="timers-list-wrapper"></div>
     </div>
 </div>

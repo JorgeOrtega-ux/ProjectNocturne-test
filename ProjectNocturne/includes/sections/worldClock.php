@@ -67,7 +67,6 @@
         </div>
     </div>
     <div class="section-bottom">
-        <div class="tool-grid world-clocks-grid active">
-            </div>
+        <div class="tool-grid world-clocks-grid active"></div>
     </div>
 </div>

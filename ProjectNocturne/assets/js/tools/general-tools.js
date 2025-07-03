@@ -1,8 +1,47 @@
+// /assets/js/tools/general-tools.js
+
 import { getTranslation } from '../general/translations-controller.js';
 import { prepareAlarmForEdit, prepareWorldClockForEdit, prepareTimerForEdit, prepareCountToDateForEdit } from './menu-interactions.js';
 import { activateModule, getCurrentActiveOverlay } from '../general/main.js';
 
-// ========== SOUND LOGIC ==========
+// ========== USER AUDIO MANAGEMENT (NUEVO) ==========
+const USER_AUDIO_STORAGE_KEY = 'user_custom_audio';
+
+/**
+ * Carga los audios del usuario desde localStorage.
+ * @returns {Array} - Un array de objetos de audio del usuario.
+ */
+function loadUserAudios() {
+    try {
+        const storedAudios = localStorage.getItem(USER_AUDIO_STORAGE_KEY);
+        return storedAudios ? JSON.parse(storedAudios) : [];
+    } catch (e) {
+        console.error("Error loading user audios:", e);
+        return [];
+    }
+}
+
+/**
+ * Guarda un nuevo audio de usuario en localStorage.
+ * @param {string} name - El nombre del archivo de audio.
+ * @param {string} dataUrl - El audio codificado en Base64 (Data URL).
+ * @returns {object} El objeto del nuevo audio guardado.
+ */
+function saveUserAudio(name, dataUrl) {
+    const userAudios = loadUserAudios();
+    const newAudio = {
+        id: `user_audio_${Date.now()}`,
+        name: name,
+        data: dataUrl,
+        icon: 'music_note' // Icono para audios subidos
+    };
+    userAudios.push(newAudio);
+    localStorage.setItem(USER_AUDIO_STORAGE_KEY, JSON.stringify(userAudios));
+    return newAudio;
+}
+
+
+// ========== SOUND LOGIC (MODIFICADO) ==========
 const SOUND_PATTERNS = {
     'classic_beep': { frequencies: [800], beepDuration: 150, pauseDuration: 150, type: 'square' },
     'gentle_chime': { frequencies: [523.25, 659.25, 783.99], beepDuration: 300, pauseDuration: 500, type: 'sine' },
@@ -11,13 +50,29 @@ const SOUND_PATTERNS = {
     'urgent_beep': { frequencies: [1600, 1600], beepDuration: 80, pauseDuration: 80, type: 'sawtooth' }
 };
 
-export const AVAILABLE_SOUNDS = [
-    { id: 'classic_beep', nameKey: 'classic_beep', icon: 'volume_up' },
-    { id: 'gentle_chime', nameKey: 'gentle_chime', icon: 'notifications' },
-    { id: 'digital_alarm', nameKey: 'digital_alarm', icon: 'alarm' },
-    { id: 'peaceful_tone', nameKey: 'peaceful_tone', icon: 'self_care' },
-    { id: 'urgent_beep', nameKey: 'urgent_beep', icon: 'priority_high' }
-];
+/**
+ * Obtiene la lista completa de sonidos disponibles, incluyendo los subidos por el usuario.
+ * @returns {Array}
+ */
+function getAvailableSounds() {
+    const defaultSounds = [
+        { id: 'classic_beep', nameKey: 'classic_beep', icon: 'volume_up' },
+        { id: 'gentle_chime', nameKey: 'gentle_chime', icon: 'notifications' },
+        { id: 'digital_alarm', nameKey: 'digital_alarm', icon: 'alarm' },
+        { id: 'peaceful_tone', nameKey: 'peaceful_tone', icon: 'self_care' },
+        { id: 'urgent_beep', nameKey: 'urgent_beep', icon: 'priority_high' }
+    ];
+
+    const userAudios = loadUserAudios().map(audio => ({
+        id: audio.id,
+        nameKey: audio.name,
+        isCustom: true,
+        icon: audio.icon,
+        data: audio.data
+    }));
+
+    return [...defaultSounds, ...userAudios];
+}
 
 let audioContext = null;
 let activeSoundSource = null;
@@ -35,12 +90,28 @@ function initializeAudioContext() {
     return true;
 }
 
-export async function playSound(soundType = 'classic_beep') {
+export async function playSound(soundId) {
     if (isPlayingSound || !initializeAudioContext()) return;
     stopSound();
     isPlayingSound = true;
 
-    const pattern = SOUND_PATTERNS[soundType] || SOUND_PATTERNS['classic_beep'];
+    const allSounds = getAvailableSounds();
+    const soundToPlay = allSounds.find(s => s.id === soundId);
+
+    if (soundToPlay && soundToPlay.isCustom) {
+        try {
+            const audio = new Audio(soundToPlay.data);
+            audio.loop = true;
+            audio.play();
+            activeSoundSource = { type: 'file', element: audio };
+        } catch (error) {
+            console.error("Error playing user audio:", error);
+            isPlayingSound = false;
+        }
+        return;
+    }
+
+    const pattern = SOUND_PATTERNS[soundId] || SOUND_PATTERNS['classic_beep'];
     let freqIndex = 0;
     const playBeep = () => {
         if (!isPlayingSound) return;
@@ -71,6 +142,9 @@ export function stopSound() {
     if (activeSoundSource) {
         if (activeSoundSource.type === 'pattern' && activeSoundSource.intervalId) {
             clearInterval(activeSoundSource.intervalId);
+        } else if (activeSoundSource.type === 'file' && activeSoundSource.element) {
+            activeSoundSource.element.pause();
+            activeSoundSource.element.currentTime = 0;
         }
     }
     activeSoundSource = null;
@@ -84,7 +158,9 @@ export async function generateSoundList(listElement, actionName, activeSoundId =
     listElement.innerHTML = '';
     const getTranslation = window.getTranslation || ((key, category) => key);
 
-    AVAILABLE_SOUNDS.forEach(sound => {
+    const availableSounds = getAvailableSounds();
+
+    availableSounds.forEach(sound => {
         const menuLink = document.createElement('div');
         menuLink.className = 'menu-link';
         menuLink.dataset.action = actionName;
@@ -94,13 +170,51 @@ export async function generateSoundList(listElement, actionName, activeSoundId =
             menuLink.classList.add('active');
         }
 
+        const soundName = sound.isCustom ? sound.nameKey : getTranslation(sound.nameKey, 'sounds');
+        const translationAttrs = sound.isCustom ? '' : `data-translate="${sound.nameKey}" data-translate-category="sounds"`;
+
         menuLink.innerHTML = `
             <div class="menu-link-icon"><span class="material-symbols-rounded">${sound.icon}</span></div>
-            <div class="menu-link-text"><span data-translate="${sound.nameKey}" data-translate-category="sounds">${getTranslation(sound.nameKey, 'sounds')}</span></div>
+            <div class="menu-link-text"><span ${translationAttrs}>${soundName}</span></div>
         `;
         listElement.appendChild(menuLink);
     });
+
+    // Añadir el enlace para subir audio
+    const uploadLink = document.createElement('div');
+    uploadLink.className = 'menu-link';
+    uploadLink.dataset.action = 'upload-audio'; // Acción específica para la carga
+    uploadLink.innerHTML = `
+        <div class="menu-link-icon"><span class="material-symbols-rounded">upload_file</span></div>
+        <div class="menu-link-text"><span data-translate="upload_audio" data-translate-category="sounds">${getTranslation('upload_audio', 'sounds')}</span></div>
+    `;
+    listElement.appendChild(uploadLink);
 }
+
+// ========== NUEVA FUNCIÓN PARA GESTIONAR LA CARGA DE AUDIO ==========
+export function handleAudioUpload(callback) {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'audio/*';
+
+    fileInput.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = readerEvent => {
+            const dataUrl = readerEvent.target.result;
+            const newAudio = saveUserAudio(file.name, dataUrl);
+            if (callback && typeof callback === 'function') {
+                callback(newAudio);
+            }
+        };
+        reader.readAsDataURL(file);
+    };
+
+    fileInput.click();
+}
+
 
 // ========== SERVICE: CATEGORY SLIDER DRAG & SCROLL ==========
 

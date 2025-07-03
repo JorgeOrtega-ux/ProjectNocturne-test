@@ -91,13 +91,12 @@
             <table class="laps-table body-title">
                 <thead>
                     <tr>
-                        <th data-translate="lap_header" data-translate-category="stopwatch">Vuelta</th>
-                        <th data-translate="time_header" data-translate-category="stopwatch">Tiempo</th>
-                        <th data-translate="total_time_header" data-translate-category="stopwatch">Tiempo Total</th>
+                        <th data-translate="lap_header" data-translate-category="stopwatch"></th>
+                        <th data-translate="time_header" data-translate-category="stopwatch"></th>
+                        <th data-translate="total_time_header" data-translate-category="stopwatch"></th>
                     </tr>
                 </thead>
-                <tbody>
-                </tbody>
+                <tbody></tbody>
             </table>
         </div>
     </div>

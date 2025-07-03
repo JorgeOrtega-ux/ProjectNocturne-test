@@ -3,7 +3,6 @@
         <div class="drag-handle"></div>
     </div>
     <div class="menu-section">
-
         <div class="menu-section-top">
             <div class="search-content">
                 <div class="search-content-icon">
@@ -43,15 +42,13 @@
             </div>
         </div>
         <div class="menu-content-scrolleable overflow-y">
-            <div class="timer-search-results-wrapper disabled">
-                </div>
-
+            <div class="timer-search-results-wrapper disabled"></div>
             <div class="timer-creation-wrapper active">
                 <div class="menu-section-center overflow-y">
                     <div class="menu-content-wrapper active" data-tab-content="countdown">
                         <div class="menu-content">
                             <div class="menu-content-header">
-                                <div class="menu-content-header-primary"><span class="material-symbols-rounded">label</span><span data-translate="timer_title" data-translate-category="timer">Título</span></div>
+                                <div class="menu-content-header-primary"><span class="material-symbols-rounded">label</span><span data-translate="timer_title" data-translate-category="timer"></span></div>
                             </div>
                             <div class="menu-content-general">
                                 <div class="enter-text-tool"><input type="text" id="timer-title" data-translate="my_new_timer_placeholder" data-translate-category="timer" data-translate-target="placeholder"></div>
@@ -59,7 +56,7 @@
                         </div>
                         <div class="menu-content">
                             <div class="menu-content-header">
-                                <div class="menu-content-header-primary"><span class="material-symbols-rounded">timelapse</span><span data-translate="set_duration" data-translate-category="timer">Establecer Duración</span></div>
+                                <div class="menu-content-header-primary"><span class="material-symbols-rounded">timelapse</span><span data-translate="set_duration" data-translate-category="timer"></span></div>
                             </div>
                             <div class="menu-content-general">
                                 <div class="enter-date-content">
@@ -83,17 +80,16 @@
                         </div>
                          <div class="menu-content">
                             <div class="menu-content-header">
-                                <div class="menu-content-header-primary"><span class="material-symbols-rounded">music_note</span><span data-translate="alarm_sound" data-translate-category="alarms">Sonido</span></div>
+                                <div class="menu-content-header-primary"><span class="material-symbols-rounded">music_note</span><span data-translate="alarm_sound" data-translate-category="alarms"></span></div>
                             </div>
                             <div class="menu-content-general">
                                 <div class="custom-select-wrapper">
                                     <div class="custom-select-content" data-action="toggleCountdownSoundDropdown">
-                                        <div class="custom-select-content-left"><span id="countdown-selected-sound" data-translate="classic_beep" data-translate-category="sounds">Beep Clásico</span></div>
+                                        <div class="custom-select-content-left"><span id="countdown-selected-sound" data-translate="classic_beep" data-translate-category="sounds"></span></div>
                                         <div class="custom-select-content-right"><span class="material-symbols-rounded">expand_more</span></div>
                                     </div>
                                     <div class="dropdown-menu-container menu-countdown-sound disabled body-title" data-menu="countdownSoundMenu">
-                                        <div class="menu-list">
-                                            </div>
+                                        <div class="menu-list"></div>
                                     </div>
                                     <div class="menu-action-button" data-action="previewCountdownSound"><span class="material-symbols-rounded">play_arrow</span></div>
                                 </div>
@@ -112,7 +108,7 @@
                         </div>
                         <div class="menu-content">
                             <div class="menu-content-header">
-                                <div class="menu-content-header-primary"><span class="material-symbols-rounded">calendar_month</span><span data-translate="select_date_time" data-translate-category="timer">Seleccionar Fecha y Hora</span></div>
+                                <div class="menu-content-header-primary"><span class="material-symbols-rounded">calendar_month</span><span data-translate="select_date_time" data-translate-category="timer"></span></div>
                             </div>
                             <div class="menu-content-general">
                                 <div class="date-time-content">
@@ -157,12 +153,12 @@
                         </div>
                          <div class="menu-content">
                             <div class="menu-content-header">
-                                <div class="menu-content-header-primary"><span class="material-symbols-rounded">music_note</span><span data-translate="alarm_sound" data-translate-category="alarms">Sonido</span></div>
+                                <div class="menu-content-header-primary"><span class="material-symbols-rounded">music_note</span><span data-translate="alarm_sound" data-translate-category="alarms"></span></div>
                             </div>
                             <div class="menu-content-general">
                                 <div class="custom-select-wrapper">
                                     <div class="custom-select-content" data-action="toggleCountToDateSoundDropdown">
-                                        <div class="custom-select-content-left"><span id="count-to-date-selected-sound" data-translate="classic_beep" data-translate-category="sounds">Beep Clásico</span></div>
+                                        <div class="custom-select-content-left"><span id="count-to-date-selected-sound" data-translate="classic_beep" data-translate-category="sounds"></span></div>
                                         <div class="custom-select-content-right"><span class="material-symbols-rounded">expand_more</span></div>
                                     </div>
                                     <div class="dropdown-menu-container menu-count-to-date-sound disabled body-title" data-menu="countToDateSoundMenu">
@@ -177,7 +173,7 @@
     
                 <div class="menu-section-bottom">
                     <div class="create-tool" data-action="createTimer">
-                        <span data-translate="create_timer" data-translate-category="timer">Crear temporizador</span>
+                        <span data-translate="create_timer" data-translate-category="timer"></span>
                     </div>
                 </div>
             </div>
