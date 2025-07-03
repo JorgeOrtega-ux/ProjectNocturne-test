@@ -141,7 +141,7 @@ function renderAllWidgets() {
  * Inicializa SortableJS para permitir arrastrar y soltar los widgets.
  */
 function initializeWidgetSortable() {
-    const gridContainer = document.querySelector('.everything-grid-container');
+   const gridContainer = document.querySelector('.widgets-row');
     if (gridContainer && typeof Sortable !== 'undefined') {
         new Sortable(gridContainer, {
             animation: 150,

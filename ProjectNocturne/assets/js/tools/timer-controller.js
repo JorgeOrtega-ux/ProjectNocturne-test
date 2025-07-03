@@ -1245,6 +1245,7 @@ document.addEventListener('translationsApplied', () => {
     allTimers.forEach(timer => {
         updateTimerCardVisuals(timer);
     });
+    updateMainDisplay(); 
 });
 
 export { initializeTimerController };
