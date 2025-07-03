@@ -12,7 +12,7 @@ import {
     getAppliedColor,
     getAppliedFontScale
 } from './main.js';
-import { initializeEverything } from '../tools/everything-controller.js'; // <-- NUEVA LÍNEA
+import { initializeEverything } from '../tools/everything-controller.js';
 import {
     initModuleManager,
     updateMenuLabels,
@@ -22,7 +22,8 @@ import {
     getCurrentTheme as getModuleManagerCurrentTheme,
     isLoading as isModuleManagerLoading
 } from './module-manager.js';
-import { initLocationManager } from '../general/location-manager.js'; // <-- AÑADIR ESTA LÍNEA
+import { initLocationManager } from '../general/location-manager.js';
+import { initializeFestivitiesManager } from '../tools/festivities-manager.js'; // <-- Se importa el nuevo gestor
 import {
     initializeTooltipSystem,
     refreshTooltips,
@@ -62,7 +63,7 @@ import { initializeTimerController } from '../tools/timer-controller.js';
 
 import { initializeAlarmClock } from '../tools/alarm-controller.js';
 import { initWorldClock } from '../tools/worldClock-controller.js';
-import { initDynamicIsland } from './dynamic-island-controller.js'; // NEW LINE
+import { initDynamicIsland } from './dynamic-island-controller.js';
 
 // ========== CONFIGURATION CONSTANTS ==========
 
@@ -397,11 +398,21 @@ function initializeMainComponents() {
     initWorldClock();
     initializeStopwatch();
     initializeTimerController();
-    initLocationManager(); // <-- AÑADIR ESTA LÍNEA
+
+    // --- INICIO DE LA MODIFICACIÓN ---
+    // 1. Inicializa el gestor de festividades PRIMERO para que esté "escuchando".
+    initializeFestivitiesManager(); 
+    
+    // 2. Inicializa el gestor de ubicación DESPUÉS. Este disparará el evento
+    //    que el gestor de festividades ahora puede capturar.
+    initLocationManager();
+    // --- FIN DE LA MODIFICACIÓN ---
+
     setupEventListeners();
     batchMigrateTooltips();
     initializeMobileSidebarTooltips();
 }
+
 function finalizeInitialization() {
     applicationState.isReady = true;
 

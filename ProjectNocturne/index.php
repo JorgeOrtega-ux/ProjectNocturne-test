@@ -61,6 +61,7 @@
     <script type="module" src="assets/js/tools/everything-controller.js"></script>
     <script type="module" src="assets/js/tools/menu-interactions.js"></script>
     <script type="module" src="assets/js/tools/zoneinfo-controller.js"></script>
+    <script type="module" src="assets/js/tools/festivities-manager.js"></script>
 </body>
 
 </html>

@@ -1,6 +1,6 @@
-// /assets/js/tools/location-manager.js
+// /assets/js/general/location-manager.js
 
-import { getTranslation, translateElementTree } from '../general/translations-controller.js';
+import { getTranslation } from '../general/translations-controller.js';
 
 // --- CONFIGURACIÓN Y ESTADO CENTRALIZADO ---
 const LOCATION_STORAGE_KEY = 'user-location';
@@ -34,12 +34,22 @@ async function initLocationManager() {
         populateLocationMenu();
         addEventListeners();
         updateLocationDisplay();
+        
+        // --- MODIFICACIÓN CLAVE ---
+        // Dispara el evento para notificar que la ubicación inicial está lista.
+        // Esto soluciona la condición de carrera en la carga de la página.
+        console.log('Location initialized, dispatching initial event.');
+        const event = new CustomEvent('locationChanged', { detail: { country: state.selectedCountry } });
+        document.dispatchEvent(event);
+        // --- FIN DE LA MODIFICACIÓN ---
+
     } catch (error) {
         console.error("❌ Error initializing Location Manager:", error);
     } finally {
         state.isInitialized = true;
     }
 }
+
 
 /**
  * Devuelve el objeto del país seleccionado actualmente.
@@ -65,7 +75,6 @@ function applyCountryChange(country) {
     state.isChanging = true;
     state.pendingCountry = country;
 
-    // --- MODIFICADO ---
     console.log(`✈️ Applying country change: ${country.name} (${country.code})`);
     setupCountryLoadingUI(country);
 
@@ -233,6 +242,7 @@ async function detectLocationIfNotSet() {
             const country = state.countries.find(c => c.id === data.country_code);
             if (country) {
                 console.log(`✅ País detectado: ${country.name} (${country.id})`);
+                // Llama a setCountry que ya dispara el evento
                 setCountry({ code: country.id, name: country.name });
             }
         }
@@ -245,14 +255,18 @@ async function detectLocationIfNotSet() {
 }
 
 /**
- * Establece el país seleccionado y lo guarda.
+ * Establece el país seleccionado, lo guarda y dispara el evento de cambio.
  * @param {object} country - El objeto del país { code, name }.
  */
 function setCountry(country) {
     state.selectedCountry = country;
     localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(country));
     updateLocationDisplay();
-    // --- MODIFICADO ---
+    
+    // Dispara un evento personalizado cuando la ubicación ha cambiado.
+    const event = new CustomEvent('locationChanged', { detail: { country } });
+    document.dispatchEvent(event);
+    
     console.log(`País seleccionado: ${country.name} (${country.code})`);
 }
 
@@ -350,7 +364,6 @@ function filterCountryList(query) {
         }
     });
 
-    // --- Lógica para el mensaje de "no resultados" ---
     let noResultsMsg = menuList.querySelector('.no-results-message');
     if (matchesFound === 0 && normalizedQuery) {
         if (!noResultsMsg) {
@@ -378,7 +391,6 @@ function filterCountryList(query) {
 function addEventListeners() {
     const locationMenu = document.querySelector('.menu-control-center[data-menu="location"]');
     if (locationMenu) {
-        // Listener para la lista de países
         locationMenu.querySelector('.menu-list').addEventListener('click', (e) => {
             const link = e.target.closest('.menu-link[data-country-code]');
             if (link && link.dataset.countryCode) {
@@ -390,7 +402,6 @@ function addEventListeners() {
             }
         });
 
-        // Listener para el input de búsqueda
         const searchInput = locationMenu.querySelector('#location-search-input');
         if (searchInput) {
             searchInput.addEventListener('input', (e) => filterCountryList(e.target.value));
@@ -402,5 +413,4 @@ function addEventListeners() {
     });
 }
 
-// Exporta la función de inicialización para ser llamada desde otros módulos
 export { initLocationManager, getCurrentLocation };

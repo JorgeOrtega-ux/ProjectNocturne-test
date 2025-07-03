@@ -289,7 +289,7 @@
     "november": "noviembre",
     "december": "diciembre"
 },
-  "everything": {
+"everything": {
     "main_panel": "Panel Principal",
     "local_time": "Hora Local",
     "active_alarms": "Alarmas Activas",
@@ -305,6 +305,7 @@
     "add_clock": "Añadir Reloj",
     "no_active_alarms": "No hay alarmas activas",
     "no_running_timers": "No hay timers corriendo",
-    "upcoming_festivities": "Próximas Festividades"
+    "upcoming_festivities": "Próximas Festividades",
+    "festivities_not_available": "Las festividades no están disponibles para esta ubicación."
   }
 }
