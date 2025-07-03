@@ -1,9 +1,7 @@
-/* /assets/css/general/tools.css */
-
 .create-tool {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     width: 100%;
     height: 45px;
     color: #ffffff;
@@ -15,12 +13,12 @@
 
 .enter-text-tool {
     display: flex;
-    align-items: center;
     justify-content: flex-start;
+    align-items: center;
     width: 100%;
     height: 45px;
-    border: 1px solid #00000020;
     border-radius: 8px;
+    border: 1px solid #00000020;
 }
 
 .enter-text-tool>input {
@@ -42,25 +40,25 @@
 
 .enter-date-tool {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     width: 100%;
     height: 45px;
-    overflow: hidden;
-    border: 1px solid #00000020;
     border-radius: 8px;
+    border: 1px solid #00000020;
+    overflow: hidden;
 }
 
 .enter-date-tool-left,
 .enter-date-tool-right {
     display: flex;
     flex: 0 0 auto;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     width: 45px;
     height: 100%;
-    cursor: pointer;
     transition: background-color 0.2s ease;
+    cursor: pointer;
 }
 
 .enter-date-tool-center {
@@ -73,7 +71,6 @@
     background-color: #f5f5fa;
 }
 
-/* INICIO: Clases genéricas para selectores desplegables */
 .custom-select-wrapper {
     position: relative;
     display: flex;
@@ -88,10 +85,10 @@
     flex-direction: row;
     width: 100%;
     height: 100%;
-    border: 1px solid #00000020;
     border-radius: 8px;
-    cursor: pointer;
+    border: 1px solid #00000020;
     transition: background-color 0.2s ease;
+    cursor: pointer;
 }
 
 .custom-select-content:hover {
@@ -100,8 +97,8 @@
 
 .custom-select-content-left {
     display: flex;
-    align-items: center;
     justify-content: flex-start;
+    align-items: center;
     width: 100%;
     height: 100%;
     padding: 0 12px;
@@ -124,12 +121,11 @@
 .custom-select-content-right {
     display: flex;
     flex: 0 0 auto;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     width: 45px;
     height: 100%;
 }
-/* FIN: Clases genéricas */
 
 .menu-list-grid {
     display: grid;
@@ -154,11 +150,11 @@
     height: auto;
     max-height: 250px;
     padding: 8px;
-    overflow-y: auto;
     background-color: #ffffff;
-    border: 1px solid transparent;
     border-radius: 12px;
+    border: 1px solid transparent;
     filter: drop-shadow(0 4px 12px #00000020);
+    overflow-y: auto;
 }
 
 .dropdown-menu-container.dropdown-menu--structured {
@@ -186,14 +182,14 @@
 .menu-action-button {
     display: flex;
     flex: 0 0 auto;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     width: 45px;
     height: 45px;
-    border: 1px solid #00000020;
     border-radius: 8px;
-    cursor: pointer;
+    border: 1px solid #00000020;
     transition: background-color 0.2s ease;
+    cursor: pointer;
 }
 
 .menu-action-button:hover {
@@ -240,15 +236,15 @@
     width: 100%;
     padding: 8px;
     background: #ffffff;
-    border: 1px solid transparent;
     border-radius: 8px;
+    border: 1px solid transparent;
     filter: drop-shadow(0 4px 12px #00000020);
 }
 
 .calendar-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     margin-bottom: 8px;
     font-weight: 500;
 }
@@ -256,8 +252,8 @@
 .calendar-nav {
     padding: 4px 8px;
     background: none;
-    border: none;
     border-radius: 4px;
+    border: none;
     cursor: pointer;
 }
 
@@ -347,10 +343,12 @@
     gap: 8px;
     margin-top: 8px;
 }
+
 .worldclock-creation-wrapper {
-    flex-direction: column;
     flex: 1 1 auto;
+    flex-direction: column;
 }
+
 .tool-grid.world-clocks-grid {
     margin-top: 0;
 }
@@ -358,18 +356,20 @@
 .tool-grid.active {
     display: grid;
 }
+
 .worldclock-search-results-wrapper {
     padding: 8px;
 }
+
 .tool-card {
     position: relative;
     display: flex;
     flex-direction: column;
-    padding: 16px;
     gap: 12px;
+    padding: 16px;
     background-color: #ffffff;
-    border: 1px solid #00000020;
     border-radius: 12px;
+    border: 1px solid #00000020;
     transition: opacity 0.3s, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -387,32 +387,19 @@
     opacity: 1 !important;
 }
 
-.dark-mode .tool-card.timer-finished .card-header,
-.dark-mode .tool-card.timer-finished .card-footer,
-.dark-mode .tool-card.alarm-disabled .card-header,
-.dark-mode .tool-card.alarm-disabled .card-footer {
-    opacity: 0.6;
-}
-
-.dark-mode .tool-card.timer-finished .card-menu-container,
-.dark-mode .tool-card.timer-finished .card-dropdown-menu,
-.dark-mode .tool-card.alarm-disabled .card-menu-container,
-.dark-mode .tool-card.alarm-disabled .card-dropdown-menu {
-    opacity: 1 !important;
-}
 
 .tool-card .card-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     gap: 12px;
 }
 
 .tool-card .card-details {
     display: flex;
+    flex: 1;
     flex-direction: column;
     gap: 4px;
-    flex: 1;
     min-width: 0;
 }
 
@@ -420,8 +407,8 @@
     font-size: 1rem;
     font-weight: 500;
     color: #000000;
-    white-space: nowrap;
     overflow: hidden;
+    white-space: nowrap;
     text-overflow: ellipsis;
 }
 
@@ -445,31 +432,30 @@
 }
 
 .tool-card .card-tag {
+    padding: 4px 8px;
     font-size: 0.85rem;
+    font-weight: 500;
     color: rgba(0, 0, 0, 0.7);
     background-color: #f5f5fa;
-    padding: 4px 8px;
     border-radius: 6px;
-    font-weight: 500;
 }
 
 .tool-card .card-pin-btn,
 .tool-card .card-menu-btn {
     display: flex;
-    align-items: center;
+    flex-shrink: 0;
     justify-content: center;
+    align-items: center;
     width: 28px;
     height: 28px;
+    padding: 0;
     color: #000000;
     background-color: transparent;
-    border: none;
     border-radius: 8px;
-    cursor: pointer;
+    border: none;
     transition: background-color 0.2s ease, color 0.2s ease;
-    flex-shrink: 0;
-    padding: 0;
+    cursor: pointer;
 }
-
 
 .tool-card .card-pin-btn:hover,
 .tool-card .card-menu-btn:hover {
@@ -502,35 +488,33 @@
     margin-bottom: 16px;
 }
 
-/* NEW: Apply reddish hover background to delete links within search result items (light mode) */
+/* Apply reddish hover background to delete links within search result items (light mode) */
 .search-result-item .card-dropdown-menu .menu-link[data-action*="delete"]:hover {
     background-color: rgba(229, 57, 53, 0.08);
 }
 
-.dark-mode .search-result-item .card-dropdown-menu .menu-link[data-action*="delete"]:hover {
-    background-color: rgba(239, 154, 154, 0.1);
-}
+
 
 .world-clocks-grid {
     display: grid;
-    padding: 8px;
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 8px;
+    padding: 8px;
 }
 
 .card-menu-container {
     position: absolute;
     top: 5px;
     right: 5px;
-    padding: 2px;
     z-index: 999;
-    border-radius: 8px;
-    background: #ffffff;
     display: flex;
-    border: 1px solid transparent;
-    filter: drop-shadow(0 4px 12px #00000020);
+    padding: 2px;
     gap: 4px;
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid transparent;
     transition: opacity 0.2s ease-in-out;
+    filter: drop-shadow(0 4px 12px #00000020);
 }
 
 .card-menu-container.disabled {
@@ -542,13 +526,13 @@
 }
 
 .timer-creation-wrapper {
-    flex-direction: column;
     flex: 1 1 auto;
+    flex-direction: column;
 }
 
 .alarm-creation-wrapper {
-    flex-direction: column;
     flex: 1 1 auto;
+    flex-direction: column;
 }
 
 .card-menu-btn-wrapper {
@@ -564,8 +548,8 @@
     flex-direction: column;
     width: 245px;
     padding: 8px;
-    margin-top: 4px;
     gap: 4px;
+    margin-top: 4px;
     background-color: #ffffff;
     border-radius: 8px;
     filter: drop-shadow(0 4px 12px #00000020);
@@ -573,12 +557,9 @@
 
 .card-dropdown-menu.disabled {
     display: none;
-}.dark-mode .action-card-icon {
-    color: #fff;
 }
-.dark-mode .widget-icon {
-    color: #fff;
-}
+
+
 
 .loading-overlay {
     position: absolute;
@@ -586,11 +567,11 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 1000;
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    background-color: rgba(255, 255, 255, 0.8);
     border-radius: 12px;
     backdrop-filter: blur(2px);
 }
@@ -600,11 +581,11 @@
 }
 
 .spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-radius: 50%;
-    border-top: 4px solid #000000;
     width: 40px;
     height: 40px;
+    border-radius: 50%;
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #000000;
     animation: spin 1s linear infinite;
 }
 
@@ -612,34 +593,32 @@
     0% {
         transform: rotate(0deg);
     }
-
     100% {
         transform: rotate(360deg);
     }
 }
-
 .info-tool {
-    width: auto;
-    padding: 0 12px;
-    flex: 0 0 auto;
-    max-width: 185px;
     display: flex;
+    flex: 0 0 auto;
     justify-content: center;
-    opacity: 0.5;
     align-items: center;
-    height: 40px;
-    border: 1px solid #00000020;
-    border-radius: 8px;
+    max-width: 185px;
     min-width: 120px;
+    width: auto;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid #00000020;
+    opacity: 0.5;
     overflow: hidden;
 }
 
 .info-tool span {
     width: 100%;
-    white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: nowrap;
     text-align: center;
+    text-overflow: ellipsis;
 }
 
 .pinned-clock-display {
@@ -651,9 +630,9 @@
 }
 
 .pinned-clock-title {
+    display: block;
     font-size: 1.5rem;
     font-weight: 500;
-    display: block;
 }
 
 .pinned-clock-date {
@@ -671,11 +650,9 @@
 .timers-list-wrapper {
     display: flex;
     flex-direction: column;
-    padding: 8px;
     gap: 8px;
+    padding: 8px;
 }
-
-/* --- ESTILOS UNIFICADOS DE BÚSQUEDA --- */
 
 .alarm-search-results-wrapper,
 .timer-search-results-wrapper {
@@ -691,18 +668,18 @@
 .timer-search-results-wrapper .menu-list {
     display: flex;
     flex-direction: column;
-    gap: 4px; /* Espacio entre items */
+    gap: 4px;
 }
 
 .search-result-item {
+    position: relative;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     padding: 10px 12px;
     border-radius: 8px;
     border: 1px solid #00000020;
     transition: background-color 0.2s ease;
-    position: relative;
 }
 
 .dark-mode .search-result-item {
@@ -712,24 +689,26 @@
 .search-result-item .card-pin-btn,
 .search-result-item .card-menu-btn {
     display: flex;
-    align-items: center;
+    flex-shrink: 0;
     justify-content: center;
+    align-items: center;
     width: 28px;
     height: 28px;
+    padding: 0;
     color: #000000;
     background-color: transparent;
-    border: none;
     border-radius: 8px;
-    cursor: pointer;
+    border: none;
     transition: background-color 0.2s ease, color 0.2s ease;
-    flex-shrink: 0;
-    padding: 0;
+    cursor: pointer;
 }
+
 .search-result-item .card-pin-btn.active {
     background-color: #f5f5fa;
 }
 
-.search-result-item .card-pin-btn:hover, .search-result-item .card-menu-btn:hover {
+.search-result-item .card-pin-btn:hover,
+.search-result-item .card-menu-btn:hover {
     background-color: #f5f5fa;
 }
 
@@ -742,8 +721,8 @@
 
 .search-result-item .result-title {
     font-weight: 500;
-    white-space: nowrap;
     overflow: hidden;
+    white-space: nowrap;
     text-overflow: ellipsis;
 }
 
@@ -757,11 +736,9 @@
     flex-shrink: 0;
 }
 
-
-
 .no-results-message {
-    text-align: center;
     padding: 20px;
+    text-align: center;
     color: #888;
 }
 
@@ -771,7 +748,6 @@
     display: none;
 }
 
-
 .alarms-container,
 .timers-container {
     width: 100%;
@@ -780,14 +756,14 @@
 
 .expandable-card-header {
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+    height: 55px;
+    padding: 0 8px;
     background: #fff;
+    border-radius: 8px;
     border: 1px solid #00000020;
     cursor: pointer;
-    border-radius: 8px;
-    padding: 0 8px;
-    height: 55px;
 }
 
 .expandable-card-header:hover {
@@ -802,12 +778,12 @@
 
 .expandable-card-header-icon {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     width: 40px;
+    height: 40px;
     border-radius: 8px;
     border: 1px solid #00000020;
-    height: 40px;
 }
 
 .expandable-card-header h3 {
@@ -826,8 +802,8 @@
 .alarm-count-badge,
 .timer-count-badge {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     min-width: 24px;
     height: 24px;
     padding: 0 8px;
@@ -841,16 +817,16 @@
 .collapse-alarms-btn,
 .collapse-timers-btn {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     width: 32px;
     height: 32px;
-    background: none;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
     color: #000000;
+    background: none;
+    border-radius: 50%;
+    border: none;
     transition: background-color 0.2s ease, transform 0.3s ease;
+    cursor: pointer;
 }
 
 .collapse-alarms-btn:hover,
@@ -864,11 +840,11 @@
 }
 
 .card-options-container {
-    display: none;
     position: absolute;
-    bottom: 16px;
     right: 16px;
+    bottom: 16px;
     z-index: 6;
+    display: none;
 }
 
 .card-options-container.active {
@@ -878,11 +854,11 @@
 .card-dismiss-btn {
     padding: 8px 16px;
     color: #fff;
-    border: 1px solid #00000020;
     border-radius: 8px;
-    cursor: pointer;
+    border: 1px solid #00000020;
     font-weight: 500;
     transition: background-color 0.2s ease;
+    cursor: pointer;
 }
 
 .card-dismiss-btn[data-type="alarm"] {
@@ -896,8 +872,6 @@
 .card-dismiss-btn[data-type="timer"] {
     background-color: #000;
 }
-
-
 
 .card-dismiss-btn[data-type="timer"]:hover {
     background-color: #45a049;
@@ -916,15 +890,14 @@
         font-size: 1.2rem;
     }
 }
-
 .tool-card:has(.card-dropdown-menu:not(.disabled)) {
-    z-index: 20;
     position: relative;
+    z-index: 20;
 }
 
 .tool-card.sortable-chosen {
-    z-index: 30;
     position: relative;
+    z-index: 30;
 }
 
 .tool-card {
@@ -947,16 +920,16 @@
 
 .expandable-card-toggle-btn {
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     width: 32px;
     height: 32px;
-    background: none;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
     color: #000000;
+    background: none;
+    border-radius: 50%;
+    border: none;
     transition: background-color 0.2s ease;
+    cursor: pointer;
 }
 
 .expandable-card-toggle-btn .expand-icon {
@@ -972,8 +945,8 @@
 }
 
 .laps-table-container {
-    overflow-x: auto;
     width: 100%;
+    overflow-x: auto;
 }
 
 .laps-table {
@@ -1002,55 +975,36 @@
     cursor: pointer;
 }
 
-/* ====================================== */
-/* ======== DYNAMIC ISLAND PERFECTO ==== */
-/* ====================================== */
-
 #dynamic-island {
     position: fixed;
     top: 20px;
     left: 50%;
-    transform: translateX(-50%) translateY(-15px);
     z-index: 10000;
-    background: #252627;
-    background: linear-gradient(135deg, #252627 0%, #18191b 100%);
     display: flex;
-    align-items: center;
     justify-content: center;
-    opacity: 0;
-    pointer-events: none;
+    align-items: center;
     width: 44px;
     height: 44px;
+    opacity: 0;
+    background: #252627;
+    background: linear-gradient(135deg, #252627 0%, #18191b 100%);
     border-radius: 22px;
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.5),
-        0 2px 8px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(20px);
     border: 0.5px solid rgba(255, 255, 255, 0.08);
-
-    transition:
-        opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-        transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-        width 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0.1s,
-        height 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0.1s,
-        border-radius 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0.1s;
+    transform: translateX(-50%) translateY(-15px);
+    transition: opacity 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0.1s, height 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0.1s, border-radius 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0.1s;
+    pointer-events: none;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 #dynamic-island.expanded {
     opacity: 1;
-    pointer-events: auto;
-    transform: translateX(-50%) translateY(0);
     width: 300px;
     height: 54px;
     border-radius: 27px;
-
-    transition:
-        width 0.6s cubic-bezier(0.23, 1, 0.32, 1),
-        height 0.6s cubic-bezier(0.23, 1, 0.32, 1),
-        border-radius 0.6s cubic-bezier(0.23, 1, 0.32, 1),
-        opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s,
-        transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s;
+    transform: translateX(-50%) translateY(0);
+    transition: width 0.6s cubic-bezier(0.23, 1, 0.32, 1), height 0.6s cubic-bezier(0.23, 1, 0.32, 1), border-radius 0.6s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s;
+    pointer-events: auto;
 }
 
 #dynamic-island.active-tool-ringing {
@@ -1062,15 +1016,15 @@
 }
 
 .island-notification-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
     height: 100%;
     padding: 0 18px;
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     opacity: 0;
     transition: opacity 0.2s ease-out;
+    box-sizing: border-box;
 }
 
 #dynamic-island.expanded .island-notification-content {
@@ -1080,87 +1034,82 @@
 
 .island-left-group {
     display: flex;
+    flex: 1;
     align-items: center;
     gap: 12px;
-    flex: 1;
     min-width: 0;
 }
 
 .island-circle {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: center;
+    align-items: center;
     width: 36px;
     height: 36px;
     background: rgba(255, 255, 255, 0.06);
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%);
-    border: 0.5px solid rgba(255, 255, 255, 0.06);
     border-radius: 18px;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border: 0.5px solid rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(10px);
 }
 
 .notification-icon-symbol {
     font-size: 20px;
-    color: #30d158;
     font-weight: 400;
+    color: #30d158;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 .notification-text-info {
-    flex: 1;
-    min-width: max-content;
     display: flex;
+    flex: 1;
     flex-direction: column;
     gap: 2px;
+    min-width: max-content;
 }
 
 .notification-title {
+    margin: 0;
     font-size: 14px;
     font-weight: 600;
-    color: #ffffff;
-    margin: 0;
     line-height: 1.2;
+    color: #ffffff;
     overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
+    text-overflow: ellipsis;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .notification-message {
+    margin: 0;
     font-size: 11px;
     font-weight: 400;
-    color: rgba(255, 255, 255, 0.75);
-    margin: 0;
     line-height: 1.3;
+    color: rgba(255, 255, 255, 0.75);
     overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
+    text-overflow: ellipsis;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .island-dismiss-button {
-    background: rgba(255, 255, 255, 0.1);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.06) 100%);
-    color: #ffffff;
-    border: 0.5px solid rgba(255, 255, 255, 0.08);
-    padding: 6px 12px;
-    border-radius: 14px;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
     flex-shrink: 0;
     margin-left: 12px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #ffffff;
     opacity: 0;
+    background: rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.06) 100%);
+    border-radius: 14px;
+    border: 0.5px solid rgba(255, 255, 255, 0.08);
+    transition: background 0.2s ease, opacity 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
     pointer-events: none;
     backdrop-filter: blur(10px);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-
-    transition:
-        background 0.2s ease,
-        opacity 0.3s ease,
-        transform 0.2s ease,
-        box-shadow 0.2s ease;
 }
 
 #dynamic-island.expanded.active-tool-ringing .island-dismiss-button {
@@ -1175,12 +1124,11 @@
 }
 
 .island-dismiss-button:active {
-    transform: scale(0.98);
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 100%);
+    transform: scale(0.98);
 }
 
 @keyframes island-pulse {
-
     0%,
     100% {
         transform: translateX(-50%) translateY(0) scale(1);
@@ -1190,17 +1138,12 @@
         transform: translateX(-50%) translateY(0) scale(1.02);
     }
 }
-
 #dynamic-island.active-tool-ringing {
     animation: island-pulse 2s ease-in-out infinite;
 }
 
 html.light-mode #dynamic-island {
-    box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.25),
-        0 4px 16px rgba(0, 0, 0, 0.15),
-        0 2px 8px rgba(0, 0, 0, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 @media (max-width: 768px) {
@@ -1244,27 +1187,14 @@ html.light-mode #dynamic-island {
     }
 
     .island-dismiss-button {
+        margin-left: 8px;
         padding: 5px 10px;
         font-size: 10px;
         border-radius: 12px;
-        margin-left: 8px;
     }
 }
-.dark-mode .custom-select-content {
-   border-color: #ffffff20;
-}
-.dark-mode .custom-select-content:hover {
-    background-color: #ffffff20;
-}
-/* ====================================== */
-/* ========= EVERYTHING SECTION ========= */
-/* ====================================== */
 
-.section-everything {
-    flex-direction: column;
-    gap: 18px;
-    padding: 18px;
-}
+
 
 .everything-grid-container {
     display: flex;
@@ -1273,10 +1203,10 @@ html.light-mode #dynamic-island {
 }
 
 .widget {
-    background-color: #ffffff;
-    border: 1px solid #00000020;
-    border-radius: 12px;
     padding: 18px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #00000020;
 }
 
 .widget.sortable-chosen {
@@ -1284,46 +1214,46 @@ html.light-mode #dynamic-island {
 }
 
 .widget-clock {
-    align-items: center;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    margin-bottom: 8px; /* Separación adicional del resto */
-    min-height: 250px;
-    order: 1; /* Asegura que aparezca primero */
+    align-items: center;
+    order: 1;
     width: 100%;
+    min-height: 250px;
+    margin-bottom: 8px;
 }
 
 .widgets-row {
     display: grid;
-    gap: 18px;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    order: 2; /* Aparece después del reloj */
+    order: 2;
+    gap: 18px;
 }
 
 .widget-header {
-    align-items: center;
     display: flex;
+    align-items: center;
     gap: 12px;
     margin-bottom: 20px;
 }
 
 .widget-icon {
-    align-items: center;
-    border: 1px solid #00000020;
-    border-radius: 12px;
-    color: #000;
     display: flex;
     flex-shrink: 0;
-    height: 40px;
     justify-content: center;
+    align-items: center;
     width: 40px;
+    height: 40px;
+    color: #000;
+    border-radius: 12px;
+    border: 1px solid #00000020;
 }
 
 .widget-title {
-    color: #1d1d1f;
     font-size: 1.1rem;
     font-weight: 600;
+    color: #1d1d1f;
 }
 
 .clock-content {
@@ -1331,14 +1261,14 @@ html.light-mode #dynamic-island {
 }
 
 .clock-time {
-    color: #1d1d1f;
     font-size: 4rem;
     font-weight: 700;
+    color: #1d1d1f;
 }
 
 .clock-date {
-    color: #000000e6;
     font-size: 1.2rem;
+    color: #000000e6;
 }
 
 .widget-list {
@@ -1348,13 +1278,13 @@ html.light-mode #dynamic-island {
 }
 
 .widget-list-item {
-    align-items: center;
-    border-radius: 8px;
-    cursor: pointer;
     display: flex;
-    gap: 12px;
+    align-items: center;
     height: 50px;
+    gap: 12px;
+    border-radius: 8px;
     transition: background-color 0.2s ease;
+    cursor: pointer;
 }
 
 .widget-list-item:hover {
@@ -1362,33 +1292,33 @@ html.light-mode #dynamic-island {
 }
 
 .widget-list-item-icon {
-    align-items: center;
-    color: #6e6e73;
     display: flex;
     flex-shrink: 0;
-    font-size: 24px;
-    height: 40px;
     justify-content: center;
+    align-items: center;
     width: 40px;
+    height: 40px;
+    font-size: 24px;
+    color: #6e6e73;
 }
 
 .widget-list-item-details {
-    align-items: flex-start;
     display: flex;
-    flex-direction: column;
     flex-grow: 1;
+    flex-direction: column;
     justify-content: center;
+    align-items: flex-start;
 }
 
 .widget-list-item-title {
-    color: #1d1d1f;
     font-weight: 500;
+    color: #1d1d1f;
 }
 
 .widget-list-item-value {
-    color: #000000e6;
     font-size: 12px;
     font-weight: 500;
+    color: #000000e6;
 }
 
 .actions-container {
@@ -1398,17 +1328,17 @@ html.light-mode #dynamic-island {
 }
 
 .action-card {
-    align-items: center;
-    background-color: transparent;
-    border: 1px solid #00000020;
-    border-radius: 12px;
-    cursor: pointer;
     display: flex;
     flex-direction: row;
-    height: 50px;
     justify-content: flex-start;
+    align-items: center;
+    height: 50px;
     padding: 0 16px;
+    background-color: transparent;
+    border-radius: 12px;
+    border: 1px solid #00000020;
     transition: background-color 0.2s ease;
+    cursor: pointer;
 }
 
 .action-card:hover {
@@ -1416,15 +1346,15 @@ html.light-mode #dynamic-island {
 }
 
 .action-card-icon {
-    font-size: 24px;
-    margin-bottom: 0;
     margin-right: 12px;
+    margin-bottom: 0;
+    font-size: 24px;
 }
 
 .action-card-label {
-    color: #1d1d1f;
     font-size: 0.9rem;
     font-weight: 500;
+    color: #1d1d1f;
 }
 
 @media (max-width: 768px) {
@@ -1438,13 +1368,13 @@ html.light-mode #dynamic-island {
     }
 
     .widgets-row {
-        gap: 14px;
         grid-template-columns: 1fr;
+        gap: 14px;
     }
 
     .widget-clock {
-        margin-bottom: 4px;
         min-height: 200px;
+        margin-bottom: 4px;
     }
 
     .clock-time {
