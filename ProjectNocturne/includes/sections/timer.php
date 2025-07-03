@@ -30,6 +30,7 @@
                     data-translate-target="tooltip">
                     <span class="material-symbols-rounded">add</span>
                 </div>
+                <div class="info-tool" data-timer-name-display></div>
             </div>
             <div class="tool-options-content body-title">
                 <div class="increse-font-zise">

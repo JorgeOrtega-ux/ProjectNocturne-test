@@ -18,6 +18,19 @@
 .dark-mode .main-content {
     background-color: #18191b;
 }
+.dark-mode .spinner {
+    border: 4px solid rgba(255, 255, 255, 0.2);
+    border-top-color: #ffffff;
+}
+
+.dark-mode .info-tool {
+    border-color: #ffffff20;
+}
+
+.dark-mode .tool-card.sortable-chosen {
+    background-color: #3a3b3d;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+}
 
 /* ====================================== */
 /* ============= SIDEBAR ================ */

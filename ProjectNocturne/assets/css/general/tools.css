@@ -618,7 +618,7 @@
     }
 }
 
-.zoneInfoTool {
+.info-tool {
     width: auto;
     padding: 0 12px;
     flex: 0 0 auto;
@@ -634,7 +634,7 @@
     overflow: hidden;
 }
 
-.zoneInfoTool span {
+.info-tool span {
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
@@ -691,7 +691,7 @@
 .timer-search-results-wrapper .menu-list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 4px; /* Espacio entre items */
 }
 
 .search-result-item {

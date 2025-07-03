@@ -20,6 +20,36 @@ const DEFAULT_TIMERS = [
     { id: 'default-timer-3', title: 'exercise_1', type: 'countdown', initialDuration: 60000, remaining: 60000, endAction: 'restart', sound: 'digital_alarm', isRunning: false, isPinned: false }
 ];
 
+// --- NUEVA FUNCIÓN PARA ACTUALIZAR EL NOMBRE DEL TEMPORIZADOR FIJADO ---
+function updatePinnedTimerNameDisplay() {
+    const nameDisplayTool = document.querySelector('.info-tool[data-timer-name-display]');
+    if (!nameDisplayTool) return;
+
+    let span = nameDisplayTool.querySelector('span');
+    if (!span) {
+        span = document.createElement('span');
+        nameDisplayTool.innerHTML = '';
+        nameDisplayTool.appendChild(span);
+    }
+
+    const pinnedTimer = findTimerById(pinnedTimerId);
+    if (pinnedTimer) {
+        const title = pinnedTimer.id.startsWith('default-timer-') 
+            ? getTranslation(pinnedTimer.title, 'timer') 
+            : pinnedTimer.title;
+        span.textContent = title;
+        nameDisplayTool.setAttribute('data-translate-target', 'tooltip');
+        nameDisplayTool.setAttribute('data-tooltip', title);
+    } else {
+        span.textContent = '-';
+         nameDisplayTool.removeAttribute('data-tooltip');
+    }
+     if (window.tooltipManager && typeof window.tooltipManager.attachTooltipsToNewElements === 'function') {
+        window.tooltipManager.attachTooltipsToNewElements(nameDisplayTool.parentElement);
+    }
+}
+
+
 // --- LÓGICA DE BÚSQUEDA Y RENDERIZADO ---
 
 function renderTimerSearchResults(searchTerm) {
@@ -819,6 +849,7 @@ function updateMainDisplay() {
     } else {
         mainDisplay.textContent = formatTime(0, 'countdown');
     }
+    updatePinnedTimerNameDisplay();
 }
 
 function updateMainControlsState() {
@@ -850,7 +881,7 @@ function updateCardDisplay(timerId) {
     // Find both the main card and the search result item
     const mainCard = document.getElementById(timerId);
     const searchItem = document.getElementById(`search-timer-${timerId}`); //
-
+    
     // Update main card display
     if (mainCard) {
         const timeElement = mainCard.querySelector('.card-value');
