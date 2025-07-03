@@ -338,11 +338,39 @@ function filterCountryList(query) {
     if (!menuList) return;
 
     const links = menuList.querySelectorAll('.menu-link');
+    let matchesFound = 0;
+
     links.forEach(link => {
         const countryName = link.dataset.countryName.toLowerCase();
-        link.style.display = countryName.includes(normalizedQuery) ? 'flex' : 'none';
+        if (countryName.includes(normalizedQuery)) {
+            link.style.display = 'flex';
+            matchesFound++;
+        } else {
+            link.style.display = 'none';
+        }
     });
+
+    // --- Lógica para el mensaje de "no resultados" ---
+    let noResultsMsg = menuList.querySelector('.no-results-message');
+    if (matchesFound === 0 && normalizedQuery) {
+        if (!noResultsMsg) {
+            noResultsMsg = document.createElement('div');
+            noResultsMsg.className = 'menu-link-text no-results-message';
+            noResultsMsg.style.padding = '12px';
+            noResultsMsg.style.textAlign = 'center';
+            noResultsMsg.style.color = '#888';
+            menuList.appendChild(noResultsMsg);
+        }
+        const noResultsText = getTranslation('no_results', 'search');
+        noResultsMsg.textContent = `${noResultsText} "${query}"`;
+        noResultsMsg.style.display = 'block';
+    } else {
+        if (noResultsMsg) {
+            noResultsMsg.style.display = 'none';
+        }
+    }
 }
+
 
 /**
  * Añade los event listeners para el menú de ubicación.

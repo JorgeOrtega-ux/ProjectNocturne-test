@@ -23,7 +23,25 @@ body {
 body {
     background-color: #f5f5fa;
 }
+/* Custom styles for location menu */
+.menu-control-center[data-menu="location"] {
+    padding: 0;
+}
 
+.menu-control-center-top {
+    padding: 8px 8px 12px 8px;
+    border-bottom: 1px solid #00000020;
+}
+
+.dark-mode .menu-control-center-top {
+    border-bottom-color: #ffffff20;
+}
+
+.menu-control-center-bottom {
+    padding: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+}
 /* ====================================== */
 /* ============ TYPOGRAPHY ============== */
 /* ====================================== */
