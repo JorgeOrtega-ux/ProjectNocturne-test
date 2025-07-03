@@ -1256,3 +1256,229 @@ html.light-mode #dynamic-island {
 .dark-mode .custom-select-content:hover {
     background-color: #ffffff20;
 }
+/* ====================================== */
+/* ========= EVERYTHING SECTION ========= */
+/* ====================================== */
+
+.section-everything {
+    flex-direction: column;
+    gap: 18px;
+    padding: 18px;
+}
+
+.everything-grid-container {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.widget {
+    background-color: #ffffff;
+    border: 1px solid #00000020;
+    border-radius: 12px;
+    padding: 18px;
+}
+
+.widget.sortable-chosen {
+    cursor: grabbing;
+}
+
+.widget-clock {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 8px; /* Separación adicional del resto */
+    min-height: 250px;
+    order: 1; /* Asegura que aparezca primero */
+    width: 100%;
+}
+
+.widgets-row {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    order: 2; /* Aparece después del reloj */
+}
+
+.widget-header {
+    align-items: center;
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.widget-icon {
+    align-items: center;
+    border: 1px solid #00000020;
+    border-radius: 12px;
+    color: #000;
+    display: flex;
+    flex-shrink: 0;
+    height: 40px;
+    justify-content: center;
+    width: 40px;
+}
+
+.widget-title {
+    color: #1d1d1f;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.clock-content {
+    text-align: center;
+}
+
+.clock-time {
+    color: #1d1d1f;
+    font-size: 4rem;
+    font-weight: 700;
+}
+
+.clock-date {
+    color: #000000e6;
+    font-size: 1.2rem;
+}
+
+.widget-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.widget-list-item {
+    align-items: center;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    gap: 12px;
+    height: 50px;
+    transition: background-color 0.2s ease;
+}
+
+.widget-list-item:hover {
+    background-color: #f5f5fa;
+}
+
+.widget-list-item-icon {
+    align-items: center;
+    color: #6e6e73;
+    display: flex;
+    flex-shrink: 0;
+    font-size: 24px;
+    height: 40px;
+    justify-content: center;
+    width: 40px;
+}
+
+.widget-list-item-details {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+}
+
+.widget-list-item-title {
+    color: #1d1d1f;
+    font-weight: 500;
+}
+
+.widget-list-item-value {
+    color: #000000e6;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.actions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.action-card {
+    align-items: center;
+    background-color: transparent;
+    border: 1px solid #00000020;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    justify-content: flex-start;
+    padding: 0 16px;
+    transition: background-color 0.2s ease;
+}
+
+.action-card:hover {
+    background-color: #f5f5fa;
+}
+
+.action-card-icon {
+    font-size: 24px;
+    margin-bottom: 0;
+    margin-right: 12px;
+}
+
+.action-card-label {
+    color: #1d1d1f;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .section-everything {
+        gap: 14px;
+        padding: 14px;
+    }
+
+    .everything-grid-container {
+        gap: 14px;
+    }
+
+    .widgets-row {
+        gap: 14px;
+        grid-template-columns: 1fr;
+    }
+
+    .widget-clock {
+        margin-bottom: 4px;
+        min-height: 200px;
+    }
+
+    .clock-time {
+        font-size: 3rem;
+    }
+
+    .clock-date {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-everything {
+        gap: 12px;
+        padding: 12px;
+    }
+
+    .everything-grid-container {
+        gap: 12px;
+    }
+
+    .widgets-row {
+        gap: 12px;
+    }
+
+    .widget {
+        padding: 14px;
+    }
+
+    .widget-clock {
+        min-height: 180px;
+    }
+
+    .clock-time {
+        font-size: 2.5rem;
+    }
+}
